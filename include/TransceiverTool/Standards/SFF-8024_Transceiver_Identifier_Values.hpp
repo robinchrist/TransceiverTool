@@ -93,4 +93,6 @@ namespace TransceiverTool::Standards::SFF8024 {
         {TransceiverReference::CDFP_x16_PCIe_SFF_TA_1032_with_Common_Management_interface_Specification_CMIS, "CDFP (x16 PCIe) SFF-TA-1032 with Common Management interface Specification (CMIS)", 0x25},
     }};
 
+    std::string byteToTransceiverReferenceString(unsigned char byte);
+
 }
