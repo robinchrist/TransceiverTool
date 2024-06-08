@@ -136,17 +136,34 @@ namespace TransceiverTool::Standards::SFF8024 {
 
         return fmt::format("{} ({:#04x})", name, byte);
     }
+
+    std::string byteToExtendedComplianceCodeString(unsigned char byte) {
+        auto it = std::find_if(
+            ExtendedComplianceCodesAssignedValues.begin(),
+            ExtendedComplianceCodesAssignedValues.end(),
+            [byte](const ExtendedComplianceCodesAssignedValue& it_val) { return it_val.byte_value == byte; }
+        );
+
+        std::string name;
+        if(it != ExtendedComplianceCodesAssignedValues.end()) {
+            name = it->name;
+        } else {
+            name = "Reserved";
+        }
+
+        return fmt::format("{} ({:#04x})", name, byte);
+    }
 }
 int main() {
     
-    std::ifstream file("/data/dev/TransceiverTool_Go/mellanox_mcp1600_e003_config.bin", std::ios::in | std::ios::binary);
+    std::ifstream file("/data/dev/TransceiverTool_Go/TransceiverDatabase/FS/QSFP28-LR-100G/QSFP28-LR-100G_Mellanox.bin_2", std::ios::in | std::ios::binary);
     file.ignore( std::numeric_limits<std::streamsize>::max() );
     std::streamsize length = file.gcount();
     file.clear();   //  Since ignore will have set eof.
     file.seekg( 0, std::ios_base::beg );
 
-    if(length != 256) {
-        std::cerr << "Length is not 256, exiting... \n";
+    if(length < 256) {
+        std::cerr << "Length smaller than 256, exiting... \n";
         return -1;
     }
 
@@ -171,8 +188,18 @@ int main() {
     std::cout << "Verifying..." << std::endl;
 
     auto validationResult = TransceiverTool::Standards::SFF8636::Validation::validateSFF8636_Upper00h(parsedStruct);
-    std::cout << "Errors? " << validationResult.errors.empty() << std::endl;
-    std::cout << "Warnings? " << validationResult.warnings.empty() << std::endl;
+    std::cout << "Errors? " << !validationResult.errors.empty() << std::endl;
+    std::cout << "Warnings? " << !validationResult.warnings.empty() << std::endl;
+
+    std::cout << "Errors:" << std::endl;
+    for(const auto& error : validationResult.errors) {
+        std::cout << error << std::endl;
+    }
+
+    std::cout << "Warnings:" << std::endl;
+    for(const auto& warning : validationResult.warnings) {
+        std::cout << warning << std::endl;
+    }
 
     return 0;
 }

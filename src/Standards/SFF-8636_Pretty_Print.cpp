@@ -8,7 +8,7 @@
 
 std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SFF8636_Upper00h &programming, bool fiberMode, bool copperMode) {
 
-    std::string optionTitleFormatString = "{: <78s}: {:s}\n";
+    std::string optionTitleFormatString = "{: <85s}: {:s}\n";
     auto formatReservedBit = [](bool bit) -> std::string {
         if(bit) {
             return fmt::format("{}", fmt::styled("Reserved bit set", fmt::bg(fmt::color::red)));
@@ -292,7 +292,7 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
 
 
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "Signaling rate, nominal [140]", programming.byte_140_nominal_signaling_rate_in_100_mbaud != 0xFF ? fmt::format("{} MBd", programming.byte_140_nominal_signaling_rate_in_100_mbaud * 100) : "> 25.4GBd (See Byte 222)"
+        "Signaling rate, nominal [140]", programming.byte_140_nominal_signaling_rate_in_100_mbaud != 0xFF ? fmt::format("{} MBd", unsigned(programming.byte_140_nominal_signaling_rate_in_100_mbaud) * 100) : "> 25.4GBd (See Byte 222)"
     );
     str.append("\n");
 
@@ -394,11 +394,11 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
         //rtrim
         vendorName.erase(std::find_if(vendorName.rbegin(), vendorName.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorName.end());
 
-        fmt::format_to(std::back_inserter(str), "{: <78s}: {:?}\n", 
+        fmt::format_to(std::back_inserter(str), "{: <85s}: {:?}\n", 
             "Vendor Name (wrapping quotes added by TransceiverTool) [148-163]", vendorName
         );
     } else {
-        fmt::format_to(std::back_inserter(str), "{: <78s}:", 
+        fmt::format_to(std::back_inserter(str), "{: <85s}:", 
             "Vendor Name (contains unprintable characters, printed as hex bytes) [148-163]"
         );
 
@@ -461,11 +461,11 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
         //rtrim
         vendorPN.erase(std::find_if(vendorPN.rbegin(), vendorPN.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorPN.end());
 
-        fmt::format_to(std::back_inserter(str), "{: <78s}: {:?}\n", 
+        fmt::format_to(std::back_inserter(str), "{: <85s}: {:?}\n", 
             "Vendor PN (wrapping quotes added by TransceiverTool) [168-183]", vendorPN
         );
     } else {
-        fmt::format_to(std::back_inserter(str), "{: <78s}:", 
+        fmt::format_to(std::back_inserter(str), "{: <85s}:", 
             "Vendor PN (contains unprintable characters, printed as hex bytes) [168-183]"
         );
 
@@ -476,6 +476,346 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
     }
     str.append("\n");
 
+
+    bool vendorRevPrintable = std::all_of(programming.byte_184_185_vendor_rev.begin(), programming.byte_184_185_vendor_rev.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
+    if(vendorRevPrintable) {
+        std::string vendorRev = std::string(reinterpret_cast<char const *>(programming.byte_184_185_vendor_rev.data()), 2);
+        //rtrim
+        vendorRev.erase(std::find_if(vendorRev.rbegin(), vendorRev.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorRev.end());
+
+        fmt::format_to(std::back_inserter(str), "{: <85s}: {:?}\n", 
+            "Vendor Rev (wrapping quotes added by TransceiverTool) [184-185]", vendorRev
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), "{: <85s}:", 
+            "Vendor Rev (contains unprintable characters, printed as hex bytes) [184-185]"
+        );
+
+        for(int index = 0; index < programming.byte_184_185_vendor_rev.size(); ++index) {
+            fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_184_185_vendor_rev[index]);
+        }
+        str.append("\n");
+    }
+    str.append("\n");
+
+
+    if(fiberMode) {
+        static_assert(sizeof(unsigned int) >= 2);
+        unsigned int wavelengthRaw = 0;
+        wavelengthRaw |= (unsigned(programming.byte_186_wavelength_high_order_or_copper_attentuation) << 8);
+        wavelengthRaw |= (unsigned(programming.byte_187_wavelength_low_order_or_copper_attentuation) << 0);
+
+        double wavelength = double(wavelengthRaw) / 20.0;
+
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Wavelength [186-187]", fmt::format("{} nm", wavelength)
+        );
+    }
+    if(copperMode) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Copper Cable Attentuation @ 2.5GHz [186]", fmt::format("{} dB", programming.byte_186_wavelength_high_order_or_copper_attentuation)
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Copper Cable Attentuation @ 5.0GHz [187]", fmt::format("{} dB", programming.byte_187_wavelength_low_order_or_copper_attentuation)
+        );
+    }
+    if(fiberMode || copperMode) str.append("\n");
+
+    if(fiberMode) {
+        static_assert(sizeof(unsigned int) >= 2);
+        unsigned int wavelengthToleranceRaw = 0;
+        wavelengthToleranceRaw |= (unsigned(programming.byte_188_wavelength_tolerance_high_order_or_copper_attentuation) << 8);
+        wavelengthToleranceRaw |= (unsigned(programming.byte_189_wavelength_tolerance_low_order_or_copper_attentuation) << 0);
+
+        double wavelength = double(wavelengthToleranceRaw) / 200.0;
+
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Wavelength Tolerance [188-189]", fmt::format("{} nm", wavelength)
+        );
+    }
+    if(copperMode) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Copper Cable Attentuation @ 7.0GHz [188]", fmt::format("{} dB", programming.byte_188_wavelength_tolerance_high_order_or_copper_attentuation)
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Copper Cable Attentuation @ 12.9GHz [189]", fmt::format("{} dB", programming.byte_189_wavelength_tolerance_low_order_or_copper_attentuation)
+        );
+    }
+    if(fiberMode || copperMode) str.append("\n");
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Max case temperature [190]", fmt::format("{} deg C", programming.byte_190_max_case_temperature == 0 ? 70 : programming.byte_190_max_case_temperature)
+    );
+    str.append("\n");
+
+    //FIXME: indicate whether checksum is correct or not
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "CC_BASE checksum [191]", fmt::format("{:#04x}", programming.byte_191_CC_BASE)
+    );
+    str.append("\n");
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Extended Specification Compliance [192]", SFF8024::byteToExtendedComplianceCodeString(programming.byte_192_extended_specification_compliance_codes)
+    );
+    str.append("\n");
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [193, 7]", formatReservedBit(programming.byte_193_option_values.reserved_bit_7)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [193, 6]", programming.byte_193_option_values.lpmode_txdis_input_configurable_bit_6 ? "LPMode/TxDis input signal is configurable" : "LPMode/TxDis input signal NOT configurable"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [193, 5]", programming.byte_193_option_values.intl_rxlosl_output_configurable_bit_5 ? "IntL/RxLOSL output signal is configurable" : "IntL/RxLOSL output signal NOT configurable"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [193, 4]", programming.byte_193_option_values.tx_input_adaptive_equalizers_freeze_capable_bit_4 ? "Tx input adaptive equalizers freeze capable" : "Tx input adaptive equalizers NOT freeze capable"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [193, 3]", programming.byte_193_option_values.tx_input_equalizers_auto_adaptive_capable_bit_3 ? "Tx input equalizers auto-adaptive capable" : "Tx input equalizers NOT auto-adaptive capable"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [193, 2]", programming.byte_193_option_values.tx_input_equalizers_fixed_programmable_settings_bit_2 ? "Tx input equalizers fixed-programmable settings implemented" : "Tx input equalizers fixed-programmable settings NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [193, 1]", programming.byte_193_option_values.rx_output_emphasis_fixed_programmable_settings_bit_1 ? "Rx output emphasis fixed-programmable settings implemented" : "Rx output emphasis fixed-programmable settings NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [193, 0]", programming.byte_193_option_values.rx_output_amplitude_fixed_programmable_settings_bit_0 ? "Rx output amplitude fixed-programmable settings implemented" : "Rx output amplitude fixed-programmable settings NOT implemented"
+    );
+    str.append("\n");
+
+
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [194, 7]", programming.byte_194_option_values.tx_cdr_on_off_control_implemented_bit_7 ? "Tx CDR On/Off Control implemented" : "Tx CDR On/Off Control NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [194, 6]", programming.byte_194_option_values.rx_cdr_on_off_control_implemented_bit_6 ? "Rx CDR On/Off Control implemented" : "Rx CDR On/Off Control NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [194, 5]", programming.byte_194_option_values.tx_cdr_loss_of_lock_lol_flag_implemented_bit_5 ? "Tx CDR Loss of Lock (LOL) flag implemented" : "Tx CDR Loss of Lock (LOL) flag NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [194, 4]", programming.byte_194_option_values.rx_cdr_loss_of_lock_lol_flag_implemented_bit_4 ? "Rx CDR Loss of Lock (LOL) flag implemented" : "Rx CDR Loss of Lock (LOL) flag NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [194, 3]", programming.byte_194_option_values.rx_squelch_disable_implemented_bit_3 ? "Rx Squelch Disable implemented" : "Rx Squelch Disable NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [194, 2]", programming.byte_194_option_values.rx_output_disable_implemented_bit_2 ? "Rx Output Disable implemented" : "Rx Output Disable NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [194, 1]", programming.byte_194_option_values.tx_squelch_disable_implemented_bit_1 ? "Tx Squelch Disable implemented" : "Tx Squelch Disable NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [194, 0]", programming.byte_194_option_values.tx_squelch_implemented_bit_0 ? "Tx Squelch implemented" : "Tx Squelch NOT implemented"
+    );
+    str.append("\n");
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [195, 7]", programming.byte_195_option_values.memory_page_02_provided_bit_7 ? "Memory Page 02h provided" : "Memory Page 02h NOT provided"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [195, 6]", programming.byte_195_option_values.memory_page_01h_provided_bit_6 ? "Memory Page 01h provided" : "Memory Page 01h NOT provided"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [195, 5]", programming.byte_195_option_values.rate_select_implemented_bit_5 ? "Rate select is implemented as defined in 6.2.7" : "Rate select NOT implemented as defined in 6.2.7"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [195, 4]", programming.byte_195_option_values.tx_disable_implemented_bit_4 ? "Tx_Disable is implemented" : "Tx_Disable is NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [195, 3]", programming.byte_195_option_values.tx_fault_signal_implemented_bit_3 ? "Tx_Fault signal implemented" : "Tx_Fault signal NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [195, 2]", programming.byte_195_option_values.tx_squelch_implemented_to_reduce_pave_bit_2 ? "Tx Squelch implemented to reduce Pave" : "Tx Squelch implemented to reduce OMA"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [195, 1]", programming.byte_195_option_values.tx_loss_of_signal_implemented_bit_1 ? "Tx Loss of Signal implemented" : "Tx Loss of Signal NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Options [195, 0]", programming.byte_195_option_values.pages_20_to_21h_implemented_bit_0 ? "Pages 20-21h implemented" : "Pages 20-21h NOT implemented"
+    );
+    str.append("\n");
+
+
+
+    bool vendorSerialNumberPrintable = std::all_of(programming.byte_196_211_vendor_sn.begin(), programming.byte_196_211_vendor_sn.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
+    if(vendorSerialNumberPrintable) {
+        std::string vendorSerialNumber = std::string(reinterpret_cast<char const *>(programming.byte_196_211_vendor_sn.data()), 16);
+        //rtrim
+        vendorSerialNumber.erase(std::find_if(vendorSerialNumber.rbegin(), vendorSerialNumber.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorSerialNumber.end());
+
+        fmt::format_to(std::back_inserter(str), "{: <85s}: {:?}\n", 
+            "Vendor S/N (wrapping quotes added by TransceiverTool) [196-211]", vendorSerialNumber
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), "{: <85s}:", 
+            "Vendor S/N (contains unprintable characters, printed as hex bytes) [196-211]"
+        );
+
+        for(int index = 0; index < programming.byte_196_211_vendor_sn.size(); ++index) {
+            fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_196_211_vendor_sn[index]);
+        }
+        str.append("\n");
+    }
+    str.append("\n");
+
+
+    bool dateCodeYearPrintable = std::all_of(programming.byte_212_219_date_code.year_low_order_digits.begin(), programming.byte_212_219_date_code.year_low_order_digits.end(), [](char c) {return !(c <= 0x2F || c >= 0x3A); });
+    if(dateCodeYearPrintable) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Date Code, low order digits of year [212-213]", std::string(reinterpret_cast<char const *>(programming.byte_212_219_date_code.year_low_order_digits.data()), 2)
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), "{: <85s}:", 
+            "Date Code, low order digits of year (invalid format, printed as hex bytes) [212-213]"
+        );
+
+        for(int index = 0; index < programming.byte_212_219_date_code.year_low_order_digits.size(); ++index) {
+            fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_212_219_date_code.year_low_order_digits[index]);
+        }
+        str.append("\n");
+    }
+
+    bool dateCodeMonthPrintable = std::all_of(programming.byte_212_219_date_code.month_digits.begin(), programming.byte_212_219_date_code.month_digits.end(), [](char c) {return !(c <= 0x2F || c >= 0x3A); });
+    if(dateCodeMonthPrintable) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Date Code, digits of month [214-215]", std::string(reinterpret_cast<char const *>(programming.byte_212_219_date_code.month_digits.data()), 2)
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), "{: <85s}:", 
+            "Date Code, digits of month (invalid format, printed as hex bytes) [214-215]"
+        );
+
+        for(int index = 0; index < programming.byte_212_219_date_code.month_digits.size(); ++index) {
+            fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_212_219_date_code.month_digits[index]);
+        }
+        str.append("\n");
+    }
+
+    bool dateCodeDayPrintable = std::all_of(programming.byte_212_219_date_code.day_digits.begin(), programming.byte_212_219_date_code.day_digits.end(), [](char c) {return !(c <= 0x2F || c >= 0x3A); });
+    if(dateCodeDayPrintable) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Date Code, digits of day [216-217]", std::string(reinterpret_cast<char const *>(programming.byte_212_219_date_code.day_digits.data()), 2)
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), "{: <85s}:", 
+            "Date Code, digits of day (invalid format, printed as hex bytes) [216-217]"
+        );
+
+        for(int index = 0; index < programming.byte_212_219_date_code.day_digits.size(); ++index) {
+            fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_212_219_date_code.day_digits[index]);
+        }
+        str.append("\n");
+    }
+
+    bool lotCodePrintable = std::all_of(programming.byte_212_219_date_code.lot_code.begin(), programming.byte_212_219_date_code.lot_code.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
+    if(dateCodeDayPrintable) {
+        fmt::format_to(std::back_inserter(str), "{: <85s}: {:?}\n", 
+            "Date Code, lot code (wrapping quotes added by TransceiverTool) [218-219]", std::string(reinterpret_cast<char const *>(programming.byte_212_219_date_code.lot_code.data()), 2)
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), "{: <85s}:", 
+            "Date Code, lot code (invalid format, printed as hex bytes) [218-219]"
+        );
+
+        for(int index = 0; index < programming.byte_212_219_date_code.lot_code.size(); ++index) {
+            fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_212_219_date_code.lot_code[index]);
+        }
+        str.append("\n");
+    }
+    str.append("\n");
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Diagnostic Monitoring Type [220, 7]", formatReservedBit(programming.byte_220_diagnostic_monitoring_type.reserved_bit_7)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Diagnostic Monitoring Type [220, 6]", formatReservedBit(programming.byte_220_diagnostic_monitoring_type.reserved_bit_6)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Diagnostic Monitoring Type [220, 5]", programming.byte_220_diagnostic_monitoring_type.temperature_monitoring_implemented_bit_5 ? "Temperature monitoring implemented" : "Temperature monitoring NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Diagnostic Monitoring Type [220, 4]", programming.byte_220_diagnostic_monitoring_type.supply_voltage_monitoring_implemented_bit_4 ? "Supply voltage monitoring implemented" : "Supply voltage monitoring NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Diagnostic Monitoring Type [220, 3]", programming.byte_220_diagnostic_monitoring_type.received_power_measurement_is_average_bit_3 ? "Received power measurements type = Average" : "Received power measurements type = OMA"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Diagnostic Monitoring Type [220, 2]", programming.byte_220_diagnostic_monitoring_type.transmitter_power_measurement_supported_bit_2 ? "Transmitter power measurement supported" : "Transmitter power measurement NOT supported"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Diagnostic Monitoring Type [220, 1]", formatReservedBit(programming.byte_220_diagnostic_monitoring_type.reserved_bit_1)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Diagnostic Monitoring Type [220, 0]", formatReservedBit(programming.byte_220_diagnostic_monitoring_type.reserved_bit_0)
+    );
+    str.append("\n");
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Enhanced Options [221, 7]", formatReservedBit(programming.byte_221_enhanced_options.reserved_bit_7)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Enhanced Options [221, 6]", formatReservedBit(programming.byte_221_enhanced_options.reserved_bit_6)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Enhanced Options [221, 5]", formatReservedBit(programming.byte_221_enhanced_options.reserved_bit_5)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Enhanced Options [221, 4]", programming.byte_221_enhanced_options.initialization_complete_flag_implemented_bit_4 ? "Initialization Complete Flag implemented" : "Initialization Complete Flag NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Enhanced Options [221, 3]", programming.byte_221_enhanced_options.rate_selection_is_implemented_using_extended_rate_selection_bit_3 ? "Rate selection is implemented using extended rate selection" : "Rate selection is NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Enhanced Options [221, 2]", formatReservedBit(programming.byte_221_enhanced_options.reserved_bit_2)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Enhanced Options [221, 1]", programming.byte_221_enhanced_options.readiness_flag_implemented_bit_1 ? "TC readiness flag implemented" : "TC readiness flag NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Enhanced Options [221, 0]", programming.byte_221_enhanced_options.software_reset_implemented_bit_0 ? "Software reset is implemented" : "Software reset is NOT implemented"
+    );
+    str.append("\n");
+    
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Baud Rate, nominal [222]", fmt::format("{} MBd", unsigned(programming.byte_222_extended_baud_rate_in_250_mbaud) * 250)
+    );
+    str.append("\n");
+
+
+    //FIXME: indicate whether checksum is correct or not
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "CC_EXT checksum [223]", fmt::format("{:#04x}", programming.byte_223_CC_EXT)
+    );
+    str.append("\n");
+
+
+    bool vendorExtensionPrintable = std::all_of(programming.byte_224_255_vendor_specific.begin(), programming.byte_224_255_vendor_specific.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
+    if(vendorExtensionPrintable) {
+        fmt::format_to(std::back_inserter(str), "{: <85s}: {:?}\n", 
+            "Vendor Specific (wrapping quotes added by TransceiverTool) [224-255]", std::string(reinterpret_cast<char const *>(programming.byte_224_255_vendor_specific.data()), 32)
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), "{: <85s}:", 
+            "Vendor Specific (nonprintable, printed as hex bytes) [224-255]"
+        );
+
+        for(int index = 0; index < programming.byte_224_255_vendor_specific.size(); ++index) {
+            fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_224_255_vendor_specific[index]);
+        }
+        str.append("\n");
+    }
+    str.append("\n");
 
     return str;
 
