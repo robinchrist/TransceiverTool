@@ -80,7 +80,7 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         //Byte 144: Length (OM2 50 um)
         //Link length supported at the signaling rate in byte 140 or page 00h byte 222, for 50/125 um fiber (OM2), units of 1 m
-        unsigned char byte_144_length_om4_in_m;
+        unsigned char byte_144_length_om2_in_m;
 
         //Byte 145: Length (OM1 62.5 um) or Copper Cable Attenuation
         //Link length supported at the signaling rate in byte 140 or page 00h byte 222, for 62.5/125 um fiber (OM1), units of 1 m, 

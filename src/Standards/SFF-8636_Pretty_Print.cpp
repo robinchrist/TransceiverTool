@@ -1,12 +1,13 @@
 #include "TransceiverTool/Standards/SFF-8636_Pretty_Print.hpp"
 #include "fmt/format.h"
 #include "fmt/color.h"
+#include <algorithm>
 #include <iterator>
 
 
 std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SFF8636_Upper00h &programming, bool fiberMode, bool copperMode) {
 
-    std::string optionTitleFormatString = "{: <74s}: {:s}\n";
+    std::string optionTitleFormatString = "{: <78s}: {:s}\n";
     auto formatReservedBit = [](bool bit) -> std::string {
         if(bit) {
             return fmt::format("{}", fmt::styled("Reserved bit set", fmt::bg(fmt::color::red)));
@@ -294,6 +295,145 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
     );
     str.append("\n");
 
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Extended Rate Select Compliance [141, 7]", formatReservedBit(programming.byte_141_extended_rate_select_compliance.reserved_bit_7)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Extended Rate Select Compliance [141, 6]", formatReservedBit(programming.byte_141_extended_rate_select_compliance.reserved_bit_6)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Extended Rate Select Compliance [141, 5]", formatReservedBit(programming.byte_141_extended_rate_select_compliance.reserved_bit_5)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Extended Rate Select Compliance [141, 4]", formatReservedBit(programming.byte_141_extended_rate_select_compliance.reserved_bit_4)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Extended Rate Select Compliance [141, 3]", formatReservedBit(programming.byte_141_extended_rate_select_compliance.reserved_bit_3)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Extended Rate Select Compliance [141, 2]", formatReservedBit(programming.byte_141_extended_rate_select_compliance.reserved_bit_2)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Extended Rate Select Compliance [141, 1-0]", getSFF8636_Extended_Rate_Select_Compliance_Bit_1_0Info(programming.byte_141_extended_rate_select_compliance.rate_select_bits_1_0).description
+    );
+    str.append("\n");
+    
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Length (SMF) [142]", programming.byte_142_length_smf_in_kilometers > 1 ? fmt::format("{} km", programming.byte_142_length_smf_in_kilometers) : (programming.byte_142_length_smf_in_kilometers == 1 ? "0 - 1 km" : "Not Applicable (e.g. AOC) / SM fiber not supported / must be determined from the free side device")
+    );
+    str.append("\n");
+
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Length (OM3 50 um) [143]", programming.byte_143_length_om3_in_2m > 1 ? fmt::format("{} m", programming.byte_143_length_om3_in_2m * 2) : "Not Applicable (e.g. AOC) / OM3 fiber type not supported / must be determined from the free side device"
+    );
+    str.append("\n");
+
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Length (OM2 50 um) [144]", programming.byte_144_length_om2_in_m > 1 ? fmt::format("{} m", programming.byte_144_length_om2_in_m) : "Not Applicable (e.g. AOC) / OM2 fiber type not supported / must be determined from the free side device"
+    );
+    str.append("\n");
+
+
+
+    if(fiberMode) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Length (OM1 62.5 um) [145]", programming.byte_145_length_om1_in_1m_or_copper_cable_attentuation_in_dB > 1 ? fmt::format("{} m", programming.byte_145_length_om1_in_1m_or_copper_cable_attentuation_in_dB) : "Not Applicable (e.g. AOC) / OM1 fiber type not supported / must be determined from the free side device"
+        );
+    }
+    if(copperMode) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Copper Cable Attenuation @ 25.78GHz [145]", programming.byte_145_length_om1_in_1m_or_copper_cable_attentuation_in_dB > 1 ? fmt::format("{} dB", programming.byte_145_length_om1_in_1m_or_copper_cable_attentuation_in_dB) : "Not Applicable (e.g. AOC) / Not known"
+        );
+    }
+    if(fiberMode || copperMode) str.append("\n");
+
+
+
+    if(copperMode) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Length (passive copper or active cable) [146]", programming.byte_146_length_copper_in_1m_or_om4_in_2m == 0xFF ? " > 254 m" : (programming.byte_146_length_copper_in_1m_or_om4_in_2m > 1 ? fmt::format("{} m", programming.byte_146_length_copper_in_1m_or_om4_in_2m) : "Not Applicable (Not a cable assembly) / must be determined from separable free side device")
+        );
+    }
+    if(fiberMode) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Length (OM4 50 um) [146]", programming.byte_146_length_copper_in_1m_or_om4_in_2m == 0xFF ? " > 508 m" : (programming.byte_146_length_copper_in_1m_or_om4_in_2m > 1 ? fmt::format("{} m", programming.byte_146_length_copper_in_1m_or_om4_in_2m * 2) : "Not Applicable (e.g. AOC) / OM4 fiber type not supported / must be determined from the free side device")
+        );
+    }
+    if(fiberMode || copperMode) str.append("\n");
+
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Device & Transmitter technology [147, 7-4]", getSFF8636_Transmitter_Technology_bit_7_4Info(programming.byte_147_device_technology_and_transmitter_technology.transmitter_Technology_bit_7_4).description
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Device & Transmitter technology [147, 3]", programming.byte_147_device_technology_and_transmitter_technology.wavelength_control_bit_3 ? "Active wavelength control" : "No wavelength control"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Device & Transmitter technology [147, 2]", programming.byte_147_device_technology_and_transmitter_technology.cooled_transmitter_bit_2 ? "Cooled transmitter device" : "Unooled transmitter"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Device & Transmitter technology [147, 1]", programming.byte_147_device_technology_and_transmitter_technology.pin_apd_detector_bit_1 ? "APD detector" : "Pin detector"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Device & Transmitter technology [147, 0]", programming.byte_147_device_technology_and_transmitter_technology.transmitter_tunable_bit_0 ? "Transmitter tunable" : "Transmitter not tunable"
+    );
+    str.append("\n");
+
+
+    bool vendorNamePrintable = std::all_of(programming.byte_148_163_vendor_name.begin(), programming.byte_148_163_vendor_name.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
+    if(!vendorNamePrintable) {
+        std::string vendorName = std::string(reinterpret_cast<char const *>(programming.byte_148_163_vendor_name.data()), 16);
+        //rtrim
+        vendorName.erase(std::find_if(vendorName.rbegin(), vendorName.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorName.end());
+
+        fmt::format_to(std::back_inserter(str), "{: <78s}: {:?}\n", 
+            "Vendor Name (wrapping quotes added by TransceiverTool) [148-163]", vendorName
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), "{: <78s}:", 
+            "Vendor Name (contains unprintable characters, printed as hex bytes) [148-163]"
+        );
+
+        for(int index = 0; index < programming.byte_148_163_vendor_name.size(); ++index) {
+            fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_148_163_vendor_name[index]);
+        }
+        str.append("\n");
+    }
+    str.append("\n");
+    
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Extended Module Codes [164, 7]", formatReservedBit(programming.byte_164_extended_module_codes.reserved_bit_7)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Extended Module Codes [164, 6]", formatReservedBit(programming.byte_164_extended_module_codes.reserved_bit_6)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Extended Module Codes [164, 5]", programming.byte_164_extended_module_codes.HDR_bit_5 ? "Supports HDR (200G) Infiniband" : "No support for HDR (200G) Infiniband"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Extended Module Codes [164, 4]", programming.byte_164_extended_module_codes.EDR_bit_4 ? "Supports EDR (100G) Infiniband" : "No support for EDR (100G) Infiniband"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Extended Module Codes [164, 3]", programming.byte_164_extended_module_codes.FDR_bit_3 ? "Supports FDR (56G) Infiniband" : "No support for FDR (56G) Infiniband"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Extended Module Codes [164, 2]", programming.byte_164_extended_module_codes.QDR_bit_2 ? "Supports QDR (40G) Infiniband" : "No support for QDR (40G) Infiniband"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Extended Module Codes [164, 1]", programming.byte_164_extended_module_codes.DDR_bit_1 ? "Supports DDR (20G) Infiniband" : "No support for DDR (20G) Infiniband"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Extended Module Codes [164, 0]", programming.byte_164_extended_module_codes.SDR_bit_0 ? "Supports SDR (10G) Infiniband" : "No support for SDR (10G) Infiniband"
+    );
 
     return str;
 

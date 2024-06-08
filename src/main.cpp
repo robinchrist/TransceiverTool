@@ -139,7 +139,7 @@ namespace TransceiverTool::Standards::SFF8024 {
 }
 int main() {
     
-    std::ifstream file("/data/dev/TransceiverTool_Go/fs_dac_untouched_config.bin", std::ios::in | std::ios::binary);
+    std::ifstream file("/data/dev/TransceiverTool_Go/mellanox_mcp1600_e003_config.bin", std::ios::in | std::ios::binary);
     file.ignore( std::numeric_limits<std::streamsize>::max() );
     std::streamsize length = file.gcount();
     file.clear();   //  Since ignore will have set eof.
