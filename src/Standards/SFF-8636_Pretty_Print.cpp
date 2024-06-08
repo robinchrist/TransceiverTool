@@ -3,6 +3,7 @@
 #include "fmt/color.h"
 #include <algorithm>
 #include <iterator>
+#include "TransceiverTool/Vendor_OUIs.hpp"
 
 
 std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SFF8636_Upper00h &programming, bool fiberMode, bool copperMode) {
@@ -388,7 +389,7 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
 
 
     bool vendorNamePrintable = std::all_of(programming.byte_148_163_vendor_name.begin(), programming.byte_148_163_vendor_name.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
-    if(!vendorNamePrintable) {
+    if(vendorNamePrintable) {
         std::string vendorName = std::string(reinterpret_cast<char const *>(programming.byte_148_163_vendor_name.data()), 16);
         //rtrim
         vendorName.erase(std::find_if(vendorName.rbegin(), vendorName.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorName.end());
@@ -434,6 +435,47 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
         "Extended Module Codes [164, 0]", programming.byte_164_extended_module_codes.SDR_bit_0 ? "Supports SDR (10G) Infiniband" : "No support for SDR (10G) Infiniband"
     );
+    str.append("\n");
+
+
+
+
+    auto VendorOUIsIt = std::find_if(TransceiverTool::VendorOUIs.begin(), TransceiverTool::VendorOUIs.end(), [seek = programming.byte_165_167_vendor_oui](const VendorOUI elem) { return elem.byte_value == seek; });
+    std::string VendorOUIStr;
+    if(VendorOUIsIt != TransceiverTool::VendorOUIs.end()) {
+        VendorOUIStr = fmt::format("Vendor name is {:?}", VendorOUIsIt->name);
+    } else {
+        VendorOUIStr = "Vendor name is unknown";
+    }
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Vendor OUI [165-167]", fmt::format("{:02x}:{:02x}:{:02x} ({})", programming.byte_165_167_vendor_oui[0], programming.byte_165_167_vendor_oui[1], programming.byte_165_167_vendor_oui[2], VendorOUIStr)
+    );
+    str.append("\n");
+
+
+
+
+    bool vendorPNPrintable = std::all_of(programming.byte_168_183_vendor_pn.begin(), programming.byte_168_183_vendor_pn.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
+    if(vendorPNPrintable) {
+        std::string vendorPN = std::string(reinterpret_cast<char const *>(programming.byte_168_183_vendor_pn.data()), 16);
+        //rtrim
+        vendorPN.erase(std::find_if(vendorPN.rbegin(), vendorPN.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorPN.end());
+
+        fmt::format_to(std::back_inserter(str), "{: <78s}: {:?}\n", 
+            "Vendor PN (wrapping quotes added by TransceiverTool) [168-183]", vendorPN
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), "{: <78s}:", 
+            "Vendor PN (contains unprintable characters, printed as hex bytes) [168-183]"
+        );
+
+        for(int index = 0; index < programming.byte_168_183_vendor_pn.size(); ++index) {
+            fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_168_183_vendor_pn[index]);
+        }
+        str.append("\n");
+    }
+    str.append("\n");
+
 
     return str;
 
