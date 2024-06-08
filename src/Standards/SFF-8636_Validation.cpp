@@ -349,6 +349,20 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
                 );
             }
         }
+
+        bool vendorLotCodeAllZeros = std::all_of(programming.byte_212_219_date_code.lot_code.begin(), programming.byte_212_219_date_code.lot_code.end(), [](unsigned char val) { return val == 0; });
+        if(!vendorLotCodeAllZeros) {
+            for(int index = 0; index < programming.byte_212_219_date_code.lot_code.size(); ++index) {
+                if(programming.byte_212_219_date_code.lot_code[index] <= 0x19 || programming.byte_212_219_date_code.lot_code[index] >= 0x7F) {
+                    validationResult.errors.push_back(
+                        fmt::format(
+                            "Byte {} (\"Vendor Lot Code\", Position {}) is an unprintable ASCII character (Byte Value {:#04x})",
+                            218 + index, index, programming.byte_212_219_date_code.lot_code[index]
+                        )
+                    );
+                }
+            }
+        }
     }
 
     void validateDiagnosticMonitoringType(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
