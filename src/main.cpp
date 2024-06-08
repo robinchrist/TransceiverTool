@@ -1,4 +1,5 @@
 #include <cstddef>
+#include <exception>
 #include <variant>
 #include <string>
 #include <array>
@@ -11,10 +12,14 @@
 #include "TransceiverTool/Standards/SFF-8024_Transceiver_Connector_Type.hpp"
 #include "TransceiverTool/Standards/SFF-8636_Compliance_Codes.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Encoding_Values.hpp"
-#include "TransceiverTool/Standards/SFF-8636-Extended_Rate_Select_Compliance.hpp"
+#include "TransceiverTool/Standards/SFF-8636_Extended_Rate_Select_Compliance.hpp"
 #include "TransceiverTool/Standards/SFF-8636_Device_And_Transmitter_Technology.hpp"
 #include "TransceiverTool/Standards/SFF-8636_Extended_Module_Codes.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Extended_Compliance_Codes.hpp"
+#include "TransceiverTool/Standards/SFF-8636_Option_Values.hpp"
+#include "TransceiverTool/Standards/SFF-8636_Date_Code.hpp"
+#include "TransceiverTool/Standards/SFF-8636_Diagnostic_Monitoring_Type.hpp"
+#include "TransceiverTool/Standards/SFF-8636_Enhanced_Options.hpp"
 
 namespace TransceiverTool::Standards::SFF8636 {
     const Extended_Identifier_Bit_7_6_string& getSFF8636_Extended_Identifier_Bit_7_6Info(Extended_Identifier_Bit_7_6 enum_value) {
@@ -120,56 +125,87 @@ struct SFF8636_Upper00h {
     //for OM4 50/125 um fiber (units of 2 m) as indicated by Byte 147. See 6.3.12
     unsigned char byte_146_length_copper_in_1m_or_om4_in_2m;
 
-    //Device technology
+    //Byte 147: Device technology
     //Device technology (Table 6-19 and Table 6-20).
     TransceiverTool::Standards::SFF8636::Device_Technology_and_Transmitter_Technology byte_147_device_technology_and_transmitter_technology;
 
-    //Vendor name
+    //Byte 148-163: Vendor name
     //Free side device vendor name (ASCII)
     std::array<unsigned char, 16> byte_148_163_vendor_name;
 
-    //Extended Module
+    //Byte 164: Extended Module
     //Extended Module codes for InfiniBand (See Table 6-21)
     TransceiverTool::Standards::SFF8636::Extended_Module_Codes byte_164_extended_module_codes;
 
-    //Vendor OUI
+    //Byte 165-167: Vendor OUI
     //Free side device vendor IEEE company ID
     std::array<unsigned char, 3> byte_165_167_vendor_oui;
 
-    //Vendor PN
+    //Byte 168-183: Vendor PN
     //Part number provided by free side device vendor(ASCII)
     std::array<unsigned char, 16> byte_168_183_vendor_pn;
 
-    //Vendor rev
+    //Byte 184-185: Vendor rev
     //Revision level for part number provided by the vendor(ASCII)
     std::array<unsigned char, 2> byte_184_185_vendor_rev;
 
-    //Wavelength or Copper Cable Attenuation
+    //Byte 186-187: Wavelength or Copper Cable Attenuation
     //Nominal laser wavelength (wavelength=value/20 in nm) or copper cable attenuation in dB at 2.5 GHz (Byte 186) and 5.0 GHz (Byte 187)
     unsigned char byte_186_wavelength_high_order_or_copper_attentuation;
     unsigned char byte_187_wavelength_low_order_or_copper_attentuation;
 
-    //Wavelength tolerance or Copper Cable Attenuation
+    //Byte 188-189: Wavelength tolerance or Copper Cable Attenuation
     //The range of laser wavelength (+/- value) from nominal wavelength. (wavelength Tol. =value/200 in nm)
     //or copper cable attenuation in dB at 7.0 GHz (Byte 188) and 12.9 GHz (Byte 189)
     unsigned char byte_188_wavelength_tolerance_high_order_or_copper_attentuation;
     unsigned char byte_189_wavelength_tolerance_low_order_or_copper_attentuation;
 
-    //Max case temp.
+    //Byte 190: Max case temp.
     //Maximum case temperature
     unsigned char byte_190_max_case_temperature;
 
-    //CC_BASE
+    //Byte 191: CC_BASE
     //Check code for base ID fields (Bytes 128-190)
     unsigned char byte_191_CC_BASE;
 
-    //Link codes
+    //Byte 192: Link codes
     //Extended Specification Compliance Codes (See SFF8024)
     unsigned char byte_192_extended_specification_compliance_codes;
+
+    //Byte 193-195: Options
+    //Optional features implemented. See Table 6-22.
+    TransceiverTool::Standards::SFF8636::Option_Values_Byte_193 byte_193_option_values;
+    TransceiverTool::Standards::SFF8636::Option_Values_Byte_194 byte_194_option_values;
+    TransceiverTool::Standards::SFF8636::Option_Values_Byte_195 byte_195_option_values;
+
+    //Byte 196-211: Vendor SN
+    //Serial number provided by vendor (ASCII)
+    std::array<unsigned char, 16> byte_196_211_vendor_sn;
+
+    //Byte 212-219: Date Code
+    //Vendor's manufacturing date code
+    TransceiverTool::Standards::SFF8636::DateCode byte_212_219_date_code;
+
+    //Byte 220: Diagnostic Monitoring Type
+    //Indicates which type of diagnostic monitoring is implemented (if any) in the free side device.
+    //Bit 1,0 Reserved. See Table 6-24
+    TransceiverTool::Standards::SFF8636::Diagnostic_Monitoring_Type byte_220_diagnostic_monitoring_type;
+
+    //Byte 221: Enhanced Options
+    //Indicates which optional enhanced features are implemented in the free side device. See Table 6-24
+    TransceiverTool::Standards::SFF8636::Enhanced_Options byte_221_enhanced_options;
 
     //Byte 222: Extended Baud Rate: Nominal
     //Nominal baud rate per channel, units of 250 MBd. Complements Byte 140. See Table 6-26.
     unsigned char byte_222_extended_baud_rate_in_250_mbaud;
+
+    //Byte 223: CC_EXT
+    //Check code for the Extended ID Fields (Bytes 192-222)
+    unsigned char byte_223_CC_EXT;
+
+    //Byte 224-255: Vendor Specific
+    //Vendor Specific EEPROM
+    std::array<unsigned char, 32> byte_224_255_vendor_specific;
 };
 
 struct ValidationResult {
@@ -408,8 +444,126 @@ ValidationResult validateSFF8636_Upper00h(const SFF8636_Upper00h& programming) {
         );
     }
 
+    //SFF-8636 Rev 2.11 Table 6-22 Option Values (Page 00h Bytes 193-195)
+    if(programming.byte_193_option_values.reserved_bit_7) {
+        errors.push_back(
+            fmt::format("Byte 193 (\"Option Values\") reserved bit 7 is set", programming.byte_192_extended_specification_compliance_codes)
+        );
+    }
     
-    
+    //SFF-8636 Rev 2.11 Section 6.3.25 Vendor Serial Number (00h 196-211)
+    bool vendorSNAllZeros = std::all_of(programming.byte_196_211_vendor_sn.begin(), programming.byte_196_211_vendor_sn.end(), [](unsigned char val) { return val == 0; });
+    if(!vendorSNAllZeros) {
+        for(int index = 0; index < programming.byte_196_211_vendor_sn.size(); ++index) {
+            if(programming.byte_196_211_vendor_sn[index] <= 0x19 || programming.byte_196_211_vendor_sn[index] >= 0x7F) {
+                errors.push_back(
+                    fmt::format(
+                        "Byte {} (\"Vendor SN\", Position {}) is an unprintable ASCII character (Byte Value {:#04x})",
+                        196 + index, index, programming.byte_196_211_vendor_sn[index]
+                    )
+                );
+            }
+        }
+    }
+    //TODO: Warn if Vendor SN field is not left aligned, padded with spaces (0x20)?
+
+
+    //SFF-8636 Rev 2.11 Date Code (00h 212-219)
+    if(
+        programming.byte_212_219_date_code.year_low_order_digits[0] <= 0x2F || programming.byte_212_219_date_code.year_low_order_digits[0] >= 0x3A ||
+        programming.byte_212_219_date_code.year_low_order_digits[1] <= 0x2F || programming.byte_212_219_date_code.year_low_order_digits[1] >= 0x3A
+    ) {
+        errors.push_back(
+            fmt::format(
+                "Byte 212 / 213 (\"Date Code\", low order digits of the year) is not a number"
+            )
+        );
+    }
+    //No need to parse: We checked that both characters are numbers [0-9] and all values are valid (year 2000 - 2099)
+
+    if(
+        programming.byte_212_219_date_code.month_digits[0] <= 0x2F || programming.byte_212_219_date_code.month_digits[0] >= 0x3A ||
+        programming.byte_212_219_date_code.month_digits[1] <= 0x2F || programming.byte_212_219_date_code.month_digits[1] >= 0x3A
+    ) {
+        errors.push_back(
+            fmt::format(
+                "Byte 213 / 214 (\"Date Code\", digits of the month) is not a number"
+            )
+        );
+    } else {
+        try {
+            int digits_of_month  = std::stoi(std::string(reinterpret_cast<char const *>(programming.byte_212_219_date_code.month_digits.data()), 2));
+            if(digits_of_month < 0 || digits_of_month > 12) {
+                errors.push_back(
+                    fmt::format(
+                        "Byte 213 / 214 (\"Date Code\", digits of the month) must be within [0;12] but is {}",
+                        digits_of_month
+                    )
+                );
+            }
+        } catch(const std::exception& e) {
+            errors.push_back(
+                fmt::format(
+                    "Byte 213 / 214 (\"Date Code\", digits of the month) is not a valid number (could not parse?)"
+                )
+            );
+        }
+    }
+
+    if(
+        programming.byte_212_219_date_code.day_digits[0] <= 0x2F || programming.byte_212_219_date_code.day_digits[0] >= 0x3A ||
+        programming.byte_212_219_date_code.day_digits[1] <= 0x2F || programming.byte_212_219_date_code.day_digits[1] >= 0x3A
+    ) {
+        errors.push_back(
+            fmt::format(
+                "Byte 215 / 216 (\"Date Code\", day of the month) is not a number"
+            )
+        );
+    } else {
+        try {
+            int digits_of_month  = std::stoi(std::string(reinterpret_cast<char const *>(programming.byte_212_219_date_code.day_digits.data()), 2));
+            if(digits_of_month < 0 || digits_of_month > 31) {
+                errors.push_back(
+                    fmt::format(
+                        "Byte 215 / 216 (\"Date Code\", day of the month) must be within [0;31] but is {}",
+                        digits_of_month
+                    )
+                );
+            }
+        } catch(const std::exception& e) {
+            errors.push_back(
+                fmt::format(
+                    "Byte 215 / 216 (\"Date Code\", day of the month) is not a valid number (could not parse?)"
+                )
+            );
+        }
+    }
+
+    //SFF-8636 Rev 2.11 Section 6.3.27 Diagnostic Monitoring Type (00h 220)
+    if(programming.byte_220_diagnostic_monitoring_type.reserved_bit_7 || programming.byte_220_diagnostic_monitoring_type.reserved_bit_6 ||
+        programming.byte_220_diagnostic_monitoring_type.reserved_bit_1 || programming.byte_220_diagnostic_monitoring_type.reserved_bit_0
+    ) {
+        errors.push_back(
+            fmt::format(
+                "Byte 220 (\"Diagnostic Monitoring Type\") value has at least one reserved bit set: Bit 7 {:d}, Bit 6 {:d}, Bit 1 {:d}, Bit 0 {:d}",
+                programming.byte_220_diagnostic_monitoring_type.reserved_bit_7, programming.byte_220_diagnostic_monitoring_type.reserved_bit_6,
+                programming.byte_220_diagnostic_monitoring_type.reserved_bit_1, programming.byte_220_diagnostic_monitoring_type.reserved_bit_0
+            )
+        );
+    }
+
+
+    if(programming.byte_221_enhanced_options.reserved_bit_7 || programming.byte_221_enhanced_options.reserved_bit_6 ||
+        programming.byte_221_enhanced_options.reserved_bit_5 || programming.byte_221_enhanced_options.reserved_bit_2
+    ) {
+        errors.push_back(
+            fmt::format(
+                "Byte 221 (\"Enhanced Options\") value has at least one reserved bit set: Bit 7 {:d}, Bit 6 {:d}, Bit 5 {:d}, Bit 2 {:d}",
+                programming.byte_221_enhanced_options.reserved_bit_7, programming.byte_221_enhanced_options.reserved_bit_6,
+                programming.byte_221_enhanced_options.reserved_bit_5, programming.byte_221_enhanced_options.reserved_bit_2
+            )
+        );
+    }
 
     //SFF-8636 Rev 2.11 Table 6-26 Extended Baud Rate: Nominal (Page 00h Byte 222)
     if(programming.byte_222_extended_baud_rate_in_250_mbaud != 0 && programming.byte_140_nominal_signaling_rate_in_100_mbaud != 0xFF) {
@@ -417,6 +571,8 @@ ValidationResult validateSFF8636_Upper00h(const SFF8636_Upper00h& programming) {
             fmt::format("Byte 222 (\"Extended Baud Rate: Nominal\") is nonzero, but byte 140 (\"Nominal Signaling Rate\") is not 0xFF")
         );
     }
+
+    //FIXME: Validate CC_EXT
 
     return ValidationResult {
         std::move(warnings),
