@@ -87,7 +87,7 @@ namespace TransceiverTool::Standards::SFF8024 {
     struct ExtendedComplianceCodesAssignedValue {
         ExtendedComplianceCodes enum_value;
         std::string name;
-        unsigned char value;
+        unsigned char byte_value;
     };
 
     //SFF-8024 Rev 4.11 Table 4-4 Extended Specification Compliance Codes
@@ -172,4 +172,6 @@ namespace TransceiverTool::Standards::SFF8024 {
         {ExtendedComplianceCodes::_128GFC_FC_PI_8 , "128GFC (FC-PI-8)", 0x81},
         //82h - FFh: Reserved
     }};
+
+    std::string byteToExtendedComplianceCodeString(unsigned char byte);
 }
