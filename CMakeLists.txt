@@ -20,8 +20,8 @@ add_subdirectory(src)
 
 # Other non-cpu-optimisation related global compile flags
 #cpu-optimisation flags will be in the next section
-target_compile_options(TransceiverTool PUBLIC "$<$<CONFIG:Debug>:-g3;-O0;-glldb>")
-target_compile_options(TransceiverTool PUBLIC "$<$<CONFIG:RelWithDebInfo>:-g3;-O3;-glldb>")
+target_compile_options(TransceiverTool PUBLIC "$<$<CONFIG:Debug>:-g3;-O0>")
+target_compile_options(TransceiverTool PUBLIC "$<$<CONFIG:RelWithDebInfo>:-g3;-O3>")
 target_compile_options(TransceiverTool PUBLIC "$<$<CONFIG:Release>:-O3>")
 
 
