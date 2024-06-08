@@ -1,4 +1,4 @@
-#include "TransceiverTool/Standards/SFF-8636_Upper00h.hpp"
+#include "TransceiverTool/Standards/SFF-8636_Parser.hpp"
 #include <cstring>
 
 namespace TransceiverTool::Standards::SFF8636 {
