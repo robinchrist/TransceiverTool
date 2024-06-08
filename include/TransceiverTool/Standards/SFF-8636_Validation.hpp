@@ -68,5 +68,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
     //SFF-8636 Rev 2.11 Table 6-26 Extended Baud Rate: Nominal (Page 00h Byte 222)
     void validateExtendedBaudRate(const SFF8636_Upper00h& programming, ValidationResult& validationResult);
 
+    void validateRateSelectionConsistency(const SFF8636_Upper00h& programming, ValidationResult& validationResult);
+
     ValidationResult validateSFF8636_Upper00h(const SFF8636_Upper00h& programming);
 }

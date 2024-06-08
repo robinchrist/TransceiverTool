@@ -1,4 +1,5 @@
 #include "TransceiverTool/Standards/SFF-8636_Validation.hpp"
+#include "TransceiverTool/Standards/SFF-8636_Extended_Rate_Select_Compliance.hpp"
 #include <fmt/core.h>
 #include <algorithm>
 
@@ -149,7 +150,6 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         if(programming.byte_141_extended_rate_select_compliance.reserved_bit_7 || programming.byte_141_extended_rate_select_compliance.reserved_bit_6 ||
             programming.byte_141_extended_rate_select_compliance.reserved_bit_5 || programming.byte_141_extended_rate_select_compliance.reserved_bit_4 ||
             programming.byte_141_extended_rate_select_compliance.reserved_bit_3 || programming.byte_141_extended_rate_select_compliance.reserved_bit_2 ||
-            programming.byte_141_extended_rate_select_compliance.rate_select_bits_1_0 == TransceiverTool::Standards::SFF8636::Extended_Rate_Select_Compliance_Bit_1_0::RESERVED_0b00 ||
             programming.byte_141_extended_rate_select_compliance.rate_select_bits_1_0 == TransceiverTool::Standards::SFF8636::Extended_Rate_Select_Compliance_Bit_1_0::RESERVED_0b11
         ) {
             validationResult.errors.push_back(
@@ -403,6 +403,51 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         }
     }
 
+    void validateRateSelectionConsistency(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+        //SFF-8636 Rev 2.11 Section 6.2.7
+        //The free side device shall implement one of two options:
+        //a) Provide no support for rate selection
+        //b) Rate selection using extended rate select
+
+        //6.2.7.1 No Rate Selection Support
+        //When no rate selection is supported, (Page 00h Byte 221 bits 2 and 3) have a value of 0 and Options (Page 00h Byte 195 bit 5) has a value of 0
+
+        //However, it is not specified what is supposed to happen with byte 141 Extended Rate Select Compliance
+        //We assume that the "Reserved" value 00b shall be used if there is no rate selection support
+
+        //6.2.7.2 Extended Rate Selection
+        //When Page 00h Byte 195 bit 5 is 1 and Rate Select declaration bits (Page 00h Byte 221 bits 2 and 3) have the
+        //values of 0 and 1 respectively and at least one of the bits in the Extended Rate Compliance byte (Page 00h Byte
+        //141) has a value of one, the free side device supports extended rate select.
+
+        bool noSupportForRateSelectionConsistent = 
+            programming.byte_141_extended_rate_select_compliance.rate_select_bits_1_0 == Extended_Rate_Select_Compliance_Bit_1_0::RESERVED_OR_NOT_IMPLEMENTED_0b00 &&
+            programming.byte_195_option_values.rate_select_implemented_bit_5 == false &&
+            programming.byte_221_enhanced_options.reserved_bit_2 == false &&
+            programming.byte_221_enhanced_options.rate_selection_is_implemented_using_extended_rate_selection_bit_3 == false;
+
+        bool supportForExtendedRateSelectionConsistent = 
+            programming.byte_141_extended_rate_select_compliance.rate_select_bits_1_0 != Extended_Rate_Select_Compliance_Bit_1_0::RESERVED_OR_NOT_IMPLEMENTED_0b00 &&
+            programming.byte_195_option_values.rate_select_implemented_bit_5 == true &&
+            programming.byte_221_enhanced_options.reserved_bit_2 == false &&
+            programming.byte_221_enhanced_options.rate_selection_is_implemented_using_extended_rate_selection_bit_3 == true;
+
+        if(!noSupportForRateSelectionConsistent && !supportForExtendedRateSelectionConsistent) {
+            validationResult.errors.push_back(
+                fmt::format(
+                    "No consistent options for rate selection support - No Support for rate selection requires byte 141, bits 1-0 = 0b00, byte 195 bit 5 = 0, byte 221 bit 2 = 0, byte 221 bit 3 = 0 - "
+                    "Rate selection using extended rate select requires byte 141, bits 1-0 != 0b00, byte 195 bit 5 = 1, byte 221 bit 2 = 0, byte 221 bit 3 = 1 - "
+                    "Actual Settings: Byte 141 bits 1-0: {:#04b}, byte 195 bit 5 = {:d}, byte 221 bit 2 = {:d}, byte 221 bit 3 = {:d}",
+                    getSFF8636_Extended_Rate_Select_Compliance_Bit_1_0Info(programming.byte_141_extended_rate_select_compliance.rate_select_bits_1_0).bitValue,
+                    programming.byte_195_option_values.rate_select_implemented_bit_5,
+                    programming.byte_221_enhanced_options.reserved_bit_2,
+                    programming.byte_221_enhanced_options.rate_selection_is_implemented_using_extended_rate_selection_bit_3
+                )
+            );
+        }
+
+    }
+
     //TODO: Introduce options to not warn on values in "Vendor Specific" ranges (in case this tool is used by actual vendor?)
     ValidationResult validateSFF8636_Upper00h(const TransceiverTool::Standards::SFF8636::SFF8636_Upper00h& programming) {
         ValidationResult validationResult;
@@ -467,6 +512,8 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         validateExtendedBaudRate(programming, validationResult);
 
         //FIXME: Validate CC_EXT
+
+        validateRateSelectionConsistency(programming, validationResult);
 
         return validationResult;
     }
