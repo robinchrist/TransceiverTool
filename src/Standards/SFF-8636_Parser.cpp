@@ -106,7 +106,7 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         parsedStruct.byte_143_length_om3_in_2m = bytes[143];
 
-        parsedStruct.byte_144_length_om4_in_m = bytes[144];
+        parsedStruct.byte_144_length_om2_in_m = bytes[144];
 
         parsedStruct.byte_145_length_om1_in_1m_or_copper_cable_attentuation_in_dB = bytes[145];
 
