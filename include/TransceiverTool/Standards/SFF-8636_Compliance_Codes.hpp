@@ -94,7 +94,7 @@ namespace TransceiverTool::Standards::SFF8636 {
         bool Single_Mode_SM_bit_0;
     };
 
-    //SFF-8636 Rev 2.11 Table 6-17 Specification Compliance Codes (Page 00h Bytes 131-138) byte 137
+    //SFF-8636 Rev 2.11 Table 6-17 Specification Compliance Codes (Page 00h Bytes 131-138) byte 138
     //Fibre Channel Speed
     struct Fibre_Channel_Speed {
         bool _1200_MBps_per_channel_bit_7;

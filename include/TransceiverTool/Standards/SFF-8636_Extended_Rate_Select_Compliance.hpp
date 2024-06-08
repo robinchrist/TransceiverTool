@@ -22,6 +22,7 @@ namespace TransceiverTool::Standards::SFF8636 {
         {Extended_Rate_Select_Compliance_Bit_1_0::RESERVED_0b11, "Reserved (11b)", 0b11},
     }};
     const Extended_Rate_Select_Compliance_Bit_1_0_string& getSFF8636_Extended_Rate_Select_Compliance_Bit_1_0Info(Extended_Rate_Select_Compliance_Bit_1_0 enum_value);
+    Extended_Rate_Select_Compliance_Bit_1_0 getSFF8636_Extended_Rate_Select_Compliance_Bit_1_0_From_Char(unsigned char value);
 
     struct Extended_Rate_Select_Compliance {
         bool reserved_bit_7;
