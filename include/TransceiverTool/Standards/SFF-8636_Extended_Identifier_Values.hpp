@@ -24,6 +24,7 @@ namespace TransceiverTool::Standards::SFF8636 {
     }};
 
     const Extended_Identifier_Bit_7_6_string& getSFF8636_Extended_Identifier_Bit_7_6Info(Extended_Identifier_Bit_7_6 enum_value);
+    Extended_Identifier_Bit_7_6 getSFF8636_Extended_Identifier_Bit_7_6_From_Char(unsigned char value);
 
     //SFF-8636 Rev 2.11 Table 6-16 Extended Identifier Values (Page 00h Byte 129) bits 1-0
     enum class Extended_Identifier_Bit_1_0 {
@@ -44,6 +45,7 @@ namespace TransceiverTool::Standards::SFF8636 {
         {Extended_Identifier_Bit_1_0::POWER_CLASS_7_0b11, "Power Class 7 (5.0 W max.)", 0b11},
     }};
     const Extended_Identifier_Bit_1_0_string& getSFF8636_Extended_Identifier_Bit_1_0Info(Extended_Identifier_Bit_1_0 enum_value);
+    Extended_Identifier_Bit_1_0 getSFF8636_Extended_Identifier_Bit_1_0_From_Char(unsigned char value);
 
     struct Extended_Identifier {
         //Power Class Related Bit 7 & 6
