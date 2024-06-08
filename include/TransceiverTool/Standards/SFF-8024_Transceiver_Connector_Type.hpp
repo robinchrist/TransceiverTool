@@ -33,7 +33,7 @@ namespace TransceiverTool::Standards::SFF8024 {
     struct TransceiverConnectorTypeAssignedValue {
         TransceiverConnectorType enum_value;
         std::string name;
-        unsigned char value;
+        unsigned char byte_value;
     };
 
     //SFF-8024 Rev 4.11 Table 4-3 Connector Types
@@ -63,5 +63,7 @@ namespace TransceiverTool::Standards::SFF8024 {
         {TransceiverConnectorType::MPO_2x12, "MPO 2x12", 0x27},
         {TransceiverConnectorType::MPO_1x16, "MPO 1x16", 0x28},
     }};
+
+    std::string byteToTransceiverConnectorTypeString(unsigned char byte);
 
 }

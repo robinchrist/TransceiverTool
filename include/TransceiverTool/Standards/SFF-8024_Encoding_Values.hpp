@@ -19,7 +19,7 @@ namespace TransceiverTool::Standards::SFF8024 {
     struct SFF8636TransceiverEncodingAssignedValue {
         SFF8636TransceiverEncoding enum_value;
         std::string name;
-        unsigned char value;
+        unsigned char byte_value;
     };
 
     //SFF-8024 Rev 4.11 Table 4-2 Encoding Values
@@ -34,4 +34,6 @@ namespace TransceiverTool::Standards::SFF8024 {
         {SFF8636TransceiverEncoding::_256B_257B_transcoded_FEC_enabled_data, "256B/257B (transcoded FEC-enabled data)", 0x07},
         {SFF8636TransceiverEncoding::PAM4, "PAM4", 0x08},
     }};
+
+    std::string byteToTransceiverEncodingString(unsigned char byte);
 }
