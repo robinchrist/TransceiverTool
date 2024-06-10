@@ -14,6 +14,7 @@
 #include "TransceiverTool/Standards/SFF-8636_Date_Code.hpp"
 #include "TransceiverTool/Standards/SFF-8636_Diagnostic_Monitoring_Type.hpp"
 #include "TransceiverTool/Standards/SFF-8636_Enhanced_Options.hpp"
+#include <nlohmann/json.hpp>
 
 namespace TransceiverTool::Standards::SFF8636 {
     struct SFF8636_Upper00h {
@@ -175,4 +176,7 @@ namespace TransceiverTool::Standards::SFF8636 {
         //Vendor Specific EEPROM
         std::array<unsigned char, 32> byte_224_255_vendor_specific;
     };
+
+    void SFF8636_Upper00hToJSON(nlohmann::json& j, const SFF8636_Upper00h& programming);
+    void SFF8636_Upper00hFromJSON(const nlohmann::json& j, SFF8636_Upper00h programming);
 }
