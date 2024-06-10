@@ -1,0 +1,386 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/product.schema.json",
+    "title": "SFF-8636 Upper Page 00h",
+    "description": "JSON Format for SFF-8636 Upper Page 00h",
+    "type": "object",
+
+    "$defs": {
+        "address": {
+            "$id": "/schemas/address",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "street_address": { "type": "string" },
+                "city": { "type": "string" },
+                "state": { "$ref": "#/definitions/state" }
+            },
+            "required": ["street_address", "city", "state"],
+            "definitions": {
+                "state": { "enum": ["CA", "NY", "... etc ..."] }
+            }
+        },
+        "single_byte_value_obj": {
+            "$id": "/schemas/single_byte_value_obj",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "byteValue": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-fA-F]{2}$"
+                }
+            },
+            "required": ["byteValue"] 
+        },
+        "sff-8636_identifier": {
+            "$id": "/schemas/sff-8636_identifier",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                { "$ref": "/schemas/single_byte_value_obj" },
+                { 
+                    "enum": [
+                        "Unknown or unspecified",
+                        "GBIC",
+                        "Module/connector soldered to motherboard (using SFF-8472)",
+                        "SFP/SFP+/SFP28 and later with SFF-8472 management interface",
+                        "300 pin XBI",
+                        "XENPAK",
+                        "XFP",
+                        "XFF",
+                        "XFP-E",
+                        "XPAK",
+                        "X2",
+                        "DWDM-SFP/SFP+ (not using SFF-8472)",
+                        "QSFP (INF-8438)",
+                        "QSFP+ or later with SFF-8636 or SFF-8436 management interface (SFF-8436, SFF-8635, SFF-8665, SFF-8685 et al.)",
+                        "CXP or later",
+                        "Shielded Mini Multilane HD 4X",
+                        "Shielded Mini Multilane HD 8X",
+                        "QSFP28 or later with SFF-8636 management interface (SFF-8665 et al.)",
+                        "CXP2 (aka CXP28) or later",
+                        "CDFP (Style 1/Style 2) INF-TA-1003",
+                        "Shielded Mini Multilane HD 4X Fanout Cable",
+                        "Shielded Mini Multilane HD 8X Fanout Cable",
+                        "CDFP (Style 3) INF-TA-1003",
+                        "microQSFP",
+                        "QSFP-DD Double Density 8X Pluggable Transceiver",
+                        "OSFP 8X Pluggable Transceiver",
+                        "SFP-DD Double Density 2X Pluggable Transceiver with SFP-DD Management Interface Specification",
+                        "DSFP Dual Small Form Factor Pluggable Transceiver",
+                        "x4 MiniLink/OcuLink",
+                        "x8 MiniLink",
+                        "QSFP+ or later with Common Management Interface Specification (CMIS)",
+                        "SFP-DD Double Density 2X Pluggable Transceiver with Common Management Interface Specification (CMIS)",
+                        "SFP+ and later with Common Management Interface Specification (CMIS)",
+                        "OSFP-XD with Common Management interface Specification (CMIS)",
+                        "OIF-ELSFP with Common Management interface Specification (CMIS)",
+                        "CDFP (x4 PCIe) SFF-TA-1032 with Common Management interface Specification (CMIS)",
+                        "CDFP (x8 PCIe) SFF-TA-1032 with Common Management interface Specification (CMIS)",
+                        "CDFP (x16 PCIe) SFF-TA-1032 with Common Management interface Specification (CMIS)"
+                    ]
+                }
+            ]
+        },
+        "sff-8636_extended_identifier": {
+            "$id": "/schemas/sff-8636_extended_identifier",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Power Class (Bit 7-6)": {
+                    "enum": [
+                        "Power Class 1 (1.5 W max.)",
+                        "Power Class 2 (2.0 W max.)",
+                        "Power Class 3 (2.5 W max.)",
+                        "Power Class 4 (3.5 W max.) and Power Classes 5, 6 or 7"
+                    ]
+                },
+                "Power Class 8 implemented (Bit 5)": {"type": "boolean"},
+                "CLEI Code Present (Bit 4)": {"type": "boolean"},
+                "CDR present in Tx (Bit 3)": {"type": "boolean"},
+                "CDR present in Rx (Bit 2)": {"type": "boolean"},
+                "Extended Power Class (Bit 1-0)": {
+                    "enum": [
+                        "Power Classes 1 to 4",
+                        "Power Class 5 (4.0 W max.)",
+                        "Power Class 6 (4.5 W max.)",
+                        "Power Class 7 (5.0 W max.)"
+                    ]
+                }
+            },
+            "required": [
+                "Power Class (Bit 7-6)",
+                "Power Class 8 implemented (Bit 5)",
+                "CLEI Code Present (Bit 4)",
+                "CDR present in Tx (Bit 3)",
+                "CDR present in Rx (Bit 2)",
+                "Extended Power Class (Bit 1-0)"
+            ]
+        },
+        "sff-8636_connector_type": {
+            "$id": "/schemas/sff-8636_connector_type",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                { "$ref": "/schemas/single_byte_value_obj" },
+                { 
+                    "enum": [
+                        "Unknown or unspecified",
+                        "SC (Subscriber Connector)",
+                        "Fibre Channel Style 1 copper connector",
+                        "Fibre Channel Style 2 copper connector",
+                        "BNC/TNC (Bayonet/Threaded Neill-Concelman)",
+                        "Fibre Channel coax headers",
+                        "Fiber Jack",
+                        "LC (Lucent Connector)",
+                        "MT-RJ (Mechanical Transfer - Registered Jack)",
+                        "MU (Multiple Optical)",
+                        "SG",
+                        "Optical Pigtail",
+                        "MPO 1x12 (Multifiber Parallel Optic)",
+                        "MPO 2x16",
+                        "HSSDC II (High Speed Serial Data Connector)",
+                        "Copper pigtail",
+                        "RJ45 (Registered Jack)",
+                        "No separable connector",
+                        "MXC 2x16",
+                        "CS optical connector",
+                        "SN (previously Mini CS) optical connector",
+                        "MPO 2x12",
+                        "MPO 1x16"
+                    ]
+                }
+            ]
+        },
+        "sff-8636_10_40G_100G_ethernet_compliance_codes": {
+            "$id": "/schemas/sff-8636_10_40G_100G_ethernet_compliance_codes",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Extended (Bit 7)": {"type": "boolean"},
+                "10GBASE-LRM compliant (Bit 6)": {"type": "boolean"},
+                "10GBASE-LR compliant (Bit 5)": {"type": "boolean"},
+                "10GBASE-SR compliant (Bit 4)": {"type": "boolean"},
+                "40GBASE-CR4 compliant (Bit 3)": {"type": "boolean"},
+                "40GBASE-SR4 compliant (Bit 2)": {"type": "boolean"},
+                "40GBASE-LR4 compliant (Bit 1)": {"type": "boolean"},
+                "40G Active Cable (XLPPI) compliant (Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "Extended (Bit 7)",
+                "10GBASE-LRM compliant (Bit 6)",
+                "10GBASE-LR compliant (Bit 5)",
+                "10GBASE-SR compliant (Bit 4)",
+                "40GBASE-CR4 compliant (Bit 3)",
+                "40GBASE-SR4 compliant (Bit 2)",
+                "40GBASE-LR4 compliant (Bit 1)",
+                "40G Active Cable (XLPPI) compliant (Bit 0)"
+            ]
+        },
+        "sff-8636_sonet_compliance_codes": {
+            "$id": "/schemas/sff-8636_sonet_compliance_codes",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Reserved (Bit 7)": {"type": "boolean"},
+                "Reserved (Bit 6)": {"type": "boolean"},
+                "Reserved (Bit 5)": {"type": "boolean"},
+                "Reserved (Bit 4)": {"type": "boolean"},
+                "Reserved (Bit 3)": {"type": "boolean"},
+                "OC 48, long reach compliant (Bit 2)": {"type": "boolean"},
+                "OC 48, intermediate reach compliant (Bit 1)": {"type": "boolean"},
+                "OC 48, short reach compliant (Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "Reserved (Bit 7)",
+                "Reserved (Bit 6)",
+                "Reserved (Bit 5)",
+                "Reserved (Bit 4)",
+                "Reserved (Bit 3)",
+                "OC 48, long reach compliant (Bit 2)",
+                "OC 48, intermediate reach compliant (Bit 1)",
+                "OC 48, short reach compliant (Bit 0)"
+            ]
+        },
+        "sff-8636_sas_sata_compliance_codes": {
+            "$id": "/schemas/sff-8636_sas_sata_compliance_codes",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "SAS 24.0 Gbps compliant (Bit 7)": {"type": "boolean"},
+                "SAS 12.0 Gbps compliant (Bit 6)": {"type": "boolean"},
+                "SAS 6.0 Gbps compliant (Bit 5)": {"type": "boolean"},
+                "SAS 3.0 Gbps compliant (Bit 4)": {"type": "boolean"},
+                "Reserved (Bit 3)": {"type": "boolean"},
+                "Reserved (Bit 2)": {"type": "boolean"},
+                "Reserved (Bit 1)": {"type": "boolean"},
+                "Reserved (Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "SAS 24.0 Gbps compliant (Bit 7)",
+                "SAS 12.0 Gbps compliant (Bit 6)",
+                "SAS 6.0 Gbps compliant (Bit 5)",
+                "SAS 3.0 Gbps compliant (Bit 4)",
+                "Reserved (Bit 3)",
+                "Reserved (Bit 2)",
+                "Reserved (Bit 1)",
+                "Reserved (Bit 0)"
+            ]
+        },
+        "sff-8636_gigabit_ethernet_compliance_codes": {
+            "$id": "/schemas/sff-8636_gigabit_ethernet_compliance_codes",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Reserved (Bit 7)": {"type": "boolean"},
+                "Reserved (Bit 6)": {"type": "boolean"},
+                "Reserved (Bit 5)": {"type": "boolean"},
+                "Reserved (Bit 4)": {"type": "boolean"},
+                "1000BASE-T compliant (Bit 3)": {"type": "boolean"},
+                "1000BASE-CX compliant (Bit 2)": {"type": "boolean"},
+                "1000BASE-LX compliant (Bit 1)": {"type": "boolean"},
+                "1000BASE-SX compliant (Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "Reserved (Bit 7)",
+                "Reserved (Bit 6)",
+                "Reserved (Bit 5)",
+                "Reserved (Bit 4)",
+                "1000BASE-T compliant (Bit 3)",
+                "1000BASE-CX compliant (Bit 2)",
+                "1000BASE-LX compliant (Bit 1)",
+                "1000BASE-SX compliant (Bit 0)"
+            ]
+        },
+        "sff-8636_fibre_channel_link_length": {
+            "$id": "/schemas/sff-8636_fibre_channel_link_length",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Very long distance (V) compliant (Byte 135, Bit 7)": {"type": "boolean"},
+                "Short distance (S) compliant (Byte 135, Bit 6)": {"type": "boolean"},
+                "Intermediate distance (I) compliant (Byte 135, Bit 5)": {"type": "boolean"},
+                "Long distance (L) compliant (Byte 135, Bit 4)": {"type": "boolean"},
+                "Medium distance (M) compliant (Byte 135, Bit 3)": {"type": "boolean"}
+            },
+            "required": [
+                "Very long distance (V) compliant (Byte 135, Bit 7)",
+                "Short distance (S) compliant (Byte 135, Bit 6)",
+                "Intermediate distance (I) compliant (Byte 135, Bit 5)",
+                "Long distance (L) compliant (Byte 135, Bit 4)",
+                "Medium distance (M) compliant (Byte 135, Bit 3)"
+            ]
+        },
+        "sff-8636_fibre_channel_transmitter_technology": {
+            "$id": "/schemas/sff-8636_fibre_transmitter_technology",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Reserved (Byte 135, Bit 2)": {"type": "boolean"},
+                "Longwave laser (LC) compliant (Byte 135, Bit 1)": {"type": "boolean"},
+                "Electrical inter-enclosure (EL) compliant (Byte 135, Bit 0)": {"type": "boolean"},
+                "Electrical intra-enclosure compliant (Byte 136, Bit 7)": {"type": "boolean"},
+                "Shortwave laser w/o OFC (SN) compliant (Byte 136, Bit 6)": {"type": "boolean"},
+                "Shortwave laser w OFC (SL) compliant (Byte 136, Bit 5)": {"type": "boolean"},
+                "Longwave Laser (LL) compliant (Byte 136, Bit 4)": {"type": "boolean"},
+                "Reserved (Byte 136, Bit 3)": {"type": "boolean"},
+                "Reserved (Byte 136, Bit 2)": {"type": "boolean"},
+                "Reserved (Byte 136, Bit 1)": {"type": "boolean"},
+                "Reserved (Byte 136, Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "Reserved (Byte 135, Bit 2)",
+                "Longwave laser (LC) compliant (Byte 135, Bit 1)",
+                "Electrical inter-enclosure (EL) compliant (Byte 135, Bit 0)",
+                "Electrical intra-enclosure compliant (Byte 136, Bit 7)",
+                "Shortwave laser w/o OFC (SN) compliant (Byte 136, Bit 6)",
+                "Shortwave laser w OFC (SL) compliant (Byte 136, Bit 5)",
+                "Longwave Laser (LL) compliant (Byte 136, Bit 4)",
+                "Reserved (Byte 136, Bit 3)",
+                "Reserved (Byte 136, Bit 2)",
+                "Reserved (Byte 136, Bit 1)",
+                "Reserved (Byte 136, Bit 0)"
+            ]
+        },
+        "sff-8636_fibre_channel_transmission_media": {
+            "$id": "/schemas/sff-8636_fibre_channel_transmission_media",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Twin Axial Pair (TW) compliant (Bit 7)": {"type": "boolean"},
+                "Shielded Twisted Pair (TP) compliant (Bit 6)": {"type": "boolean"},
+                "Miniature Coax (MI) compliant (Bit 5)": {"type": "boolean"},
+                "Video Coax (TV) compliant (Bit 4)": {"type": "boolean"},
+                "Multi-mode 62.5 um (M6) compliant (Bit 3)": {"type": "boolean"},
+                "Multi-mode 50 um (M5) compliant (Bit 1)": {"type": "boolean"},
+                "Multi-mode 50 um (OM3) compliant (Bit 1)": {"type": "boolean"},
+                "Single Mode (SM) compliant (Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "Twin Axial Pair (TW) compliant (Bit 7)",
+                "Shielded Twisted Pair (TP) compliant (Bit 6)",
+                "Miniature Coax (MI) compliant (Bit 5)",
+                "Video Coax (TV) compliant (Bit 4)",
+                "Multi-mode 62.5 um (M6) compliant (Bit 3)",
+                "Multi-mode 50 um (M5) compliant (Bit 1)",
+                "Multi-mode 50 um (OM3) compliant (Bit 1)",
+                "Single Mode (SM) compliant (Bit 0)"
+            ]
+        },
+        "sff-8636_fibre_channel_speed": {
+            "$id": "/schemas/sff-8636_fibre_channel_speed",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "1200 MBps (per channel) compliant (Bit 7)": {"type": "boolean"},
+                "800 MBps compliant (Bit 6)": {"type": "boolean"},
+                "1600 MBps (per channel) compliant (Bit 5)": {"type": "boolean"},
+                "400 MBps compliant (Bit 4)": {"type": "boolean"},
+                "3200 MBps (per channel) compliant (Bit 3)": {"type": "boolean"},
+                "200 MBps compliant (Bit 2)": {"type": "boolean"},
+                "Extended (Bit 1)": {"type": "boolean"},
+                "100 MBps compliant (Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "1200 MBps (per channel) compliant (Bit 7)",
+                "800 MBps compliant (Bit 6)",
+                "1600 MBps (per channel) compliant (Bit 5)",
+                "400 MBps compliant (Bit 4)",
+                "3200 MBps (per channel) compliant (Bit 3)",
+                "200 MBps compliant (Bit 2)",
+                "Extended (Bit 1)",
+                "100 MBps compliant (Bit 0)"
+            ]
+        },
+    },
+
+    "properties": {
+        "Type": {
+            "const": "SFF-8636 Upper Page 00h"
+        },
+        "Identifier": { "$ref": "/schemas/sff-8636_identifier" },
+        "Extended Identifier": { "$ref": "/schemas/sff-8636_extended_identifier" },
+        "Connector Type": {"$ref": "/schemas/sff-8636_connector_type" },
+        "10/40G/100G Ethernet Compliance Codes": {"$ref": "/schemas/sff-8636_10_40G_100G_ethernet_compliance_codes" },
+        "SONET Compliance Codes": {"$ref": "/schemas/sff-8636_sonet_compliance_codes"},
+        "SAS/SATA Compliance Codes": {"$ref": "/schemas/sff-8636_sas_sata_compliance_codes"},
+        "Gigabit Ethernet Compliance Codes": {"$ref": "/schemas/sff-8636_gigabit_ethernet_compliance_codes"},
+        "Fibre Channel Link Length": {"$ref": "/schemas/sff-8636_fibre_channel_link_length"},
+        "Fibre Channel Transmitter Technology": {"$ref": "/schemas/sff-8636_fibre_transmitter_technology"},
+        "Fibre Channel Transmission Media": {"$ref": "/schemas/sff-8636_fibre_channel_transmission_media"},
+        "Fibre Channel Speed": {"$ref": "/schemas/sff-8636_fibre_channel_speed"},
+    },
+
+    "required": [
+        "Type",
+        "Identifier",
+        "Extended Identifier",
+        "Connector Type",
+        "10/40G/100G Ethernet Compliance Codes",
+        "SONET Compliance Codes",
+        "SAS/SATA Compliance Codes",
+        "Gigabit Ethernet Compliance Codes",
+        "Fibre Channel Link Length",
+        "Fibre Channel Transmitter Technology",
+        "Fibre Channel Transmission Media",
+        "Fibre Channel Speed"
+    ]
+}

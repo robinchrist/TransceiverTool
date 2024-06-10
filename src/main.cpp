@@ -201,5 +201,14 @@ int main() {
         std::cout << warning << std::endl;
     }
 
+    nlohmann::json j;
+    TransceiverTool::Standards::SFF8636::SFF8636_Upper00hToJSON(j, parsedStruct);
+
+    std::cout << std::setw(4) << j << std::endl;
+
+
+    TransceiverTool::Standards::SFF8636::SFF8636_Upper00h programmingRoundtrip;
+    TransceiverTool::Standards::SFF8636::SFF8636_Upper00hFromJSON(j, programmingRoundtrip);
+
     return 0;
 }
