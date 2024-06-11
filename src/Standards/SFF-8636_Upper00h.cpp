@@ -1782,7 +1782,7 @@ namespace TransceiverTool::Standards::SFF8636 {
 
     void SFF8636_Upper00hToJSON(nlohmann::json& j, const SFF8636_Upper00h& programming, bool copperMode) {
 
-        j["Type"] = "SFF-8636 Upper Page 00h";
+        j["Type"] = "SFF-8636 Rev 2.11 Upper Page 00h";
         
         j["Identifier"] = TransceiverReferenceToJSON(programming.byte_128_Identifier);
 
@@ -1863,7 +1863,7 @@ namespace TransceiverTool::Standards::SFF8636 {
 
     void SFF8636_Upper00hFromJSON(const nlohmann::json& j, SFF8636_Upper00h& programming) {
 
-        if(j.at("Type").template get<std::string>() != "SFF-8636 Upper Page 00h") {
+        if(j.at("Type").template get<std::string>() != "SFF-8636 Rev 2.11 Upper Page 00h") {
             throw std::invalid_argument("JSON specifies wrong type");
         }
 
