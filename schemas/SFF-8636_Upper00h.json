@@ -32,6 +32,19 @@
             },
             "required": ["byteValue"] 
         },
+        "base64_obj": {
+            "$id": "/schemas/base64_obj",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Type": { "const": "Base64" },
+                "Value": {
+                    "type": "string",
+                    "contentEncoding": "base64"
+                }
+            },
+            "required": ["Type", "Value"] 
+        },
         "sff-8636_identifier": {
             "$id": "/schemas/sff-8636_identifier",
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -640,7 +653,113 @@
                 "Detector Type (Bit 1)",
                 "Tunable Transmitter (Bit 0)"
             ]
-        }
+        },
+        "sff-8636_vendor_name": {
+            "$id": "/schemas/sff-8636_vendor_name",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {"$ref": "/schemas/base64_obj"},
+                { 
+                    "type": "string",
+                    "pattern": "^[ -~]{0,16}$"
+                }
+            ]
+        },
+        "sff-8636_included_vendor_ouis": {
+            "$id": "/schemas/sff-8636_included_vendor_ouis",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "enum": [
+                "FS COM INC",
+                "Brocade Communications Systems LLC",
+                "FINISAR CORPORATION",
+                "Intel Corporate",
+                "Mellanox Technologies, Inc.",
+                "Avago Technologies",
+                "Sumitomo Electric Industries, Ltd",
+                "CommScope Inc",
+                "Molex CMS",
+                "IBM (IEEE is H. Stoll GmbH & Co. KG)",
+                "Arista Networks",
+                "Extreme (IEEE is Siemon)",
+                "Skylane Optics",
+                "Amphenol",
+                "Oraclel",
+                "Innolight Technology Corporation"
+            ]
+        },
+        "sff-8636_extended_module_codes_infiniband": {
+            "$id": "/schemas/sff-8636_extended_module_codes_infiniband",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Reserved (Bit 7)": {"type": "boolean"},
+                "Reserved (Bit 6)": {"type": "boolean"},
+                "HDR (200G) Infiniband supported (Bit 5)": {"type": "boolean"},
+                "EDR (100G) Infiniband supported (Bit 4)": {"type": "boolean"},
+                "FDR (56G) Infiniband supported (Bit 3)": {"type": "boolean"},
+                "QDR (40G) Infiniband supported (Bit 2)": {"type": "boolean"},
+                "DDR (20G) Infiniband supported (Bit 1)": {"type": "boolean"},
+                "SDR (10G) Infiniband supported (Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "Reserved (Bit 7)",
+                "Reserved (Bit 6)",
+                "HDR (200G) Infiniband supported (Bit 5)",
+                "EDR (100G) Infiniband supported (Bit 4)",
+                "FDR (56G) Infiniband supported (Bit 3)",
+                "QDR (40G) Infiniband supported (Bit 2)",
+                "DDR (20G) Infiniband supported (Bit 1)",
+                "SDR (10G) Infiniband supported (Bit 0)"
+            ]
+        },
+        "sff-8636_vendor_oui": {
+            "$id": "/schemas/sff-8636_vendor_oui",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                { 
+                    "type": "object",
+                    "properties": {
+                        "Vendor Name": {
+                            "$ref": "/schemas/sff-8636_included_vendor_ouis"
+                        }
+                    },
+                    "required": ["Vendor Name"]
+                },
+                {
+                    "type": "string",
+                    "pattern": "^[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}$"
+                }
+            ]
+        },
+        "sff-8636_vendor_pn": {
+            "$id": "/schemas/sff-8636_vendor_pn",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {"$ref": "/schemas/base64_obj"},
+                { 
+                    "type": "string",
+                    "pattern": "^[ -~]{0,16}$"
+                }
+            ]
+        },
+        "sff-8636_vendor_rev": {
+            "$id": "/schemas/sff-8636_vendor_rev",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {"$ref": "/schemas/base64_obj"},
+                { 
+                    "type": "string",
+                    "pattern": "^[ -~]{0,2}$"
+                }
+            ]
+        },
+        "sff-8636_maximum_case_temperature": {
+            "$id": "/schemas/sff-8636_maximum_case_temperature",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 255
+        },
     },
 
     "properties": {
@@ -664,7 +783,13 @@
         "Length (Standard SM Fiber) [km]": {"$ref": "/schemas/sff-8636_length_smf_km"},
         "Length (OM3 50 um) [m] (Divisible by 2)": {"$ref": "/schemas/sff-8636_length_om3_m"},
         "Length (OM2 50 um) [m]": {"$ref": "/schemas/sff-8636_length_om2_m"},
-        "Copper or Fibre Properties": {"$ref": "/schemas/sff-8636_copper_or_fibre_properties"}
+        "Copper or Fibre Properties": {"$ref": "/schemas/sff-8636_copper_or_fibre_properties"},
+        "Vendor Name": {"$ref": "/schemas/sff-8636_vendor_name"},
+        "Extended Module Codes (Infiniband)": {"$ref": "/schemas/sff-8636_extended_module_codes_infiniband"},
+        "Vendor OUI": {"$ref": "/schemas/sff-8636_vendor_oui"},
+        "Vendor PN": {"$ref": "/schemas/sff-8636_vendor_pn"},
+        "Vendor Rev": {"$ref": "/schemas/sff-8636_vendor_rev"},
+        "Maximum Case Temperature [degC]": {"$ref": "/schemas/sff-8636_maximum_case_temperature"},
     },
 
     "required": [
@@ -687,6 +812,12 @@
         "Length (OM3 50 um) [m] (Divisible by 2)",
         "Length (OM2 50 um) [m]",
         "Copper or Fibre Properties",
-        "Device & Transmitter Properties"
+        "Device & Transmitter Properties",
+        "Vendor Name",
+        "Extended Module Codes (Infiniband)",
+        "Vendor OUI",
+        "Vendor PN",
+        "Vendor Rev",
+        "Maximum Case Temperature [degC]"
     ]
 }

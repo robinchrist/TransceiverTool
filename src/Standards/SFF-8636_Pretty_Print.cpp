@@ -390,7 +390,7 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
 
     bool vendorNamePrintable = std::all_of(programming.byte_148_163_vendor_name.begin(), programming.byte_148_163_vendor_name.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
     if(vendorNamePrintable) {
-        std::string vendorName = std::string(reinterpret_cast<char const *>(programming.byte_148_163_vendor_name.data()), 16);
+        std::string vendorName = std::string(reinterpret_cast<char const *>(programming.byte_148_163_vendor_name.data()), programming.byte_148_163_vendor_name.size());
         //rtrim
         vendorName.erase(std::find_if(vendorName.rbegin(), vendorName.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorName.end());
 
