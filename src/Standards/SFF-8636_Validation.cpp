@@ -1,4 +1,6 @@
 #include "TransceiverTool/Standards/SFF-8636_Validation.hpp"
+#include "TransceiverTool/Standards/SFF-8636_Assembler.hpp"
+#include "TransceiverTool/Standards/SFF-8636_Checksum.hpp"
 #include "TransceiverTool/Standards/SFF-8636_Extended_Rate_Select_Compliance.hpp"
 #include <cctype>
 #include <fmt/core.h>
@@ -239,6 +241,19 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         }
     }
 
+    void validateCC_BASEChecksum(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+        std::vector<unsigned char> buffer; buffer.resize(256, 0x00);
+        assembleToBinary(buffer.data(), programming, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
+
+        auto correctChecksum = calculateCC_BASEChecksum(buffer.data());
+
+        if(programming.byte_191_CC_BASE != correctChecksum) {
+            validationResult.errors.push_back(
+                fmt::format("Byte 191 (\"CC_EXT\") value is {:#04x}, but should be {:#04x}", programming.byte_191_CC_BASE, correctChecksum)
+            );
+        }
+    }
+
     void validateExtendedSpecificationComplianceCodes(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
         //SFF-8024 Rev 4.11 Table 4-4 Extended Specification Compliance Codes
         if(programming.byte_192_extended_specification_compliance_codes == 0x0A || programming.byte_192_extended_specification_compliance_codes == 0x0F ||
@@ -446,6 +461,20 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
 
     }
 
+    void validateCC_EXTChecksum(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+        std::vector<unsigned char> buffer; buffer.resize(256, 0x00);
+        assembleToBinary(buffer.data(), programming, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
+
+        auto correctChecksum = calculateCC_EXTChecksum(buffer.data());
+
+        if(programming.byte_223_CC_EXT != correctChecksum) {
+            validationResult.errors.push_back(
+                fmt::format("Byte 223 (\"CC_EXT\") value is {:#04x}, but should be {:#04x}", programming.byte_223_CC_EXT, correctChecksum)
+            );
+        }
+    }
+
+
     //TODO: Introduce options to not warn on values in "Vendor Specific" ranges (in case this tool is used by actual vendor?)
     ValidationResult validateSFF8636_Upper00h(const TransceiverTool::Standards::SFF8636::SFF8636_Upper00h& programming) {
         ValidationResult validationResult;
@@ -486,7 +515,8 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         //SFF-8636 Rev 2.11 Section 6.3.21 Maximum Case Temperature (00h 190)
         validateMaximumCaseTemperature(programming, validationResult);
 
-        //FIXME: Verify byte 191 CC_Base checksum
+        //SFF-8636 Rev 2.11 Section 6.3.22 CC_BASE (00h 191)
+        validateCC_BASEChecksum(programming, validationResult);
 
         //SFF-8024 Rev 4.11 Table 4-4 Extended Specification Compliance Codes
         validateExtendedSpecificationComplianceCodes(programming, validationResult);
@@ -509,7 +539,8 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         //SFF-8636 Rev 2.11 Table 6-26 Extended Baud Rate: Nominal (Page 00h Byte 222)
         validateExtendedBaudRate(programming, validationResult);
 
-        //FIXME: Validate CC_EXT
+        //SFF-8636 Rev 2.11 Section 6.3.29 Check Code Extension (00h 223)
+        validateCC_EXTChecksum(programming, validationResult);
 
         validateRateSelectionConsistency(programming, validationResult);
 
