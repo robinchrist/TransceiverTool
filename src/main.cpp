@@ -1,5 +1,6 @@
 #include <cstddef>
 #include <exception>
+#include <nlohmann/json_fwd.hpp>
 #include <variant>
 #include <string>
 #include <array>
@@ -201,7 +202,7 @@ int main() {
         std::cout << warning << std::endl;
     }
 
-    nlohmann::json j;
+    nlohmann::ordered_json j;
     TransceiverTool::Standards::SFF8636::SFF8636_Upper00hToJSON(j, parsedStruct, false);
 
     std::cout << std::setw(4) << j << std::endl;
