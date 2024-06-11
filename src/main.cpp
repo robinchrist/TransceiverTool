@@ -202,13 +202,18 @@ int main() {
     }
 
     nlohmann::json j;
-    TransceiverTool::Standards::SFF8636::SFF8636_Upper00hToJSON(j, parsedStruct);
+    TransceiverTool::Standards::SFF8636::SFF8636_Upper00hToJSON(j, parsedStruct, false);
 
     std::cout << std::setw(4) << j << std::endl;
 
 
     TransceiverTool::Standards::SFF8636::SFF8636_Upper00h programmingRoundtrip;
     TransceiverTool::Standards::SFF8636::SFF8636_Upper00hFromJSON(j, programmingRoundtrip);
+
+    //prettyPrint = TransceiverTool::Standards::SFF8636::prettyPrintProgramming(programmingRoundtrip, true, true);
+
+    //std::cout << "Decoded:" << std::endl;
+    //std::cout << prettyPrint << std::endl;
 
     return 0;
 }

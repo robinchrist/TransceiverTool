@@ -86,7 +86,7 @@ namespace TransceiverTool::Standards::SFF8636 {
         //Byte 145: Length (OM1 62.5 um) or Copper Cable Attenuation
         //Link length supported at the signaling rate in byte 140 or page 00h byte 222, for 62.5/125 um fiber (OM1), units of 1 m, 
         //or copper cable attenuation in dB at 25.78 GHz.
-        unsigned char byte_145_length_om1_in_1m_or_copper_cable_attentuation_in_dB;
+        unsigned char byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB;
 
 
         //Byte 146: Length (passive copper or active cable or OM4 50 um)
@@ -120,14 +120,14 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         //Byte 186-187: Wavelength or Copper Cable Attenuation
         //Nominal laser wavelength (wavelength=value/20 in nm) or copper cable attenuation in dB at 2.5 GHz (Byte 186) and 5.0 GHz (Byte 187)
-        unsigned char byte_186_wavelength_high_order_or_copper_attentuation;
-        unsigned char byte_187_wavelength_low_order_or_copper_attentuation;
+        unsigned char byte_186_wavelength_high_order_or_copper_attenuation;
+        unsigned char byte_187_wavelength_low_order_or_copper_attenuation;
 
         //Byte 188-189: Wavelength tolerance or Copper Cable Attenuation
         //The range of laser wavelength (+/- value) from nominal wavelength. (wavelength Tol. =value/200 in nm)
         //or copper cable attenuation in dB at 7.0 GHz (Byte 188) and 12.9 GHz (Byte 189)
-        unsigned char byte_188_wavelength_tolerance_high_order_or_copper_attentuation;
-        unsigned char byte_189_wavelength_tolerance_low_order_or_copper_attentuation;
+        unsigned char byte_188_wavelength_tolerance_high_order_or_copper_attenuation;
+        unsigned char byte_189_wavelength_tolerance_low_order_or_copper_attenuation;
 
         //Byte 190: Max case temp.
         //Maximum case temperature
@@ -177,6 +177,6 @@ namespace TransceiverTool::Standards::SFF8636 {
         std::array<unsigned char, 32> byte_224_255_vendor_specific;
     };
 
-    void SFF8636_Upper00hToJSON(nlohmann::json& j, const SFF8636_Upper00h& programming);
-    void SFF8636_Upper00hFromJSON(const nlohmann::json& j, SFF8636_Upper00h programming);
+    void SFF8636_Upper00hToJSON(nlohmann::json& j, const SFF8636_Upper00h& programming, bool copperMode);
+    void SFF8636_Upper00hFromJSON(const nlohmann::json& j, SFF8636_Upper00h& programming);
 }
