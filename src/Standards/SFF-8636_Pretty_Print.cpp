@@ -563,9 +563,16 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
     }
     if(fiberMode || copperMode) str.append("\n");
 
-    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "Max case temperature [190]", fmt::format("{} deg C", programming.byte_190_max_case_temperature == 0 ? 70 : programming.byte_190_max_case_temperature)
-    );
+    if(programming.byte_190_max_case_temperature == 0) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Max case temperature [190]", fmt::format("default (70 deg C)")
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Max case temperature [190]", fmt::format("{} deg C",  programming.byte_190_max_case_temperature)
+        );
+    }
+    
     str.append("\n");
 
 

@@ -159,7 +159,7 @@ namespace TransceiverTool::Standards::SFF8024 {
 }
 int main() {
     
-    std::ifstream file("/data/dev/TransceiverTool_Go/finisar_FTL414QL2C-E5.bin", std::ios::in | std::ios::binary);
+    std::ifstream file("/data/dev/TransceiverTool_Go/TransceiverDatabase/FS/QSFP28-LR-100G/QSFP28-LR-100G_Mellanox.bin_2", std::ios::in | std::ios::binary);
     file.ignore( std::numeric_limits<std::streamsize>::max() );
     std::streamsize length = file.gcount();
     file.clear();   //  Since ignore will have set eof.

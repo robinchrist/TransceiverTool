@@ -742,9 +742,14 @@
         "sff-8636_maximum_case_temperature": {
             "$id": "/schemas/sff-8636_maximum_case_temperature",
             "$schema": "http://json-schema.org/draft-07/schema#",
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 255
+            "anyOf": [
+                {"const": "default"},
+                {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 255
+                }
+            ]
         },
         "sff-8636_cc_base_checksum": {
             "$id": "/schemas/sff-8636_cc_base_checksum",

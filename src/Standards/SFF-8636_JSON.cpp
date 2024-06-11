@@ -1285,21 +1285,33 @@ namespace TransceiverTool::Standards::SFF8636 {
     nlohmann::ordered_json MaxCaseTemperatureToJSON(unsigned char maxCaseTemperature) {
         nlohmann::ordered_json j;
 
-        if(maxCaseTemperature == 0) maxCaseTemperature = 70;
-
-        j = (unsigned long)(maxCaseTemperature);
+        //Necessary to have stuff roundtrip stable
+        //if we serialise the "0" value as "70" to JSON, we don't know on deserialise what was the value (0 or 70)
+        //thus breaking roundtrip stability
+        if(maxCaseTemperature == 0) {
+            j = "default";
+        } else {
+            j = (unsigned long)(maxCaseTemperature);
+        }
 
         return j;
     }
 
     unsigned char MaxCaseTemperatureFromJSON(const nlohmann::json& j) {
-        auto numberValue = j.template get<std::uint64_t>();
+        if(j.is_string()) {
+            auto strValue = j.template get<std::string>();
+            if(strValue != "default") throw std::invalid_argument("Maximum Case Temperature [degC] string value must be default");
 
-        if(numberValue > 255) throw std::invalid_argument("Maximum Case Temperature [degC] must not be larger than 255");
+            return 0;
+        } else if(j.is_number_unsigned()) {
+            auto numberValue = j.template get<std::uint64_t>();
 
-        if(numberValue == 70) numberValue = 0;
+            if(numberValue > 255) throw std::invalid_argument("Maximum Case Temperature [degC] must not be larger than 255");
 
-        return numberValue;
+            return numberValue;
+        } else {
+            throw std::invalid_argument("Maximum Case Temperature [degC] must be either string or unsigned number");
+        }
     }
 //############
 
