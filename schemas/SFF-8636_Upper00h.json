@@ -350,6 +350,297 @@
                 "100 MBps compliant (Bit 0)"
             ]
         },
+        "sff-8636_encoding": {
+            "$id": "/schemas/sff-8636_encoding",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                { "$ref": "/schemas/single_byte_value_obj" },
+                { 
+                    "enum": [
+                        "Unspecified",
+                        "8B/10B",
+                        "4B/5B",
+                        "NRZ",
+                        "SONET Scrambled",
+                        "64B/66B",
+                        "Manchester",
+                        "256B/257B (transcoded FEC-enabled data)",
+                        "PAM4"
+                    ]
+                }
+            ]
+        },
+        "sff-8636_nominal_baud_rate_100": {
+            "$id": "/schemas/sff-8636_nominal_baud_rate_100",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {
+                    "type": "integer",
+                    "multipleOf" : 100,
+                    "minimum": 0,
+                    "maximum": 25400
+                },
+                {
+                    "const": "> 25.4 GBd"
+                }
+            ]
+        },
+        "sff-8636_extended_rate_selection_compliance": {
+            "$id": "/schemas/sff-8636_extended_rate_selection_compliance",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Reserved (Bit 7)": {"type": "boolean"},
+                "Reserved (Bit 6)": {"type": "boolean"},
+                "Reserved (Bit 5)": {"type": "boolean"},
+                "Reserved (Bit 4)": {"type": "boolean"},
+                "Reserved (Bit 3)": {"type": "boolean"},
+                "Reserved (Bit 2)": {"type": "boolean"},
+                "Rate Select Version (Bit 1-0)": {
+                    "enum": [
+                        "Reserved / Not Implemented? (00b)",
+                        "Rate Select Version 1",
+                        "Rate Select Version 2",
+                        "Reserved (11b)"
+                    ]
+                }
+            },
+            "required": [
+                "Reserved (Bit 7)",
+                "Reserved (Bit 6)",
+                "Reserved (Bit 5)",
+                "Reserved (Bit 4)",
+                "Reserved (Bit 3)",
+                "Reserved (Bit 2)",
+                "Rate Select Version (Bit 1-0)"
+            ]
+        },
+        "sff-8636_length_smf_km": {
+            "$id": "/schemas/sff-8636_length_smf_km",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {
+                    "const": "N/A"
+                },
+                {
+                    "const": "0 - 1"
+                },
+                {
+                    "type": "integer",
+                    "minimum": 2,
+                    "maximum": 255
+                }
+            ]
+        },
+        "sff-8636_length_om3_m": {
+            "$id": "/schemas/sff-8636_length_om3_m",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {
+                    "const": "N/A"
+                },
+                {
+                    "type": "integer",
+                    "multipleOf" : 2,
+                    "minimum": 2,
+                    "maximum": 510
+                }
+            ]
+        },
+        "sff-8636_length_om2_m": {
+            "$id": "/schemas/sff-8636_length_om2_m",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {
+                    "const": "N/A"
+                },
+                {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 255
+                }
+            ]
+        },
+        "sff-8636_copper_properties": {
+            "$id": "/schemas/sff-8636_copper_properties",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Type": { "const": "Copper" },
+                "Copper Cable Attenuation @ 25.78 GHz [dB]": {
+                    "anyOf": [
+                        { "const": "N/A"},
+                        {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 255
+                        }
+                    ]
+                },
+                "Length (passive copper or active cable) [m]": {
+                    "anyOf": [
+                        { "const": "N/A"},
+                        { "const": "> 254 m" },
+                        {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 254
+                        }
+                    ]
+                },
+                "Copper Cable Attenuation @ 2.5 GHz [dB]": {
+                    "anyOf": [
+                        { "const": "N/A"},
+                        {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 255
+                        }
+                    ]
+                },
+                "Copper Cable Attenuation @ 5.0 GHz [dB]": {
+                    "anyOf": [
+                        { "const": "N/A"},
+                        {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 255
+                        }
+                    ]
+                },
+                "Copper Cable Attenuation @ 7.0 GHz [dB]": {
+                    "anyOf": [
+                        { "const": "N/A"},
+                        {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 255
+                        }
+                    ]
+                },
+                "Copper Cable Attenuation @ 12.9 GHz [dB]": {
+                    "anyOf": [
+                        { "const": "N/A"},
+                        {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 255
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "Type",
+                "Copper Cable Attenuation @ 25.78 GHz [dB]", 
+                "Length (passive copper or active cable) [m]",
+                "Copper Cable Attenuation @ 2.5 GHz [dB]",
+                "Copper Cable Attenuation @ 5.0 GHz [dB]",
+                "Copper Cable Attenuation @ 7.0 GHz [dB]",
+                "Copper Cable Attenuation @ 12.9 GHz [dB]"
+            ]
+        },
+        "sff-8636_fibre_properties": {
+            "$id": "/schemas/sff-8636_fibre_properties",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Type": { "const": "Fibre" },
+                "Length (OM1 62.5 um) [m]": {
+                    "anyOf": [
+                        { "const": "N/A"},
+                        {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 255
+                        }
+                    ]
+                },
+                "Length (OM4 50 um) [m] (Divisible by 2)": {
+                    "anyOf": [
+                        { "const": "N/A"},
+                        { "const": "> 508 m" },
+                        {
+                            "type": "integer",
+                            "multipleOf": 2,
+                            "minimum": 2,
+                            "maximum": 508
+                        }
+                    ]
+                },
+                "Wavelength [nm] (Divisible by 0.05)": {
+                    "type": "number",
+                    "multipleOf": 0.05,
+                    "minimum": 0,
+                    "maximum": 3276.75
+                },
+                "Wavelength Tolerance [nm] (Divisible by 0.005)": {
+                    "type": "number",
+                    "multipleOf": 0.005,
+                    "minimum": 0,
+                    "maximum": 327.675
+                }
+            },
+            "required": [
+                "Type",
+                "Length (OM4 50 um) [m] (Divisible by 2)",
+                "Wavelength [nm] (Divisible by 0.05)",
+                "Wavelength Tolerance [nm] (Divisible by 0.005)"
+            ]
+        },
+        "sff-8636_copper_or_fibre_properties": {
+            "$id": "/schemas/sff-8636_copper_or_fibre_properties",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                { "$ref": "/schemas/sff-8636_copper_properties" },
+                { "$ref": "/schemas/sff-8636_fibre_properties" }
+            ]
+        },
+        "sff-8636_transmitter_type": {
+            "$id": "/schemas/sff-8636_transmitter_type",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "enum": [
+                "850 nm VCSEL",
+                "1310 nm VCSEL",
+                "1550 nm VCSEL",
+                "1310 nm FP",
+                "1310 nm DFB",
+                "1550 nm DFB",
+                "1310 nm EML",
+                "1550 nm EML",
+                "Other / Undefined",
+                "1490 nm DFB",
+                "Copper cable unequalized",
+                "Copper cable passive equalized",
+                "Copper cable, near and far end limiting active equalizers",
+                "Copper cable, far end limiting active equalizers",
+                "Copper cable, near end limiting active equalizers",
+                "Copper cable, linear active equalizers"
+            ]
+        },
+        "sff-8636_device_transmitter_properties": {
+            "$id": "/schemas/sff-8636_device_transmitter_properties",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Transmitter Technology (Bit 7-4)": { "$ref": "/schemas/sff-8636_transmitter_type" },
+                "Active Wavelength Control (Bit 3)": { "type": "boolean" },
+                "Cooled Transmitter (Bit 2)": { "type": "boolean" },
+                "Detector Type (Bit 1)": {
+                    "enum": [
+                        "PIN",
+                        "APD"
+                    ]
+                },
+                "Tunable Transmitter (Bit 0)": { "type": "boolean" }
+            },
+            "required": [
+                "Transmitter Technology (Bit 7-4)",
+                "Active Wavelength Control (Bit 3)",
+                "Cooled Transmitter (Bit 2)",
+                "Detector Type (Bit 1)",
+                "Tunable Transmitter (Bit 0)"
+            ]
+        }
     },
 
     "properties": {
@@ -367,6 +658,13 @@
         "Fibre Channel Transmitter Technology": {"$ref": "/schemas/sff-8636_fibre_transmitter_technology"},
         "Fibre Channel Transmission Media": {"$ref": "/schemas/sff-8636_fibre_channel_transmission_media"},
         "Fibre Channel Speed": {"$ref": "/schemas/sff-8636_fibre_channel_speed"},
+        "Encoding": {"$ref": "/schemas/sff-8636_encoding"},
+        "Nominal Signaling Rate [MBaud] (Divisible by 100)": {"$ref": "/schemas/sff-8636_nominal_baud_rate_100"},
+        "Extended Rate Select Compliance": {"$ref": "/schemas/sff-8636_extended_rate_selection_compliance"},
+        "Length (Standard SM Fiber) [km]": {"$ref": "/schemas/sff-8636_length_smf_km"},
+        "Length (OM3 50 um) [m] (Divisible by 2)": {"$ref": "/schemas/sff-8636_length_om3_m"},
+        "Length (OM2 50 um) [m]": {"$ref": "/schemas/sff-8636_length_om2_m"},
+        "Copper or Fibre Properties": {"$ref": "/schemas/sff-8636_copper_or_fibre_properties"}
     },
 
     "required": [
@@ -381,6 +679,14 @@
         "Fibre Channel Link Length",
         "Fibre Channel Transmitter Technology",
         "Fibre Channel Transmission Media",
-        "Fibre Channel Speed"
+        "Fibre Channel Speed",
+        "Encoding",
+        "Nominal Signaling Rate [MBaud] (Divisible by 100)",
+        "Extended Rate Select Compliance",
+        "Length (Standard SM Fiber) [km]",
+        "Length (OM3 50 um) [m] (Divisible by 2)",
+        "Length (OM2 50 um) [m]",
+        "Copper or Fibre Properties",
+        "Device & Transmitter Properties"
     ]
 }

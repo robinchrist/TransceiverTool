@@ -445,7 +445,556 @@ namespace TransceiverTool::Standards::SFF8636 {
 
 //############
 
-    void SFF8636_Upper00hToJSON(nlohmann::json& j, const SFF8636_Upper00h& programming) {
+//############
+    nlohmann::json EncodingToJSON(unsigned char byte_value) {
+        nlohmann::json j;
+
+        auto it = std::find_if(
+            SFF8024::SFF8636TransceiverEncodingAssignedValues.begin(),
+            SFF8024::SFF8636TransceiverEncodingAssignedValues.end(),
+            [byte_value](const SFF8024::SFF8636TransceiverEncodingAssignedValue& entry) { return entry.byte_value == byte_value; }
+        );
+
+        if(it != SFF8024::SFF8636TransceiverEncodingAssignedValues.end()) {
+            j = it->name;
+        } else {
+            j = charToJSONByteStruct(byte_value);
+        }
+
+        return j;
+    }
+
+    unsigned char EncodingFromJSON(const nlohmann::json& j) {
+        if(j.is_string()) {
+            auto strValue = j.template get<std::string>();
+
+            auto it = std::find_if(
+                SFF8024::SFF8636TransceiverEncodingAssignedValues.begin(),
+                SFF8024::SFF8636TransceiverEncodingAssignedValues.end(),
+                [&strValue](const SFF8024::SFF8636TransceiverEncodingAssignedValue& entry) { return entry.name == strValue; }
+            );
+
+            if(it == SFF8024::SFF8636TransceiverEncodingAssignedValues.end()) throw std::invalid_argument("Encoding is not a known string value");
+
+            return it->byte_value;
+        } else if(j.is_object()) {
+            return charFromJSONByteStruct(j);
+        } else {
+            throw std::invalid_argument("Encoding has wrong type (neither string nor object)");
+        }
+    }
+//############
+
+//############
+    nlohmann::json NominalSignalingRate100MBaudToJSON(unsigned char byte_value) {
+        nlohmann::json j;
+
+        if(byte_value != 0xFF) {
+            j = (unsigned long)(byte_value) * 100ul;
+        } else {
+            j = "> 25.4 GBd";
+        }
+
+        return j;
+    }
+
+    unsigned char NominalSignalingRate100MBaudFromJSON(const nlohmann::json& j) {
+        if(j.is_string()) {
+            auto strValue = j.template get<std::string>();
+
+            if(strValue != "> 25.4 GBd") throw std::invalid_argument("Nominal Signaling Rate can only have value > 25.4 GBd if string");
+
+            return 0xFF;
+        } else if(j.is_number_unsigned()) {
+            auto numberValue = j.template get<std::uint64_t>();
+
+            if(numberValue % 100 != 0) throw std::invalid_argument("Nominal Signaling Rate must be divisble by 100!");
+
+            if(numberValue > 25400) throw std::invalid_argument("Nominal Signaling Rate must not be larger than 25400");
+
+            return numberValue / 100;
+        } else {
+            throw std::invalid_argument("Nominal Signaling Rate has wrong type (neither string nor unsigned integer)");
+        }
+    }
+//############
+
+//############
+    nlohmann::json Extended_Rate_Select_ComplianceToJSON(const Extended_Rate_Select_Compliance& extRateSelectCompliance) {
+        nlohmann::json j;
+
+        j["Reserved (Bit 7)"] = extRateSelectCompliance.reserved_bit_7;
+        j["Reserved (Bit 6)"] = extRateSelectCompliance.reserved_bit_6;
+        j["Reserved (Bit 5)"] = extRateSelectCompliance.reserved_bit_5;
+        j["Reserved (Bit 4)"] = extRateSelectCompliance.reserved_bit_4;
+        j["Reserved (Bit 3)"] = extRateSelectCompliance.reserved_bit_3;
+        j["Reserved (Bit 2)"] = extRateSelectCompliance.reserved_bit_2;
+        j["Rate Select Version (Bit 1-0)"] = getSFF8636_Extended_Rate_Select_Compliance_Bit_1_0Info(extRateSelectCompliance.rate_select_bits_1_0).description;
+
+        return j;
+    }
+
+    Extended_Rate_Select_Compliance Extended_Rate_Select_ComplianceJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Extended Rate Select Compliance must be an object");
+
+        Extended_Rate_Select_Compliance extRateSelectCompliance;
+
+        extRateSelectCompliance.reserved_bit_7 = j.at("Reserved (Bit 7)").template get<bool>();
+        extRateSelectCompliance.reserved_bit_6 = j.at("Reserved (Bit 6)").template get<bool>();
+        extRateSelectCompliance.reserved_bit_5 = j.at("Reserved (Bit 5)").template get<bool>();
+        extRateSelectCompliance.reserved_bit_4 = j.at("Reserved (Bit 4)").template get<bool>();
+        extRateSelectCompliance.reserved_bit_3 = j.at("Reserved (Bit 3)").template get<bool>();
+        extRateSelectCompliance.reserved_bit_2 = j.at("Reserved (Bit 2)").template get<bool>();
+
+    
+        auto rate_select_bits_1_0_str = j.at("Rate Select Version (Bit 1-0)").template get<std::string>();
+        auto rate_select_bits_1_0It = std::find_if(
+            Extended_Rate_Select_Compliance_Bit_1_0_strings.begin(),
+            Extended_Rate_Select_Compliance_Bit_1_0_strings.end(),
+            [&rate_select_bits_1_0_str](const Extended_Rate_Select_Compliance_Bit_1_0_string& value) { return value.description == rate_select_bits_1_0_str; }
+        );
+        if(rate_select_bits_1_0It == Extended_Rate_Select_Compliance_Bit_1_0_strings.end()) {
+            throw std::invalid_argument("Invalid value for Rate Select Version (Bit 1-0) string");
+        }
+        extRateSelectCompliance.rate_select_bits_1_0 = rate_select_bits_1_0It->enum_value;
+
+
+        return extRateSelectCompliance;
+    }
+//############
+
+//############
+    nlohmann::json LengthSMFkmToJSON(unsigned char byte_value) {
+        nlohmann::json j;
+
+        if(byte_value == 0) {
+            j = "N/A";
+        } else if (j == 1) {
+            j = "0 - 1";
+        } else {
+            j = (unsigned long)(byte_value);
+        }
+
+        return j;
+    }
+
+    unsigned char LengthSMFkmFromJSON(const nlohmann::json& j) {
+
+        if(j.is_string()) {
+            auto strValue = j.template get<std::string>();
+
+            if(strValue == "N/A") return 0;
+            if(strValue == "0 - 1") return 1;
+
+            throw std::invalid_argument("Length (Standard SM Fiber) [km] can only have value N/A and 0 - 1 if string");
+        } else if(j.is_number_unsigned()) {
+            auto numberValue = j.template get<std::uint64_t>();
+
+            if(numberValue > 255) throw std::invalid_argument("Length (Standard SM Fiber) [km] must not be larger than 255");
+
+            return numberValue;
+        } else {
+            throw std::invalid_argument("Length (Standard SM Fiber) [km] has wrong type (neither string nor unsigned integer)");
+        }
+    }
+//############
+
+//############
+    nlohmann::json LengthOM3mToJSON(unsigned char byte_value) {
+        nlohmann::json j;
+
+        if(byte_value == 0) {
+            j = "N/A";
+        } else {
+            j = (unsigned long)(byte_value) * 2ul;
+        }
+
+        return j;
+    }
+
+    unsigned char LengthOM3mFromJSON(const nlohmann::json& j) {
+
+        if(j.is_string()) {
+            auto strValue = j.template get<std::string>();
+
+            if(strValue == "N/A") return 0;
+
+            throw std::invalid_argument("Length (OM3 50 um) [m] (Divisible by 2) can only have value N/A if string");
+        } else if(j.is_number_unsigned()) {
+            auto numberValue = j.template get<std::uint64_t>();
+
+            if(numberValue % 2 != 0) throw std::invalid_argument("Length (OM3 50 um) [m] (Divisible by 2) must be divisble by 2");
+            if(numberValue > 510) throw std::invalid_argument("Length (OM3 50 um) [m] (Divisible by 2) must not be larger than 510");
+
+            return numberValue / 2;
+        } else {
+            throw std::invalid_argument("Length (OM3 50 um) [m] (Divisible by 2) has wrong type (neither string nor unsigned integer)");
+        }
+    }
+//############
+
+//############
+    nlohmann::json LengthOM2mToJSON(unsigned char byte_value) {
+        nlohmann::json j;
+
+        if(byte_value == 0) {
+            j = "N/A";
+        } else {
+            j = (unsigned long)(byte_value);
+        }
+
+        return j;
+    }
+
+    unsigned char LengthOM2mFromJSON(const nlohmann::json& j) {
+
+        if(j.is_string()) {
+            auto strValue = j.template get<std::string>();
+
+            if(strValue == "N/A") return 0;
+
+            throw std::invalid_argument("Length (OM2 50 um) [m] can only have value N/A if string");
+        } else if(j.is_number_unsigned()) {
+            auto numberValue = j.template get<std::uint64_t>();
+
+            if(numberValue > 255) throw std::invalid_argument("Length (OM2 50 um) [m] must not be larger than 255");
+
+            return numberValue;
+        } else {
+            throw std::invalid_argument("Length (OM2 50 um) [m] has wrong type (neither string nor unsigned integer)");
+        }
+    }
+//############
+
+
+//############
+    nlohmann::json CopperOrFibreInfoToJSON(
+        bool copperMode,
+        unsigned char byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB,
+        unsigned char byte_146_length_copper_in_1m_or_om4_in_2m,
+        unsigned char byte_186_wavelength_high_order_or_copper_attenuation,
+        unsigned char byte_187_wavelength_low_order_or_copper_attenuation,
+        unsigned char byte_188_wavelength_tolerance_high_order_or_copper_attenuation,
+        unsigned char byte_189_wavelength_tolerance_low_order_or_copper_attenuation
+    ) {
+        nlohmann::json j;
+        if(copperMode) {
+            j["Type"] = "Copper";
+
+            if(byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB == 0) {
+                j["Copper Cable Attenuation @ 25.78 GHz [dB]"] = "N/A";
+            } else {
+                j["Copper Cable Attenuation @ 25.78 GHz [dB]"] = (unsigned long)(byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB);
+            }
+
+            if(byte_146_length_copper_in_1m_or_om4_in_2m == 0xFF) {
+                j["Length (passive copper or active cable) [m]"] = "> 254 m";
+            } else if(byte_146_length_copper_in_1m_or_om4_in_2m == 0) {
+                j["Length (passive copper or active cable) [m]"] = "N/A";
+            } else {
+                j["Length (passive copper or active cable) [m]"] = (unsigned long)(byte_146_length_copper_in_1m_or_om4_in_2m);
+            }
+            
+            if(byte_186_wavelength_high_order_or_copper_attenuation == 0) {
+                j["Copper Cable Attenuation @ 2.5 GHz [dB]"] = "N/A";
+            } else {
+                j["Copper Cable Attenuation @ 2.5 GHz [dB]"] = (unsigned long)(byte_186_wavelength_high_order_or_copper_attenuation);
+            }
+
+            if(byte_187_wavelength_low_order_or_copper_attenuation == 0) {
+                j["Copper Cable Attenuation @ 5.0 GHz [dB]"] = "N/A";
+            } else {
+                j["Copper Cable Attenuation @ 5.0 GHz [dB]"] = (unsigned long)(byte_187_wavelength_low_order_or_copper_attenuation);
+            }
+
+            if(byte_188_wavelength_tolerance_high_order_or_copper_attenuation == 0) {
+                j["Copper Cable Attenuation @ 7.0 GHz [dB]"] = "N/A";
+            } else {
+                j["Copper Cable Attenuation @ 7.0 GHz [dB]"] = (unsigned long)(byte_188_wavelength_tolerance_high_order_or_copper_attenuation);
+            }
+
+            if(byte_188_wavelength_tolerance_high_order_or_copper_attenuation == 0) {
+                j["Copper Cable Attenuation @ 12.9 GHz [dB]"] = "N/A";
+            } else {
+                j["Copper Cable Attenuation @ 12.9 GHz [dB]"] = (unsigned long)(byte_189_wavelength_tolerance_low_order_or_copper_attenuation);
+            }
+        } else {
+            j["Type"] = "Fibre";
+
+            if(byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB == 0) {
+                j["Length (OM1 62.5 um) [m]"] = "N/A";
+            } else {
+                j["Length (OM1 62.5 um) [m]"] = (unsigned long)(byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB);
+            }
+
+            if(byte_146_length_copper_in_1m_or_om4_in_2m == 0xFF) {
+                j["Length (OM4 50 um) [m] (Divisible by 2)"] = "> 508 m";
+            } else if(byte_146_length_copper_in_1m_or_om4_in_2m == 0) {
+                j["Length (OM4 50 um) [m] (Divisible by 2)"] = "N/A";
+            } else {
+                j["Length (OM4 50 um) [m] (Divisible by 2)"] = (unsigned long)(byte_146_length_copper_in_1m_or_om4_in_2m) * 2ul;
+            }
+
+            unsigned int wavelengthRaw = 0;
+            wavelengthRaw |= (unsigned(byte_186_wavelength_high_order_or_copper_attenuation) << 8);
+            wavelengthRaw |= (unsigned(byte_187_wavelength_low_order_or_copper_attenuation) << 0);
+            double wavelength = double(wavelengthRaw) / 20.0;
+            j["Wavelength [nm] (Divisible by 0.05)"] = wavelength;
+
+            unsigned int wavelengthToleranceRaw = 0;
+            wavelengthToleranceRaw |= (unsigned(byte_188_wavelength_tolerance_high_order_or_copper_attenuation) << 8);
+            wavelengthToleranceRaw |= (unsigned(byte_189_wavelength_tolerance_low_order_or_copper_attenuation) << 0);
+            double wavelengthTolerance = double(wavelengthToleranceRaw) / 200.0;
+            j["Wavelength Tolerance [nm] (Divisible by 0.005)"] = wavelengthTolerance;
+        }
+
+
+        return j;
+    }
+
+    struct CopperOrFibreInfoFromJSONReturn {
+        unsigned char byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB;
+        unsigned char byte_146_length_copper_in_1m_or_om4_in_2m;
+        unsigned char byte_186_wavelength_high_order_or_copper_attenuation;
+        unsigned char byte_187_wavelength_low_order_or_copper_attenuation;
+        unsigned char byte_188_wavelength_tolerance_high_order_or_copper_attenuation;
+        unsigned char byte_189_wavelength_tolerance_low_order_or_copper_attenuation;
+    };
+
+    CopperOrFibreInfoFromJSONReturn CopperOrFibreInfoFromJSON(const nlohmann::json& j) {
+
+        if(!j.is_object()) throw std::invalid_argument("Copper or Fibre Properties must be an object");
+
+        CopperOrFibreInfoFromJSONReturn parsedStruct;
+
+        auto typeStr = j.at("Type").template get<std::string>();
+
+        if(typeStr == "Copper") {
+            const auto& copper_cable_attenuation_25ghz_val = j.at("Copper Cable Attenuation @ 25.78 GHz [dB]");
+            if(copper_cable_attenuation_25ghz_val.is_string()) {
+                if(copper_cable_attenuation_25ghz_val.template get<std::string>() != "N/A") {
+                    throw std::invalid_argument("Copper Cable Attenuation @ 25.78GHz [dB] has string value, must be N/A");
+                }
+                parsedStruct.byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB = 0;
+            } else if(copper_cable_attenuation_25ghz_val.is_number_unsigned()) {
+                auto numberValue = copper_cable_attenuation_25ghz_val.template get<std::uint64_t>();
+
+                if(numberValue > 255) throw std::invalid_argument("Copper Cable Attenuation @ 25.78GHz [dB] must not be greater than 255");
+
+                parsedStruct.byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB = numberValue;
+            } else {
+                throw std::invalid_argument("Copper Cable Attenuation @ 25.78GHz [dB] has wrong type (neither string nor unsigned integer)");
+            }
+
+            const auto& cable_length_val = j.at("Length (passive copper or active cable) [m]");
+            if(cable_length_val.is_string()) {
+                if(cable_length_val.template get<std::string>() == "N/A") {
+                    parsedStruct.byte_146_length_copper_in_1m_or_om4_in_2m = 0;
+                } else if(cable_length_val.template get<std::string>() == "> 254 m") {
+                    parsedStruct.byte_146_length_copper_in_1m_or_om4_in_2m = 0xFF;
+                } else {
+                    throw std::invalid_argument("Length (passive copper or active cable) [m] has string value, must be N/A or > 254 m");
+                }
+            } else if(cable_length_val.is_number_unsigned()) {
+                auto numberValue = cable_length_val.template get<std::uint64_t>();
+
+                if(numberValue > 254) throw std::invalid_argument("Length (passive copper or active cable) [m] must not be greater than 254");
+
+                parsedStruct.byte_146_length_copper_in_1m_or_om4_in_2m = numberValue;
+            } else {
+                throw std::invalid_argument("Length (passive copper or active cable) [m] has wrong type (neither string nor unsigned integer)");
+            }
+
+            const auto& copper_cable_attenuation_2_5ghz_val = j.at("Copper Cable Attenuation @ 2.5 GHz [dB]");
+            if(copper_cable_attenuation_2_5ghz_val.is_string()) {
+                if(copper_cable_attenuation_2_5ghz_val.template get<std::string>() != "N/A") {
+                    throw std::invalid_argument("Copper Cable Attenuation @ 2.5 GHz [dB] has string value, must be N/A");
+                }
+                parsedStruct.byte_186_wavelength_high_order_or_copper_attenuation = 0;
+            } else if(copper_cable_attenuation_2_5ghz_val.is_number_unsigned()) {
+                auto numberValue = copper_cable_attenuation_2_5ghz_val.template get<std::uint64_t>();
+
+                if(numberValue > 255) throw std::invalid_argument("Copper Cable Attenuation @ 2.5 GHz [dB] must not be greater than 255");
+
+                parsedStruct.byte_186_wavelength_high_order_or_copper_attenuation = numberValue;
+            } else {
+                throw std::invalid_argument("Copper Cable Attenuation @ 2.5 GHz [dB] has wrong type (neither string nor unsigned integer)");
+            }
+
+            const auto& copper_cable_attenuation_5_0ghz_val = j.at("Copper Cable Attenuation @ 5.0 GHz [dB]");
+            if(copper_cable_attenuation_5_0ghz_val.is_string()) {
+                if(copper_cable_attenuation_5_0ghz_val.template get<std::string>() != "N/A") {
+                    throw std::invalid_argument("Copper Cable Attenuation @ 5.0 GHz [dB] has string value, must be N/A");
+                }
+                parsedStruct.byte_187_wavelength_low_order_or_copper_attenuation = 0;
+            } else if(copper_cable_attenuation_5_0ghz_val.is_number_unsigned()) {
+                auto numberValue = copper_cable_attenuation_5_0ghz_val.template get<std::uint64_t>();
+
+                if(numberValue > 255) throw std::invalid_argument("Copper Cable Attenuation @ 5.0 GHz [dB] must not be greater than 255");
+
+                parsedStruct.byte_187_wavelength_low_order_or_copper_attenuation = numberValue;
+            } else {
+                throw std::invalid_argument("Copper Cable Attenuation @ 5.0 GHz [dB] has wrong type (neither string nor unsigned integer)");
+            }
+
+            const auto& copper_cable_attenuation_7_0ghz_val = j.at("Copper Cable Attenuation @ 7.0 GHz [dB]");
+            if(copper_cable_attenuation_7_0ghz_val.is_string()) {
+                if(copper_cable_attenuation_7_0ghz_val.template get<std::string>() != "N/A") {
+                    throw std::invalid_argument("Copper Cable Attenuation @ 7.0 GHz [dB] has string value, must be N/A");
+                }
+                parsedStruct.byte_188_wavelength_tolerance_high_order_or_copper_attenuation = 0;
+            } else if(copper_cable_attenuation_7_0ghz_val.is_number_unsigned()) {
+                auto numberValue = copper_cable_attenuation_7_0ghz_val.template get<std::uint64_t>();
+
+                if(numberValue > 255) throw std::invalid_argument("Copper Cable Attenuation @ 7.0 GHz [dB] must not be greater than 255");
+
+                parsedStruct.byte_188_wavelength_tolerance_high_order_or_copper_attenuation = numberValue;
+            } else {
+                throw std::invalid_argument("Copper Cable Attenuation @ 7.0 GHz [dB] has wrong type (neither string nor unsigned integer)");
+            }
+
+            const auto& copper_cable_attenuation_12_9ghz_val = j.at("Copper Cable Attenuation @ 12.9 GHz [dB]");
+            if(copper_cable_attenuation_12_9ghz_val.is_string()) {
+                if(copper_cable_attenuation_12_9ghz_val.template get<std::string>() != "N/A") {
+                    throw std::invalid_argument("Copper Cable Attenuation @ 12.9 GHz [dB] has string value, must be N/A");
+                }
+                parsedStruct.byte_189_wavelength_tolerance_low_order_or_copper_attenuation = 0;
+            } else if(copper_cable_attenuation_12_9ghz_val.is_number_unsigned()) {
+                auto numberValue = copper_cable_attenuation_12_9ghz_val.template get<std::uint64_t>();
+
+                if(numberValue > 255) throw std::invalid_argument("Copper Cable Attenuation @ 12.9 GHz [dB] must not be greater than 255");
+
+                parsedStruct.byte_189_wavelength_tolerance_low_order_or_copper_attenuation = numberValue;
+            } else {
+                throw std::invalid_argument("Copper Cable Attenuation @ 12.9 GHz [dB] has wrong type (neither string nor unsigned integer)");
+            }
+        } else if(typeStr == "Fibre") {
+
+            const auto& length_om1_val = j.at("Length (OM1 62.5 um) [m]");
+            if(length_om1_val.is_string()) {
+                if(length_om1_val.template get<std::string>() == "N/A") {
+                    parsedStruct.byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB = 0;
+                } else {
+                    throw std::invalid_argument("Length (OM1 62.5 um) [m] has string value, must be N/A ");
+                }
+            } else if(length_om1_val.is_number_unsigned()) {
+                auto numberValue = length_om1_val.template get<std::uint64_t>();
+
+                if(numberValue > 254) throw std::invalid_argument("Length (OM1 62.5 um) [m] must not be greater than 254");
+
+                parsedStruct.byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB = numberValue;
+            } else {
+                throw std::invalid_argument("Length (OM1 62.5 um) [m] has wrong type (neither string nor unsigned integer)");
+            }
+
+            const auto& length_om4_val = j.at("Length (OM4 50 um) [m] (Divisible by 2)");
+            if(length_om4_val.is_string()) {
+                if(length_om4_val.template get<std::string>() == "N/A") {
+                    parsedStruct.byte_146_length_copper_in_1m_or_om4_in_2m = 0;
+                } else if(length_om4_val.template get<std::string>() == "> 508 m") {
+                    parsedStruct.byte_146_length_copper_in_1m_or_om4_in_2m = 0xFF;
+                } else {
+                    throw std::invalid_argument("Length (OM4 50 um) [m] (Divisible by 2) has string value, must be N/A or > 508 m");
+                }
+            } else if(length_om4_val.is_number_unsigned()) {
+                auto numberValue = length_om4_val.template get<std::uint64_t>();
+
+                if(numberValue % 2 != 0) throw std::invalid_argument("Length (OM4 50 um) [m] (Divisible by 2) must be divisible by 2");
+                if(numberValue > 508) throw std::invalid_argument("Length (OM4 50 um) [m] (Divisible by 2) must not be greater than 508");
+
+                parsedStruct.byte_146_length_copper_in_1m_or_om4_in_2m = numberValue / 2;
+            } else {
+                throw std::invalid_argument("Length (OM4 50 um) [m] (Divisible by 2) has wrong type (neither string nor unsigned integer)");
+            }
+
+            const auto& wavelengthVal = j.at("Wavelength [nm] (Divisible by 0.05)");
+            if(!wavelengthVal.is_number_float()) throw std::invalid_argument("Wavelength [nm] (Divisible by 0.05) must be a floating point number");
+
+            double rawWavelength = wavelengthVal.template get<double>();
+            if(rawWavelength < 0.0) throw std::invalid_argument("Wavelength [nm] (Divisible by 0.05) must be positive");
+            if(rawWavelength > 3276.75) throw std::invalid_argument("Wavelength [nm] (Divisible by 0.05) must not be greater than 3276.75");
+            //Allow for some FP rounding error due to round trip
+            if(std::abs(rawWavelength / 0.05 - std::round(rawWavelength / 0.05)) > 1e-04 ) throw std::invalid_argument("Wavelength [nm] (Divisible by 0.05) must be divisible by 0.05");
+
+            unsigned int wavelengthUint = std::min(65535.0, std::round(rawWavelength * 20.0));
+
+            parsedStruct.byte_186_wavelength_high_order_or_copper_attenuation = (wavelengthUint >> 8) & (0b11111111);
+            parsedStruct.byte_187_wavelength_low_order_or_copper_attenuation = (wavelengthUint >> 0) & (0b11111111);
+
+
+
+            const auto& wavelengthToleranceVal = j.at("Wavelength Tolerance [nm] (Divisible by 0.005)");
+            if(!wavelengthToleranceVal.is_number_float()) throw std::invalid_argument("Wavelength Tolerance [nm] (Divisible by 0.005) must be a floating point number");
+
+            double rawWavelengthTolerance = wavelengthToleranceVal.template get<double>();
+            if(rawWavelengthTolerance < 0.0) throw std::invalid_argument("Wavelength Tolerance [nm] (Divisible by 0.005) must be positive");
+            if(rawWavelengthTolerance > 327.675) throw std::invalid_argument("Wavelength Tolerance [nm] (Divisible by 0.005) must not be greater than 327.675");
+            //Allow for some FP rounding error due to round trip
+            if(std::abs(rawWavelengthTolerance / 0.005 - std::round(rawWavelengthTolerance / 0.005)) > 1e-04 ) throw std::invalid_argument("Wavelength [nm] (Divisible by 0.005) must be divisible by 0.005");
+
+            unsigned int wavelengthToleranceUint = std::min(65535.0, std::round(rawWavelengthTolerance * 200.0));
+
+            parsedStruct.byte_188_wavelength_tolerance_high_order_or_copper_attenuation = (wavelengthToleranceUint >> 8) & (0b11111111);
+            parsedStruct.byte_189_wavelength_tolerance_low_order_or_copper_attenuation = (wavelengthToleranceUint >> 0) & (0b11111111);
+
+        } else {
+            throw std::invalid_argument("Copper or Fibre Properties has invalid Type string, must be Copper or Fibre");
+        }
+
+        return parsedStruct;
+    }
+//############
+    nlohmann::json Device_Technology_and_Transmitter_TechnologyToJSON(const Device_Technology_and_Transmitter_Technology& value) {
+        nlohmann::json j;
+
+        j["Transmitter Technology (Bit 7-4)"] = getSFF8636_Transmitter_Technology_bit_7_4Info(value.transmitter_Technology_bit_7_4).description;
+        j["Active Wavelength Control (Bit 3)"] = value.wavelength_control_bit_3;
+        j["Cooled Transmitter (Bit 2)"] = value.cooled_transmitter_bit_2;
+        j["Detector Type (Bit 1)"] = value.pin_apd_detector_bit_1 ? "APD" : "PIN";
+        j["Tunable Transmitter (Bit 0)"] = value.transmitter_tunable_bit_0;
+
+        return j;
+    }
+
+    Device_Technology_and_Transmitter_Technology Device_Technology_and_Transmitter_TechnologyFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Device & Transmitter Properties must be an object");
+        
+        Device_Technology_and_Transmitter_Technology tech;
+
+        auto transmitterTechnologyStr = j.at("Transmitter Technology (Bit 7-4)").template get<std::string>();
+        auto it = std::find_if(
+            Transmitter_Technology_bit_7_4_strings.begin(),
+            Transmitter_Technology_bit_7_4_strings.end(),
+            [&transmitterTechnologyStr](const Transmitter_Technology_bit_7_4_string& entry) { return entry.description == transmitterTechnologyStr; }
+        );
+
+        if(it == Transmitter_Technology_bit_7_4_strings.end()) throw std::invalid_argument("Transmitter Technology is not a known string value");
+
+        tech.transmitter_Technology_bit_7_4 = it->enum_value;
+
+        tech.wavelength_control_bit_3 = j.at("Active Wavelength Control (Bit 3)").template get<bool>();
+        tech.cooled_transmitter_bit_2 = j.at("Cooled Transmitter (Bit 2)").template get<bool>();
+
+        auto detectorTypeStr = j.at("Detector Type (Bit 1)").template get<std::string>();
+        if(detectorTypeStr == "APD") {
+            tech.pin_apd_detector_bit_1 = true;
+        } else if(detectorTypeStr == "PIN") {
+            tech.pin_apd_detector_bit_1 = false;
+        } else {
+            throw std::invalid_argument("Detector Type (Bit 1) invalid string value, must be APD or PIN");
+        }
+
+        tech.transmitter_tunable_bit_0 = j.at("Tunable Transmitter (Bit 0)").template get<bool>();
+
+        return tech;
+    }
+
+//############
+
+
+//############
+
+    void SFF8636_Upper00hToJSON(nlohmann::json& j, const SFF8636_Upper00h& programming, bool copperMode) {
 
         j["Type"] = "SFF-8636 Upper Page 00h";
         
@@ -467,10 +1016,34 @@ namespace TransceiverTool::Standards::SFF8636 {
         j["Fibre Channel Transmitter Technology"] = std::move(fibreChannelPair.second);
         j["Fibre Channel Transmission Media"] = Fibre_Channel_Transmission_MediaToJSON(programming.byte_137_fibre_channel_transmission_media);
         j["Fibre Channel Speed"] = Fibre_Channel_SpeedToJSON(programming.byte_138_fibre_channel_speed);
+
+        j["Encoding"] = EncodingToJSON(programming.byte_139_Encoding);
+
+        j["Nominal Signaling Rate [MBaud] (Divisible by 100)"] = NominalSignalingRate100MBaudToJSON(programming.byte_140_nominal_signaling_rate_in_100_mbaud);
+
+        j["Extended Rate Select Compliance"] = Extended_Rate_Select_ComplianceToJSON(programming.byte_141_extended_rate_select_compliance);
+
+        j["Length (Standard SM Fiber) [km]"] = LengthSMFkmToJSON(programming.byte_142_length_smf_in_kilometers);
+
+        j["Length (OM3 50 um) [m] (Divisible by 2)"] = LengthOM3mToJSON(programming.byte_143_length_om3_in_2m);
+
+        j["Length (OM2 50 um) [m]"] = LengthOM2mToJSON(programming.byte_144_length_om2_in_m);
+
+        j["Copper or Fibre Properties"] = CopperOrFibreInfoToJSON(
+            copperMode,
+            programming.byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB,
+            programming.byte_146_length_copper_in_1m_or_om4_in_2m,
+            programming.byte_186_wavelength_high_order_or_copper_attenuation,
+            programming.byte_187_wavelength_low_order_or_copper_attenuation,
+            programming.byte_188_wavelength_tolerance_high_order_or_copper_attenuation,
+            programming.byte_189_wavelength_tolerance_low_order_or_copper_attenuation
+        );
+
+        j["Device & Transmitter Properties"] = Device_Technology_and_Transmitter_TechnologyToJSON(programming.byte_147_device_technology_and_transmitter_technology);
     }
 
 
-    void SFF8636_Upper00hFromJSON(const nlohmann::json& j, SFF8636_Upper00h programming) {
+    void SFF8636_Upper00hFromJSON(const nlohmann::json& j, SFF8636_Upper00h& programming) {
 
         if(j.at("Type").template get<std::string>() != "SFF-8636 Upper Page 00h") {
             throw std::invalid_argument("JSON specifies wrong type");
@@ -491,6 +1064,28 @@ namespace TransceiverTool::Standards::SFF8636 {
         programming.byte_136_fibre_channel_transmitter_technology = std::move(fibreChannelPair.second);
         programming.byte_137_fibre_channel_transmission_media = Fibre_Channel_Transmission_MediaFromJSON(j.at("Fibre Channel Transmission Media"));
         programming.byte_138_fibre_channel_speed = Fibre_Channel_SpeedFromJSON(j.at("Fibre Channel Speed"));
+
+        programming.byte_139_Encoding = EncodingFromJSON(j.at("Encoding"));
+
+        programming.byte_140_nominal_signaling_rate_in_100_mbaud = NominalSignalingRate100MBaudFromJSON(j.at("Nominal Signaling Rate [MBaud] (Divisible by 100)"));
+
+        programming.byte_141_extended_rate_select_compliance = Extended_Rate_Select_ComplianceJSON(j.at("Extended Rate Select Compliance"));
+
+        programming.byte_142_length_smf_in_kilometers = LengthSMFkmFromJSON(j.at("Length (Standard SM Fiber) [km]"));
+
+        programming.byte_143_length_om3_in_2m = LengthOM3mFromJSON(j.at("Length (OM3 50 um) [m] (Divisible by 2)"));
+
+        programming.byte_144_length_om2_in_m = LengthOM2mFromJSON(j.at("Length (OM2 50 um) [m]"));
+
+        auto copperOrFibreInfoToJSONReturn = CopperOrFibreInfoFromJSON(j.at("Copper or Fibre Properties"));
+        programming.byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB = copperOrFibreInfoToJSONReturn.byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB;
+        programming.byte_146_length_copper_in_1m_or_om4_in_2m = copperOrFibreInfoToJSONReturn.byte_146_length_copper_in_1m_or_om4_in_2m;
+        programming.byte_186_wavelength_high_order_or_copper_attenuation = copperOrFibreInfoToJSONReturn.byte_186_wavelength_high_order_or_copper_attenuation;
+        programming.byte_187_wavelength_low_order_or_copper_attenuation = copperOrFibreInfoToJSONReturn.byte_187_wavelength_low_order_or_copper_attenuation;
+        programming.byte_188_wavelength_tolerance_high_order_or_copper_attenuation = copperOrFibreInfoToJSONReturn.byte_188_wavelength_tolerance_high_order_or_copper_attenuation;
+        programming.byte_189_wavelength_tolerance_low_order_or_copper_attenuation = copperOrFibreInfoToJSONReturn.byte_189_wavelength_tolerance_low_order_or_copper_attenuation;
+
+        programming.byte_147_device_technology_and_transmitter_technology = Device_Technology_and_Transmitter_TechnologyFromJSON(j.at("Device & Transmitter Properties"));
     }
 
 

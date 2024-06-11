@@ -108,7 +108,7 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         parsedStruct.byte_144_length_om2_in_m = bytes[144];
 
-        parsedStruct.byte_145_length_om1_in_1m_or_copper_cable_attentuation_in_dB = bytes[145];
+        parsedStruct.byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB = bytes[145];
 
         parsedStruct.byte_146_length_copper_in_1m_or_om4_in_2m = bytes[146];
 
@@ -135,11 +135,11 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         std::memcpy(parsedStruct.byte_184_185_vendor_rev.data(), bytes + 184, 2);
 
-        parsedStruct.byte_186_wavelength_high_order_or_copper_attentuation = bytes[186];
-        parsedStruct.byte_187_wavelength_low_order_or_copper_attentuation = bytes[187];
+        parsedStruct.byte_186_wavelength_high_order_or_copper_attenuation = bytes[186];
+        parsedStruct.byte_187_wavelength_low_order_or_copper_attenuation = bytes[187];
 
-        parsedStruct.byte_188_wavelength_tolerance_high_order_or_copper_attentuation = bytes[188];
-        parsedStruct.byte_189_wavelength_tolerance_low_order_or_copper_attentuation = bytes[189];
+        parsedStruct.byte_188_wavelength_tolerance_high_order_or_copper_attenuation = bytes[188];
+        parsedStruct.byte_189_wavelength_tolerance_low_order_or_copper_attenuation = bytes[189];
 
         parsedStruct.byte_190_max_case_temperature = bytes[190];
 
