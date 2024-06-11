@@ -16,6 +16,8 @@
 #include "TransceiverTool/Standards/SFF-8636_Upper00h.hpp"
 #include "TransceiverTool/Standards/SFF-8636_Parser.hpp"
 #include "TransceiverTool/Standards/SFF-8636_Validation.hpp"
+#include "TransceiverTool/Standards/SFF-8636_Assembler.hpp"
+#include "TransceiverTool/Standards/SFF-8636_JSON.hpp"
 
 namespace TransceiverTool::Standards::SFF8636 {
     const Extended_Identifier_Bit_7_6_string& getSFF8636_Extended_Identifier_Bit_7_6Info(Extended_Identifier_Bit_7_6 enum_value) {
@@ -202,6 +204,29 @@ int main() {
         std::cout << warning << std::endl;
     }
 
+    std::cout << "Checking reassembly" << std::endl;
+    std::vector<unsigned char> reassembled; reassembled.resize(256, 0x00);
+    TransceiverTool::Standards::SFF8636::assembleToBinary(
+        reassembled.data(),
+        parsedStruct,
+        TransceiverTool::Standards::SFF8636::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING,
+        TransceiverTool::Standards::SFF8636::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING
+    );
+
+    bool reassembleError = false;
+    for(int index = 128; index < 256; ++index) {
+        if(reassembled[index] != buffer[index]) {
+            reassembleError = true;
+
+            std::cout << fmt::format("Error: Bytes at index {} different. Should be {:#04x} but is {:#04x}", index, buffer[index], reassembled[index]);
+        }
+    }
+
+    if(reassembleError) return -1;
+
+    std::cout << "Reassembly succeeded!" << std::endl;
+
+
     nlohmann::ordered_json j;
     TransceiverTool::Standards::SFF8636::SFF8636_Upper00hToJSON(j, parsedStruct, false);
 
@@ -217,6 +242,30 @@ int main() {
 
     //std::cout << "Decoded:" << std::endl;
     //std::cout << prettyPrint << std::endl;
+
+    std::cout << "Checking reassembly from JSON" << std::endl;
+    reassembled.clear();
+    reassembled.resize(256, 0x00);
+
+    TransceiverTool::Standards::SFF8636::assembleToBinary(
+        reassembled.data(),
+        programmingRoundtrip,
+        TransceiverTool::Standards::SFF8636::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING,
+        TransceiverTool::Standards::SFF8636::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING
+    );
+
+    reassembleError = false;
+    for(int index = 128; index < 256; ++index) {
+        if(reassembled[index] != buffer[index]) {
+            reassembleError = true;
+
+            std::cout << fmt::format("Error: Bytes at index {} different. Should be {:#04x} but is {:#04x}\n", index, buffer[index], reassembled[index]);
+        }
+    }
+
+    if(reassembleError) return -1;
+
+    std::cout << "Reassembly succeeded!" << std::endl;
 
     return 0;
 }

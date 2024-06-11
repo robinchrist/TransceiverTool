@@ -176,7 +176,4 @@ namespace TransceiverTool::Standards::SFF8636 {
         //Vendor Specific EEPROM
         std::array<unsigned char, 32> byte_224_255_vendor_specific;
     };
-
-    void SFF8636_Upper00hToJSON(nlohmann::ordered_json& j, const SFF8636_Upper00h& programming, bool copperMode);
-    void SFF8636_Upper00hFromJSON(const nlohmann::json& j, SFF8636_Upper00h& programming);
 }
