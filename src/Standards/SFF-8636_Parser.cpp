@@ -203,7 +203,7 @@ namespace TransceiverTool::Standards::SFF8636 {
         
         parsedStruct.byte_223_CC_EXT = bytes[223];
 
-        std::memcpy(parsedStruct.byte_224_255_vendor_specific.data(), bytes + 224, 16);
+        std::memcpy(parsedStruct.byte_224_255_vendor_specific.data(), bytes + 224, 32);
 
         return parsedStruct;
     }

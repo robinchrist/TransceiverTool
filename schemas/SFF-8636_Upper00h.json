@@ -6,20 +6,6 @@
     "type": "object",
 
     "$defs": {
-        "address": {
-            "$id": "/schemas/address",
-            "$schema": "http://json-schema.org/draft-07/schema#",
-            "type": "object",
-            "properties": {
-                "street_address": { "type": "string" },
-                "city": { "type": "string" },
-                "state": { "$ref": "#/definitions/state" }
-            },
-            "required": ["street_address", "city", "state"],
-            "definitions": {
-                "state": { "enum": ["CA", "NY", "... etc ..."] }
-            }
-        },
         "single_byte_value_obj": {
             "$id": "/schemas/single_byte_value_obj",
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -731,8 +717,8 @@
                 }
             ]
         },
-        "sff-8636_vendor_pn": {
-            "$id": "/schemas/sff-8636_vendor_pn",
+        "sff-8636_vendor_part_number": {
+            "$id": "/schemas/sff-8636_vendor_part_number",
             "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
                 {"$ref": "/schemas/base64_obj"},
@@ -760,6 +746,279 @@
             "minimum": 0,
             "maximum": 255
         },
+        "sff-8636_extended_specification_compliance_codes": {
+            "$id": "/schemas/sff-8636_extended_specification_compliance_codes",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                { "$ref": "/schemas/single_byte_value_obj" },
+                { 
+                    "enum": [
+                        "Unspecified",
+                        "100G AOC (Active Optical Cable), retimed or 25GAUI C2M AOC. Providing a worst BER of 5 x 10-5",
+                        "100GBASE-SR4 or 25GBASE-SR",
+                        "100GBASE-LR4 or 25GBASE-LR",
+                        "100GBASE-ER4 or 25GBASE-ER",
+                        "100GBASE-SR10",
+                        "100G CWDM4",
+                        "100G PSM4 Parallel SMF",
+                        "100G ACC (Active Copper Cable), retimed or 25GAUI C2M ACC. Providing a worst BER of 5 x 10-5",
+                        "Obsolete (assigned before 100G CWDM4 MSA required FEC)",
+                        "100GBASE-CR4, 25GBASE-CR CA-25G-L or 50GBASE-CR2 with RS (Clause91) FEC",
+                        "25GBASE-CR CA-25G-S or 50GBASE-CR2 with BASE-R (Clause 74 Fire code) FEC",
+                        "25GBASE-CR CA-25G-N or 50GBASE-CR2 with no FEC",
+                        "10 Mb/s Single Pair Ethernet (802.3cg, Clause 146/147, 1000 m copper)",
+                        "40GBASE-ER4",
+                        "4 x 10GBASE-SR",
+                        "40G PSM4 Parallel SMF",
+                        "G959.1 profile P1I1-2D1 (10709 MBd, 2km, 1310 nm SM)",
+                        "G959.1 profile P1S1-2D2 (10709 MBd, 40km, 1550 nm SM)",
+                        "G959.1 profile P1L1-2D2 (10709 MBd, 80km, 1550 nm SM)",
+                        "10GBASE-T with SFI electrical interface",
+                        "100G CLR4",
+                        "100G AOC, retimed or 25GAUI C2M AOC. Providing a worst BER of 10-12 or below",
+                        "100G ACC, retimed or 25GAUI C2M ACC. Providing a worst BER of 10-12 or below",
+                        "100GE-DWDM2 (DWDM transceiver using 2 wavelengths on a 1550 nm DWDM grid with a reach up to 80 km)",
+                        "100G 1550nm WDM (4 wavelengths)",
+                        "10GBASE-T Short Reach (30 meters)",
+                        "5GBASE-T",
+                        "2.5GBASE-T",
+                        "40G SWDM4",
+                        "100G SWDM4",
+                        "100G PAM4 BiDi",
+                        "10GBASE-BR (Clause 158)",
+                        "25GBASE-BR (Clause 159)",
+                        "50GBASE-BR (Clause 160)",
+                        "4WDM-10 MSA (10km version of 100G CWDM4 with same RS(528,514) FEC in host system)",
+                        "4WDM-20 MSA (20km version of 100GBASE-LR4 with RS(528,514) FEC in host system)",
+                        "4WDM-40 MSA (40km reach with APD receiver and RS(528,514) FEC in host system)",
+                        "100GBASE-DR (Clause 140), CAUI-4 (no FEC)",
+                        "100G-FR or 100GBASE-FR1 (Clause 140), CAUI-4 (no FEC on host interface)",
+                        "100G-LR or 100GBASE-LR1 (Clause 140), CAUI-4 (no FEC on host interface)",
+                        "100GBASE-SR1 (802.3, Clause 167), CAUI-4 (no FEC on host interface)",
+                        "100GBASE-VR1 (802.3, Clause 167), CAUI-4 (no FEC on host interface)",
+                        "100GBASE-SR1, 200GBASE-SR2 or 400GBASE-SR4 (802.3, Clause 167)",
+                        "100GBASE-VR1, 200GBASE-VR2 or 400GBASE-VR4 (802.3, Clause 167)",
+                        "100GBASE-FR1 (802.3, Clause 140) or 400GBASE-DR4-2 (P802.3df, Clause 124)",
+                        "100GBASE-LR1 (802.3, Clause 140)",
+                        "100G-LR1-20 MSA, CAUI-4 (no FEC on host interface)",
+                        "100G-ER1-30 MSA, CAUI-4 (no FEC on host interface)",
+                        "100G-ER1-40 MSA, CAUI-4 (no FEC on host interface)",
+                        "100G-LR1-20 MSA",
+                        "100G-ER1-30 MSA",
+                        "100G-ER1-40 MSA",
+                        "Active Copper Cable with 50GAUI, 100GAUI-2 or 200GAUI-4 C2M. Providing a worst BER of 10-6 or below",
+                        "Active Optical Cable with 50GAUI, 100GAUI-2 or 200GAUI-4 C2M. Providing a worst BER of 10-6 or below",
+                        "Active Copper Cable with 50GAUI, 100GAUI-2 or 200GAUI-4 C2M. Providing a worst BER of 2.6x10-4 for ACC, 10-5 for AUI, or below",
+                        "Active Optical Cable with 50GAUI, 100GAUI-2 or 200GAUI-4 C2M. Providing a worst BER of 2.6x10-4 for AOC, 10-5 for AUI, or below",
+                        "100GBASE-CR1, 200GBASE-CR2 or 400GBASE-CR4 (P802.3ck, Clause 162)",
+                        "50GBASE-CR, 100GBASE-CR2, or 200GBASE-CR4",
+                        "50GBASE-SR, 100GBASE-SR2, or 200GBASE-SR4",
+                        "50GBASE-FR or 200GBASE-DR4",
+                        "50GBASE-ER (IEEE 802.3, Clause 139)",
+                        "200GBASE-FR4",
+                        "200G 1550 nm PSM4",
+                        "50GBASE-LR",
+                        "200GBASE-LR4",
+                        "400GBASE-DR4 (802.3, Clause 124), 400GAUI-4 C2M (Annex 120G)",
+                        "400GBASE-FR4 (802.3, Clause 151)",
+                        "400GBASE-LR4-6 (802.3, Clause 151)",
+                        "400G-LR4-10",
+                        "400GBASE-ZR (P802.3cw, Clause 156)",
+                        "256GFC-SW4 (FC-PI-7P)",
+                        "64GFC (FC-PI-7)",
+                        "128GFC (FC-PI-8)"
+                    ]
+                }
+            ]
+        },
+        "sff-8636_options": {
+            "$id": "/schemas/sff-8636_options",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Reserved (Byte 193, Bit 7)": {"type": "boolean"},
+                "LPMode/TxDis input signal configurable (Byte 193, Bit 6)": {"type": "boolean"},
+                "IntL/RxLOSL output signal configurable (Byte 193, Bit 5)": {"type": "boolean"},
+                "Tx input adaptive equalizers freeze capable (Byte 193, Bit 4)": {"type": "boolean"},
+                "Tx input equalizers auto-adaptive capable (Byte 193, Bit 3)": {"type": "boolean"},
+                "Tx input equalizers fixed-programmable settings implemented (Byte 193, Bit 2)": {"type": "boolean"},
+                "Rx output emphasis fixed-programmable settings implemented (Byte 193, Bit 1)": {"type": "boolean"},
+                "Rx output amplitude fixed-programmable settings implemented (Byte 193, Bit 0)": {"type": "boolean"},
+                "Tx CDR On/Off Control implemented (Byte 194, Bit 7)": {"type": "boolean"},
+                "Rx CDR On/Off Control implemented (Byte 194, Bit 6)": {"type": "boolean"},
+                "Tx CDR Loss of Lock (LOL) flag implemented (Byte 194, Bit 5)": {"type": "boolean"},
+                "Rx CDR Loss of Lock (LOL) flag implemented. (Byte 194, Bit 4)": {"type": "boolean"},
+                "Rx Squelch Disable implemented (Byte 194, Bit 3)": {"type": "boolean"},
+                "Rx Output Disable implemented (Byte 194, Bit 2)": {"type": "boolean"},
+                "Tx Squelch Disable implemented (Byte 194, Bit 1)": {"type": "boolean"},
+                "Tx Squelch implemented (Byte 194, Bit 0)": {"type": "boolean"},
+                "Memory Page 02 provided (Byte 195, Bit 7)": {"type": "boolean"},
+                "Memory Page 01h provided. (Byte 195, Bit 6)": {"type": "boolean"},
+                "Rate select is implemented as defined in Section 6.2.7 (Byte 195, Bit 5)": {"type": "boolean"},
+                "Tx_Disable is implemented (Byte 195, Bit 4)": {"type": "boolean"},
+                "Tx_Fault signal implemented (Byte 195, Bit 3)": {"type": "boolean"},
+                "Tx Squelch implemented to reduce Pave (Byte 195, Bit 2)": {"type": "boolean"},
+                "Tx Loss of Signal (Byte 195, Bit 1)": {"type": "boolean"},
+                "Pages 20-21h implemented (Byte 195, Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "Reserved (Byte 193, Bit 7)",
+                "LPMode/TxDis input signal configurable (Byte 193, Bit 6)",
+                "IntL/RxLOSL output signal configurable (Byte 193, Bit 5)",
+                "Tx input adaptive equalizers freeze capable (Byte 193, Bit 4)",
+                "Tx input equalizers auto-adaptive capable (Byte 193, Bit 3)",
+                "Tx input equalizers fixed-programmable settings implemented (Byte 193, Bit 2)",
+                "Rx output emphasis fixed-programmable settings implemented (Byte 193, Bit 1)",
+                "Rx output amplitude fixed-programmable settings implemented (Byte 193, Bit 0)",
+                "Tx CDR On/Off Control implemented (Byte 194, Bit 7)",
+                "Rx CDR On/Off Control implemented (Byte 194, Bit 6)",
+                "Tx CDR Loss of Lock (LOL) flag implemented (Byte 194, Bit 5)",
+                "Rx CDR Loss of Lock (LOL) flag implemented. (Byte 194, Bit 4)",
+                "Rx Squelch Disable implemented (Byte 194, Bit 3)",
+                "Rx Output Disable implemented (Byte 194, Bit 2)",
+                "Tx Squelch Disable implemented (Byte 194, Bit 1)",
+                "Tx Squelch implemented (Byte 194, Bit 0)",
+                "Memory Page 02 provided (Byte 195, Bit 7)",
+                "Memory Page 01h provided. (Byte 195, Bit 6)",
+                "Rate select is implemented as defined in Section 6.2.7 (Byte 195, Bit 5)",
+                "Tx_Disable is implemented (Byte 195, Bit 4)",
+                "Tx_Fault signal implemented (Byte 195, Bit 3)",
+                "Tx Squelch implemented to reduce Pave (Byte 195, Bit 2)",
+                "Tx Loss of Signal (Byte 195, Bit 1)",
+                "Pages 20-21h implemented (Byte 195, Bit 0)"
+            ]
+        },
+        "sff-8636_vendor_serial_number": {
+            "$id": "/schemas/sff-8636_vendor_serial_number",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {"$ref": "/schemas/base64_obj"},
+                { 
+                    "type": "string",
+                    "pattern": "^[ -~]{0,16}$"
+                }
+            ]
+        },
+        "sff-8636_date_code": {
+            "$id": "/schemas/sff-8636_date_code",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Year low order digits (Byte 212-213)": {
+                    "anyOf": [
+                        {"$ref": "/schemas/base64_obj"},
+                        {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 99
+                        }
+                    ]
+                },
+                "Month digits (Byte 214-215)": {
+                    "anyOf": [
+                        {"$ref": "/schemas/base64_obj"},
+                        {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 12
+                        }
+                    ]
+                },
+                "Day (Byte 216-217)": {
+                    "anyOf": [
+                        {"$ref": "/schemas/base64_obj"},
+                        {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 31
+                        }
+                    ]
+                },
+                "Vendor Lot Code (Byte 218-219)": {
+                    "anyOf": [
+                        {"$ref": "/schemas/base64_obj"},
+                        {
+                            "type": "string",
+                            "minLength": 0,
+                            "maxLength": 2
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "Year low order digits (Byte 212-213)",
+                "Month digits (Byte 214-215)",
+                "Day (Byte 216-217)",
+                "Vendor Lot Code (Byte 218-219)"
+            ]
+        },
+        "sff-8636_diagnostic_monitoring_type": {
+            "$id": "/schemas/sff-8636_diagnostic_monitoring_type",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Reserved (Bit 7)": {"type": "boolean"},
+                "Reserved (Bit 6)": {"type": "boolean"},
+                "Temperature monitoring implemented (Bit 5)": {"type": "boolean"},
+                "Supply voltage monitoring implemented (Bit 4)": {"type": "boolean"},
+                "Received power measurements type (Bit 3)": {
+                    "enum": ["Average", "OMA"]
+                },
+                "Transmitter power measurement supported (Bit 2)": {"type": "boolean"},
+                "Reserved (Bit 1)": {"type": "boolean"},
+                "Reserved (Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "Reserved (Bit 7)",
+                "Reserved (Bit 6)",
+                "Temperature monitoring implemented (Bit 5)",
+                "Supply voltage monitoring implemented (Bit 4)",
+                "Received power measurements type (Bit 3)",
+                "Transmitter power measurement supported (Bit 2)",
+                "Reserved (Bit 1)",
+                "Reserved (Bit 0)"
+            ]
+        },
+        "sff-8636_enhanced_options": {
+            "$id": "/schemas/sff-8636_enhanced_options",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Reserved (Bit 7)": {"type": "boolean"},
+                "Reserved (Bit 6)": {"type": "boolean"},
+                "Reserved (Bit 5)": {"type": "boolean"},
+                "Initialization Complete Flag implemented (Bit 4)": {"type": "boolean"},
+                "Extended Rate Selection implemented (Bit 3)": {"type": "boolean"},
+                "Reserved (Bit 2)": {"type": "boolean"},
+                "TC readiness flag implemented (Bit 1)": {"type": "boolean"},
+                "Software reset implemented (Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "Reserved (Bit 7)",
+                "Reserved (Bit 6)",
+                "Reserved (Bit 5)",
+                "Initialization Complete Flag implemented (Bit 4)",
+                "Extended Rate Selection implemented (Bit 3)",
+                "Reserved (Bit 2)",
+                "TC readiness flag implemented (Bit 1)",
+                "Software reset implemented (Bit 0)"
+            ]
+        },
+        "sff-8636_extended_baud_rate_250": {
+            "$id": "/schemas/sff-8636_extended_baud_rate_250",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "integer",
+            "multipleOf" : 250,
+            "minimum": 0,
+            "maximum": 63750
+        },
+        "sff-8636_vendor_specific": {
+            "$id": "/schemas/sff-8636_vendor_specific",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {"$ref": "/schemas/base64_obj"}
+            ]
+        }
     },
 
     "properties": {
@@ -787,9 +1046,17 @@
         "Vendor Name": {"$ref": "/schemas/sff-8636_vendor_name"},
         "Extended Module Codes (Infiniband)": {"$ref": "/schemas/sff-8636_extended_module_codes_infiniband"},
         "Vendor OUI": {"$ref": "/schemas/sff-8636_vendor_oui"},
-        "Vendor PN": {"$ref": "/schemas/sff-8636_vendor_pn"},
+        "Vendor Part Number": {"$ref": "/schemas/sff-8636_vendor_part_number"},
         "Vendor Rev": {"$ref": "/schemas/sff-8636_vendor_rev"},
         "Maximum Case Temperature [degC]": {"$ref": "/schemas/sff-8636_maximum_case_temperature"},
+        "Extended Specification Compliance Codes": {"$ref": "/schemas/sff-8636_extended_specification_compliance_codes"},
+        "Options": {"$ref": "/schemas/sff-8636_options"},
+        "Vendor Serial Number": {"$ref": "/schemas/sff-8636_vendor_serial_number"},
+        "Date Code": {"$ref": "/schemas/sff-8636_date_code"},
+        "Diagnostic Monitoring Type": {"$ref": "/schemas/sff-8636_diagnostic_monitoring_type"},
+        "Enhanced Options": {"$ref": "/schemas/sff-8636_enhanced_options"},
+        "Extended Baud Rate [MBaud] (Divisible by 250)": {"$ref": "/schemas/sff-8636_extended_baud_rate_250"},
+        "Vendor Specific": {"$ref": "/schemas/sff-8636_vendor_specific"}
     },
 
     "required": [
@@ -816,8 +1083,16 @@
         "Vendor Name",
         "Extended Module Codes (Infiniband)",
         "Vendor OUI",
-        "Vendor PN",
+        "Vendor Part Number",
         "Vendor Rev",
-        "Maximum Case Temperature [degC]"
+        "Maximum Case Temperature [degC]",
+        "Extended Specification Compliance Codes",
+        "Options",
+        "Vendor Serial Number",
+        "Date Code",
+        "Diagnostic Monitoring Type",
+        "Enhanced Options",
+        "Extended Baud Rate [MBaud] (Divisible by 250)",
+        "Vendor Specific"
     ]
 }

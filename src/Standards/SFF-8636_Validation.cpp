@@ -1,5 +1,6 @@
 #include "TransceiverTool/Standards/SFF-8636_Validation.hpp"
 #include "TransceiverTool/Standards/SFF-8636_Extended_Rate_Select_Compliance.hpp"
+#include <cctype>
 #include <fmt/core.h>
 #include <algorithm>
 
@@ -166,7 +167,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
 
     void validateVendorName(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
         for(int index = 0; index < programming.byte_148_163_vendor_name.size(); ++index) {
-            if(programming.byte_148_163_vendor_name[index] <= 0x19 || programming.byte_148_163_vendor_name[index] >= 0x7F) {
+            if(!std::isprint(programming.byte_148_163_vendor_name[index])) {
                 validationResult.errors.push_back(
                     fmt::format(
                         "Byte {} (\"Vendor Name\", Position {}) is an unprintable ASCII character (Byte Value {:#04x})",
@@ -195,7 +196,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         bool vendorPNAllZeros = std::all_of(programming.byte_168_183_vendor_pn.begin(), programming.byte_168_183_vendor_pn.end(), [](unsigned char val) { return val == 0; });
         if(!vendorPNAllZeros) {
             for(int index = 0; index < programming.byte_168_183_vendor_pn.size(); ++index) {
-                if(programming.byte_168_183_vendor_pn[index] <= 0x19 || programming.byte_168_183_vendor_pn[index] >= 0x7F) {
+                if(!std::isprint(programming.byte_168_183_vendor_pn[index])) {
                     validationResult.errors.push_back(
                         fmt::format(
                             "Byte {} (\"Vendor PN\", Position {}) is an unprintable ASCII character (Byte Value {:#04x})",
@@ -213,7 +214,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         bool vendorRevAllZeros = std::all_of(programming.byte_184_185_vendor_rev.begin(), programming.byte_184_185_vendor_rev.end(), [](unsigned char val) { return val == 0; });
         if(!vendorRevAllZeros) {
             for(int index = 0; index < programming.byte_184_185_vendor_rev.size(); ++index) {
-                if(programming.byte_184_185_vendor_rev[index] <= 0x19 || programming.byte_184_185_vendor_rev[index] >= 0x7F) {
+                if(!std::isprint(programming.byte_184_185_vendor_rev[index])) {
                     validationResult.errors.push_back(
                         fmt::format(
                             "Byte {} (\"Vendor Rev\", Position {}) is an unprintable ASCII character (Byte Value {:#04x})",
@@ -265,7 +266,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         bool vendorSNAllZeros = std::all_of(programming.byte_196_211_vendor_sn.begin(), programming.byte_196_211_vendor_sn.end(), [](unsigned char val) { return val == 0; });
         if(!vendorSNAllZeros) {
             for(int index = 0; index < programming.byte_196_211_vendor_sn.size(); ++index) {
-                if(programming.byte_196_211_vendor_sn[index] <= 0x19 || programming.byte_196_211_vendor_sn[index] >= 0x7F) {
+                if(!std::isprint(programming.byte_196_211_vendor_sn[index])) {
                     validationResult.errors.push_back(
                         fmt::format(
                             "Byte {} (\"Vendor SN\", Position {}) is an unprintable ASCII character (Byte Value {:#04x})",
@@ -281,8 +282,8 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
     void validateDateCode(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
         //SFF-8636 Rev 2.11 Date Code (00h 212-219)
         if(
-            programming.byte_212_219_date_code.year_low_order_digits[0] <= 0x2F || programming.byte_212_219_date_code.year_low_order_digits[0] >= 0x3A ||
-            programming.byte_212_219_date_code.year_low_order_digits[1] <= 0x2F || programming.byte_212_219_date_code.year_low_order_digits[1] >= 0x3A
+            !std::isdigit(programming.byte_212_219_date_code.year_low_order_digits[0]) || 
+            !std::isdigit(programming.byte_212_219_date_code.year_low_order_digits[1])
         ) {
             validationResult.errors.push_back(
                 fmt::format(
@@ -304,7 +305,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         } else {
             try {
                 int digits_of_month  = std::stoi(std::string(reinterpret_cast<char const *>(programming.byte_212_219_date_code.month_digits.data()), 2));
-                if(digits_of_month < 0 || digits_of_month > 12) {
+                if(digits_of_month < 1 || digits_of_month > 12) {
                     validationResult.errors.push_back(
                         fmt::format(
                             "Byte 213 / 214 (\"Date Code\", digits of the month) must be within [0;12] but is {}",
@@ -333,7 +334,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         } else {
             try {
                 int digits_of_month  = std::stoi(std::string(reinterpret_cast<char const *>(programming.byte_212_219_date_code.day_digits.data()), 2));
-                if(digits_of_month < 0 || digits_of_month > 31) {
+                if(digits_of_month < 1 || digits_of_month > 31) {
                     validationResult.errors.push_back(
                         fmt::format(
                             "Byte 215 / 216 (\"Date Code\", day of the month) must be within [0;31] but is {}",
@@ -350,17 +351,14 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
             }
         }
 
-        bool vendorLotCodeAllZeros = std::all_of(programming.byte_212_219_date_code.lot_code.begin(), programming.byte_212_219_date_code.lot_code.end(), [](unsigned char val) { return val == 0; });
-        if(!vendorLotCodeAllZeros) {
-            for(int index = 0; index < programming.byte_212_219_date_code.lot_code.size(); ++index) {
-                if(programming.byte_212_219_date_code.lot_code[index] <= 0x19 || programming.byte_212_219_date_code.lot_code[index] >= 0x7F) {
-                    validationResult.errors.push_back(
-                        fmt::format(
-                            "Byte {} (\"Vendor Lot Code\", Position {}) is an unprintable ASCII character (Byte Value {:#04x})",
-                            218 + index, index, programming.byte_212_219_date_code.lot_code[index]
-                        )
-                    );
-                }
+        for(int index = 0; index < programming.byte_212_219_date_code.lot_code.size(); ++index) {
+            if(!std::isprint(programming.byte_212_219_date_code.lot_code[index])) {
+                validationResult.errors.push_back(
+                    fmt::format(
+                        "Byte {} (\"Vendor Lot Code\", Position {}) is an unprintable ASCII character (Byte Value {:#04x})",
+                        218 + index, index, programming.byte_212_219_date_code.lot_code[index]
+                    )
+                );
             }
         }
     }

@@ -206,9 +206,11 @@ int main() {
 
     std::cout << std::setw(4) << j << std::endl;
 
+    std::string serialised = j.dump();
+
 
     TransceiverTool::Standards::SFF8636::SFF8636_Upper00h programmingRoundtrip;
-    TransceiverTool::Standards::SFF8636::SFF8636_Upper00hFromJSON(j, programmingRoundtrip);
+    TransceiverTool::Standards::SFF8636::SFF8636_Upper00hFromJSON(nlohmann::json::parse(serialised), programmingRoundtrip);
 
     //prettyPrint = TransceiverTool::Standards::SFF8636::prettyPrintProgramming(programmingRoundtrip, true, true);
 
