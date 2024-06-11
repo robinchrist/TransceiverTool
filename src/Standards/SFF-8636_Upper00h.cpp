@@ -15,8 +15,8 @@
 namespace TransceiverTool::Standards::SFF8636 {
 
 //############
-    nlohmann::json charToJSONByteStruct(unsigned char value) {
-        nlohmann::json j;
+    nlohmann::ordered_json charToJSONByteStruct(unsigned char value) {
+        nlohmann::ordered_json j;
 
         j["byteValue"] = fmt::format("{:#04x}", value);
 
@@ -46,8 +46,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json TransceiverReferenceToJSON(unsigned char byte_value) {
-        nlohmann::json j;
+    nlohmann::ordered_json TransceiverReferenceToJSON(unsigned char byte_value) {
+        nlohmann::ordered_json j;
 
         auto it = std::find_if(
             SFF8024::TransceiverReferenceAssignedValues.begin(),
@@ -86,8 +86,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json Extended_IdentifierToJSON(const Extended_Identifier& extIdentifier) {
-        nlohmann::json j;
+    nlohmann::ordered_json Extended_IdentifierToJSON(const Extended_Identifier& extIdentifier) {
+        nlohmann::ordered_json j;
 
         j["Power Class (Bit 7-6)"] = getSFF8636_Extended_Identifier_Bit_7_6Info(extIdentifier.power_class_bit_7_6).description;
         j["Power Class 8 implemented (Bit 5)"] = extIdentifier.power_class_8_bit_5;
@@ -137,8 +137,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json TransceiverConnectorTypeToJSON(unsigned char byte_value) {
-        nlohmann::json j;
+    nlohmann::ordered_json TransceiverConnectorTypeToJSON(unsigned char byte_value) {
+        nlohmann::ordered_json j;
 
         auto it = std::find_if(
             SFF8024::TransceiverConnectorTypeAssignedValues.begin(),
@@ -179,8 +179,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 
 
 //############
-    nlohmann::json _10_40G_100G_Ethernet_Compliance_CodesToJSON(const _10_40G_100G_Ethernet_Compliance_Codes& value) {
-        nlohmann::json j;
+    nlohmann::ordered_json _10_40G_100G_Ethernet_Compliance_CodesToJSON(const _10_40G_100G_Ethernet_Compliance_Codes& value) {
+        nlohmann::ordered_json j;
 
         j["Extended (Bit 7)"] = value.extended_bit_7;
         j["10GBASE-LRM compliant (Bit 6)"] = value._10GBASE_LRM_bit_6;
@@ -214,8 +214,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json SONET_Compliance_CodesToJSON(const SONET_Compliance_Codes& value) {
-        nlohmann::json j;
+    nlohmann::ordered_json SONET_Compliance_CodesToJSON(const SONET_Compliance_Codes& value) {
+        nlohmann::ordered_json j;
 
         j["Reserved (Bit 7)"] = value.reserved_bit_7;
         j["Reserved (Bit 6)"] = value.reserved_bit_6;
@@ -249,8 +249,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json SAS_SATA_Compliance_CodesToJSON(const SAS_SATA_Compliance_Codes& value) {
-        nlohmann::json j;
+    nlohmann::ordered_json SAS_SATA_Compliance_CodesToJSON(const SAS_SATA_Compliance_Codes& value) {
+        nlohmann::ordered_json j;
 
         j["SAS 24.0 Gbps compliant (Bit 7)"] = value.SAS_24_0_Gbps_bit_7;
         j["SAS 12.0 Gbps compliant (Bit 6)"] = value.SAS_12_0_Gbps_bit_6;
@@ -284,8 +284,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json Gigabit_Ethernet_Compliance_CodesToJSON(const Gigabit_Ethernet_Compliance_Codes& value) {
-        nlohmann::json j;
+    nlohmann::ordered_json Gigabit_Ethernet_Compliance_CodesToJSON(const Gigabit_Ethernet_Compliance_Codes& value) {
+        nlohmann::ordered_json j;
 
         j["Reserved (Bit 7)"] = value.reserved_bit_7;
         j["Reserved (Bit 6)"] = value.reserved_bit_6;
@@ -323,7 +323,7 @@ namespace TransceiverTool::Standards::SFF8636 {
         const Fibre_Channel_Link_Length_And_Transmitter_Technology& linkAndTransmitterValue,
         const Fibre_Channel_Transmitter_Technology& transmitterValue
     ) {
-        nlohmann::json jlinkValue, jtransmitterValue;
+        nlohmann::ordered_json jlinkValue, jtransmitterValue;
 
         jlinkValue["Very long distance (V) compliant (Byte 135, Bit 7)"] = linkAndTransmitterValue.Very_long_distance_V_bit_7;
         jlinkValue["Short distance (S) compliant (Byte 135, Bit 6)"] = linkAndTransmitterValue.Short_distance_S_bit_6;
@@ -382,8 +382,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 
 
 //############
-    nlohmann::json Fibre_Channel_Transmission_MediaToJSON(const Fibre_Channel_Transmission_Media& value) {
-        nlohmann::json j;
+    nlohmann::ordered_json Fibre_Channel_Transmission_MediaToJSON(const Fibre_Channel_Transmission_Media& value) {
+        nlohmann::ordered_json j;
 
         j["Twin Axial Pair (TW) compliant (Bit 7)"] = value.Twin_Axial_Pair_TW_bit_7;
         j["Shielded Twisted Pair (TP) compliant (Bit 6)"] = value.Shielded_Twisted_Pair_TP_bit_6;
@@ -418,8 +418,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 
 
 //############
-    nlohmann::json Fibre_Channel_SpeedToJSON(const Fibre_Channel_Speed& value) {
-        nlohmann::json j;
+    nlohmann::ordered_json Fibre_Channel_SpeedToJSON(const Fibre_Channel_Speed& value) {
+        nlohmann::ordered_json j;
 
         j["1200 MBps (per channel) compliant (Bit 7)"] = value._1200_MBps_per_channel_bit_7;
         j["800 MBps compliant (Bit 6)"] = value._800_MBps_bit_6;
@@ -453,8 +453,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json EncodingToJSON(unsigned char byte_value) {
-        nlohmann::json j;
+    nlohmann::ordered_json EncodingToJSON(unsigned char byte_value) {
+        nlohmann::ordered_json j;
 
         auto it = std::find_if(
             SFF8024::SFF8636TransceiverEncodingAssignedValues.begin(),
@@ -493,8 +493,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json NominalSignalingRate100MBaudToJSON(unsigned char byte_value) {
-        nlohmann::json j;
+    nlohmann::ordered_json NominalSignalingRate100MBaudToJSON(unsigned char byte_value) {
+        nlohmann::ordered_json j;
 
         if(byte_value != 0xFF) {
             j = (unsigned long)(byte_value) * 100ul;
@@ -527,8 +527,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json Extended_Rate_Select_ComplianceToJSON(const Extended_Rate_Select_Compliance& extRateSelectCompliance) {
-        nlohmann::json j;
+    nlohmann::ordered_json Extended_Rate_Select_ComplianceToJSON(const Extended_Rate_Select_Compliance& extRateSelectCompliance) {
+        nlohmann::ordered_json j;
 
         j["Reserved (Bit 7)"] = extRateSelectCompliance.reserved_bit_7;
         j["Reserved (Bit 6)"] = extRateSelectCompliance.reserved_bit_6;
@@ -571,8 +571,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json LengthSMFkmToJSON(unsigned char byte_value) {
-        nlohmann::json j;
+    nlohmann::ordered_json LengthSMFkmToJSON(unsigned char byte_value) {
+        nlohmann::ordered_json j;
 
         if(byte_value == 0) {
             j = "N/A";
@@ -607,8 +607,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json LengthOM3mToJSON(unsigned char byte_value) {
-        nlohmann::json j;
+    nlohmann::ordered_json LengthOM3mToJSON(unsigned char byte_value) {
+        nlohmann::ordered_json j;
 
         if(byte_value == 0) {
             j = "N/A";
@@ -641,8 +641,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json LengthOM2mToJSON(unsigned char byte_value) {
-        nlohmann::json j;
+    nlohmann::ordered_json LengthOM2mToJSON(unsigned char byte_value) {
+        nlohmann::ordered_json j;
 
         if(byte_value == 0) {
             j = "N/A";
@@ -675,7 +675,7 @@ namespace TransceiverTool::Standards::SFF8636 {
 
 
 //############
-    nlohmann::json CopperOrFibreInfoToJSON(
+    nlohmann::ordered_json CopperOrFibreInfoToJSON(
         bool copperMode,
         unsigned char byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB,
         unsigned char byte_146_length_copper_in_1m_or_om4_in_2m,
@@ -684,7 +684,7 @@ namespace TransceiverTool::Standards::SFF8636 {
         unsigned char byte_188_wavelength_tolerance_high_order_or_copper_attenuation,
         unsigned char byte_189_wavelength_tolerance_low_order_or_copper_attenuation
     ) {
-        nlohmann::json j;
+        nlohmann::ordered_json j;
         if(copperMode) {
             j["Type"] = "Copper";
 
@@ -953,8 +953,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json Device_Technology_and_Transmitter_TechnologyToJSON(const Device_Technology_and_Transmitter_Technology& value) {
-        nlohmann::json j;
+    nlohmann::ordered_json Device_Technology_and_Transmitter_TechnologyToJSON(const Device_Technology_and_Transmitter_Technology& value) {
+        nlohmann::ordered_json j;
 
         j["Transmitter Technology (Bit 7-4)"] = getSFF8636_Transmitter_Technology_bit_7_4Info(value.transmitter_Technology_bit_7_4).description;
         j["Active Wavelength Control (Bit 3)"] = value.wavelength_control_bit_3;
@@ -1001,14 +1001,14 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json VendorNameToJSON(const std::array<unsigned char, 16>& vendorNameRaw) {
+    nlohmann::ordered_json VendorNameToJSON(const std::array<unsigned char, 16>& vendorNameRaw) {
         bool vendorNamePrintable = std::all_of(
             vendorNameRaw.begin(),
             vendorNameRaw.end(),
             [](char c) {return std::isprint(c); }
         );
 
-        nlohmann::json j;
+        nlohmann::ordered_json j;
 
     
         if(vendorNamePrintable) {
@@ -1061,8 +1061,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json Extended_Module_CodesToJSON(const Extended_Module_Codes& codes) {
-        nlohmann::json j;
+    nlohmann::ordered_json Extended_Module_CodesToJSON(const Extended_Module_Codes& codes) {
+        nlohmann::ordered_json j;
 
         j["Reserved (Bit 7)"] = codes.reserved_bit_7;
         j["Reserved (Bit 6)"] = codes.reserved_bit_6;
@@ -1095,8 +1095,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json VendorOUIToJSON(const std::array<unsigned char, 3>& vendorOUI) {
-        nlohmann::json j;
+    nlohmann::ordered_json VendorOUIToJSON(const std::array<unsigned char, 3>& vendorOUI) {
+        nlohmann::ordered_json j;
 
 
         auto VendorOUIsIt = std::find_if(
@@ -1162,14 +1162,14 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json VendorPNToJSON(const std::array<unsigned char, 16>& vendorPNRaw) {
+    nlohmann::ordered_json VendorPNToJSON(const std::array<unsigned char, 16>& vendorPNRaw) {
         bool vendorPNPrintable = std::all_of(
             vendorPNRaw.begin(),
             vendorPNRaw.end(),
             [](char c) {return std::isprint(c); }
         );
 
-        nlohmann::json j;
+        nlohmann::ordered_json j;
 
     
         if(vendorPNPrintable) {
@@ -1222,10 +1222,10 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json VendorRevToJSON(const std::array<unsigned char, 2>& vendorRevRaw) {
+    nlohmann::ordered_json VendorRevToJSON(const std::array<unsigned char, 2>& vendorRevRaw) {
         bool vendorRevPrintable = std::all_of(vendorRevRaw.begin(), vendorRevRaw.end(), [](char c) {return std::isprint(c); });
 
-        nlohmann::json j;
+        nlohmann::ordered_json j;
 
     
         if(vendorRevPrintable) {
@@ -1278,8 +1278,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json MaxCaseTemperatureToJSON(unsigned char maxCaseTemperature) {
-        nlohmann::json j;
+    nlohmann::ordered_json MaxCaseTemperatureToJSON(unsigned char maxCaseTemperature) {
+        nlohmann::ordered_json j;
 
         if(maxCaseTemperature == 0) maxCaseTemperature = 70;
 
@@ -1301,8 +1301,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 
 
 //############
-    nlohmann::json ExtendedComplianceCodesToJSON(unsigned char byte_value) {
-        nlohmann::json j;
+    nlohmann::ordered_json ExtendedComplianceCodesToJSON(unsigned char byte_value) {
+        nlohmann::ordered_json j;
 
         auto it = std::find_if(
             SFF8024::ExtendedComplianceCodesAssignedValues.begin(),
@@ -1343,8 +1343,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 
 
 //############
-    nlohmann::json OptionsToJSON(const Option_Values_Byte_193& byte_193_option_values, const Option_Values_Byte_194& byte_194_option_values, const Option_Values_Byte_195& byte_195_option_values) {
-        nlohmann::json j;
+    nlohmann::ordered_json OptionsToJSON(const Option_Values_Byte_193& byte_193_option_values, const Option_Values_Byte_194& byte_194_option_values, const Option_Values_Byte_195& byte_195_option_values) {
+        nlohmann::ordered_json j;
 
         j["Reserved (Byte 193, Bit 7)"] = byte_193_option_values.reserved_bit_7;
         j["LPMode/TxDis input signal configurable (Byte 193, Bit 6)"] = byte_193_option_values.lpmode_txdis_input_configurable_bit_6;
@@ -1417,10 +1417,10 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json VendorSNToJSON(const std::array<unsigned char, 16>& vendorSNRaw) {
+    nlohmann::ordered_json VendorSNToJSON(const std::array<unsigned char, 16>& vendorSNRaw) {
         bool vendorSNPrintable = std::all_of(vendorSNRaw.begin(), vendorSNRaw.end(), [](char c) {return std::isprint(c); });
 
-        nlohmann::json j;
+        nlohmann::ordered_json j;
 
     
         if(vendorSNPrintable) {
@@ -1473,8 +1473,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json DateCodeToJSON(const DateCode& dateCode) {
-        nlohmann::json j;
+    nlohmann::ordered_json DateCodeToJSON(const DateCode& dateCode) {
+        nlohmann::ordered_json j;
 
         bool dateCodeYearIsNumber = std::isdigit(dateCode.year_low_order_digits[0]) && std::isdigit(dateCode.year_low_order_digits[1]);
         
@@ -1653,8 +1653,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 
 //############
 
-    nlohmann::json Diagnostic_Monitoring_TypeToJSON(const Diagnostic_Monitoring_Type& value) {
-        nlohmann::json j;
+    nlohmann::ordered_json Diagnostic_Monitoring_TypeToJSON(const Diagnostic_Monitoring_Type& value) {
+        nlohmann::ordered_json j;
 
         j["Reserved (Bit 7)"] = value.reserved_bit_7;
         j["Reserved (Bit 6)"] = value.reserved_bit_6;
@@ -1695,8 +1695,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json Enhanced_OptionsToJSON(const Enhanced_Options& value) {
-        nlohmann::json j;
+    nlohmann::ordered_json Enhanced_OptionsToJSON(const Enhanced_Options& value) {
+        nlohmann::ordered_json j;
 
         j["Reserved (Bit 7)"] = value.reserved_bit_7;
         j["Reserved (Bit 6)"] = value.reserved_bit_6;
@@ -1727,8 +1727,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json ExtendedBaudRate250MBaudToJSON(unsigned char byte_value) {
-        nlohmann::json j;
+    nlohmann::ordered_json ExtendedBaudRate250MBaudToJSON(unsigned char byte_value) {
+        nlohmann::ordered_json j;
 
         j = (unsigned long)(byte_value) * 250ul;
 
@@ -1747,8 +1747,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
-    nlohmann::json VendorSpecificToJSON(const std::array<unsigned char, 32>& vendorSpecificRaw) {
-        nlohmann::json j;
+    nlohmann::ordered_json VendorSpecificToJSON(const std::array<unsigned char, 32>& vendorSpecificRaw) {
+        nlohmann::ordered_json j;
 
         j["Type"] = "Base64";
         j["Value"] = cppcodec::base64_rfc4648::encode(vendorSpecificRaw.data(), vendorSpecificRaw.size());
@@ -1780,7 +1780,7 @@ namespace TransceiverTool::Standards::SFF8636 {
     }
 //############
 
-    void SFF8636_Upper00hToJSON(nlohmann::json& j, const SFF8636_Upper00h& programming, bool copperMode) {
+    void SFF8636_Upper00hToJSON(nlohmann::ordered_json& j, const SFF8636_Upper00h& programming, bool copperMode) {
 
         j["Type"] = "SFF-8636 Rev 2.11 Upper Page 00h";
         
