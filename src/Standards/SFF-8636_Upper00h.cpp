@@ -1,8 +1,10 @@
 #include "TransceiverTool/Standards/SFF-8636_Upper00h.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Transceiver_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8636_Compliance_Codes.hpp"
+#include "TransceiverTool/Standards/SFF-8636_Date_Code.hpp"
 #include "TransceiverTool/Standards/SFF-8636_Extended_Identifier_Values.hpp"
 #include "TransceiverTool/Vendor_OUIs.hpp"
+#include <cctype>
 #include <fmt/core.h>
 #include <limits>
 #include <nlohmann/json_fwd.hpp>
@@ -1000,7 +1002,11 @@ namespace TransceiverTool::Standards::SFF8636 {
 
 //############
     nlohmann::json VendorNameToJSON(const std::array<unsigned char, 16>& vendorNameRaw) {
-        bool vendorNamePrintable = std::all_of(vendorNameRaw.begin(), vendorNameRaw.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
+        bool vendorNamePrintable = std::all_of(
+            vendorNameRaw.begin(),
+            vendorNameRaw.end(),
+            [](char c) {return std::isprint(c); }
+        );
 
         nlohmann::json j;
 
@@ -1157,7 +1163,11 @@ namespace TransceiverTool::Standards::SFF8636 {
 
 //############
     nlohmann::json VendorPNToJSON(const std::array<unsigned char, 16>& vendorPNRaw) {
-        bool vendorPNPrintable = std::all_of(vendorPNRaw.begin(), vendorPNRaw.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
+        bool vendorPNPrintable = std::all_of(
+            vendorPNRaw.begin(),
+            vendorPNRaw.end(),
+            [](char c) {return std::isprint(c); }
+        );
 
         nlohmann::json j;
 
@@ -1184,13 +1194,13 @@ namespace TransceiverTool::Standards::SFF8636 {
             auto strVal = j.template get<std::string>();
             //We don't care whether it contains unprintable characters - when we serialise and check, it's only to prevent invalid JSON being generated
             //However, as this is a parsed value, we know that the JSON must be valid. Let the user enter what they want...
-            if(strVal.size() > 16) throw std::invalid_argument("Vendor PN must not have more than 16 characters");
+            if(strVal.size() > 16) throw std::invalid_argument("Vendor Part Number must not have more than 16 characters");
 
             if(strVal.size() < 16) strVal.resize(16, 0x20);
 
             std::memcpy(arr.data(), strVal.data(), strVal.size());
         } else if(j.is_object()) {
-            if(j.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Vendor PN object must have Type Base64");
+            if(j.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Vendor Part Number object must have Type Base64");
 
             auto encodedVal = j.at("Value").template get<std::string>();
 
@@ -1200,11 +1210,11 @@ namespace TransceiverTool::Standards::SFF8636 {
             } catch(const cppcodec::parse_error& e) {
                 throw std::invalid_argument(fmt::format("Decoding base 64 failed: {}", e.what()));
             }
-            if(decoded.size() != 16) throw std::invalid_argument("Vendor PN specified as base64 must have exactly 16 characters!");
+            if(decoded.size() != 16) throw std::invalid_argument("Vendor Part Number specified as base64 must have exactly 16 characters!");
 
             std::memcpy(arr.data(), decoded.data(), decoded.size());
         } else {
-            throw std::invalid_argument("Vendor PN has invalid type, must be either string or object");
+            throw std::invalid_argument("Vendor Part Number has invalid type, must be either string or object");
         }
 
         return arr;
@@ -1213,7 +1223,7 @@ namespace TransceiverTool::Standards::SFF8636 {
 
 //############
     nlohmann::json VendorRevToJSON(const std::array<unsigned char, 2>& vendorRevRaw) {
-        bool vendorRevPrintable = std::all_of(vendorRevRaw.begin(), vendorRevRaw.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
+        bool vendorRevPrintable = std::all_of(vendorRevRaw.begin(), vendorRevRaw.end(), [](char c) {return std::isprint(c); });
 
         nlohmann::json j;
 
@@ -1289,6 +1299,487 @@ namespace TransceiverTool::Standards::SFF8636 {
     }
 //############
 
+
+//############
+    nlohmann::json ExtendedComplianceCodesToJSON(unsigned char byte_value) {
+        nlohmann::json j;
+
+        auto it = std::find_if(
+            SFF8024::ExtendedComplianceCodesAssignedValues.begin(),
+            SFF8024::ExtendedComplianceCodesAssignedValues.end(),
+            [byte_value](const SFF8024::ExtendedComplianceCodesAssignedValue& entry) { return entry.byte_value == byte_value; }
+        );
+
+        if(it != SFF8024::ExtendedComplianceCodesAssignedValues.end()) {
+            j = it->name;
+        } else {
+            j = charToJSONByteStruct(byte_value);
+        }
+
+        return j;
+    }
+
+    unsigned char ExtendedComplianceCodesFromJSON(const nlohmann::json& j) {
+        if(j.is_string()) {
+            auto strValue = j.template get<std::string>();
+
+            auto it = std::find_if(
+                SFF8024::ExtendedComplianceCodesAssignedValues.begin(),
+                SFF8024::ExtendedComplianceCodesAssignedValues.end(),
+                [&strValue](const SFF8024::ExtendedComplianceCodesAssignedValue& entry) { return entry.name == strValue; }
+            );
+
+            if(it == SFF8024::ExtendedComplianceCodesAssignedValues.end()) throw std::invalid_argument("Extended Specification Compliance Codes is not a known string value");
+
+            return it->byte_value;
+        } else if(j.is_object()) {
+            return charFromJSONByteStruct(j);
+        } else {
+            throw std::invalid_argument(" Extended Specification Compliance Codes has wrong type (neither string nor object)");
+        }
+    }
+
+//############
+
+
+//############
+    nlohmann::json OptionsToJSON(const Option_Values_Byte_193& byte_193_option_values, const Option_Values_Byte_194& byte_194_option_values, const Option_Values_Byte_195& byte_195_option_values) {
+        nlohmann::json j;
+
+        j["Reserved (Byte 193, Bit 7)"] = byte_193_option_values.reserved_bit_7;
+        j["LPMode/TxDis input signal configurable (Byte 193, Bit 6)"] = byte_193_option_values.lpmode_txdis_input_configurable_bit_6;
+        j["IntL/RxLOSL output signal configurable (Byte 193, Bit 5)"] = byte_193_option_values.intl_rxlosl_output_configurable_bit_5;
+        j["Tx input adaptive equalizers freeze capable (Byte 193, Bit 4)"] = byte_193_option_values.tx_input_adaptive_equalizers_freeze_capable_bit_4;
+        j["Tx input equalizers auto-adaptive capable (Byte 193, Bit 3)"] = byte_193_option_values.tx_input_equalizers_auto_adaptive_capable_bit_3;
+        j["Tx input equalizers fixed-programmable settings implemented (Byte 193, Bit 2)"] = byte_193_option_values.tx_input_equalizers_fixed_programmable_settings_bit_2;
+        j["Rx output emphasis fixed-programmable settings implemented (Byte 193, Bit 1)"] = byte_193_option_values.rx_output_emphasis_fixed_programmable_settings_bit_1;
+        j["Rx output amplitude fixed-programmable settings implemented (Byte 193, Bit 0)"] = byte_193_option_values.rx_output_amplitude_fixed_programmable_settings_bit_0;
+
+        j["Tx CDR On/Off Control implemented (Byte 194, Bit 7)"] = byte_194_option_values.tx_cdr_on_off_control_implemented_bit_7;
+        j["Rx CDR On/Off Control implemented (Byte 194, Bit 6)"] = byte_194_option_values.rx_cdr_on_off_control_implemented_bit_6;
+        j["Tx CDR Loss of Lock (LOL) flag implemented (Byte 194, Bit 5)"] = byte_194_option_values.tx_cdr_loss_of_lock_lol_flag_implemented_bit_5;
+        j["Rx CDR Loss of Lock (LOL) flag implemented. (Byte 194, Bit 4)"] = byte_194_option_values.rx_cdr_loss_of_lock_lol_flag_implemented_bit_4;
+        j["Rx Squelch Disable implemented (Byte 194, Bit 3)"] = byte_194_option_values.rx_squelch_disable_implemented_bit_3;
+        j["Rx Output Disable implemented (Byte 194, Bit 2)"] = byte_194_option_values.rx_output_disable_implemented_bit_2;
+        j["Tx Squelch Disable implemented (Byte 194, Bit 1)"] = byte_194_option_values.tx_squelch_disable_implemented_bit_1;
+        j["Tx Squelch implemented (Byte 194, Bit 0)"] = byte_194_option_values.tx_squelch_implemented_bit_0;
+
+        j["Memory Page 02 provided (Byte 195, Bit 7)"] = byte_195_option_values.memory_page_02_provided_bit_7;
+        j["Memory Page 01h provided. (Byte 195, Bit 6)"] = byte_195_option_values.memory_page_01h_provided_bit_6;
+        j["Rate select is implemented as defined in Section 6.2.7 (Byte 195, Bit 5)"] = byte_195_option_values.rate_select_implemented_bit_5;
+        j["Tx_Disable is implemented (Byte 195, Bit 4)"] = byte_195_option_values.tx_disable_implemented_bit_4;
+        j["Tx_Fault signal implemented (Byte 195, Bit 3)"] = byte_195_option_values.tx_fault_signal_implemented_bit_3;
+        j["Tx Squelch implemented to reduce Pave (Byte 195, Bit 2)"] = byte_195_option_values.tx_squelch_implemented_to_reduce_pave_bit_2;
+        j["Tx Loss of Signal (Byte 195, Bit 1)"] = byte_195_option_values.tx_loss_of_signal_implemented_bit_1;
+        j["Pages 20-21h implemented (Byte 195, Bit 0)"] = byte_195_option_values.pages_20_to_21h_implemented_bit_0;
+
+        return j;
+    }
+
+    std::tuple<Option_Values_Byte_193, Option_Values_Byte_194, Option_Values_Byte_195> OptionsFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Options must be an object");
+
+        Option_Values_Byte_193 byte_193_option_values;
+        Option_Values_Byte_194 byte_194_option_values;
+        Option_Values_Byte_195 byte_195_option_values;
+
+
+        byte_193_option_values.reserved_bit_7 = j.at("Reserved (Byte 193, Bit 7)").template get<bool>();
+        byte_193_option_values.lpmode_txdis_input_configurable_bit_6 = j.at("LPMode/TxDis input signal configurable (Byte 193, Bit 6)").template get<bool>();
+        byte_193_option_values.intl_rxlosl_output_configurable_bit_5 = j.at("IntL/RxLOSL output signal configurable (Byte 193, Bit 5)").template get<bool>();
+        byte_193_option_values.tx_input_adaptive_equalizers_freeze_capable_bit_4 = j.at("Tx input adaptive equalizers freeze capable (Byte 193, Bit 4)").template get<bool>();
+        byte_193_option_values.tx_input_equalizers_auto_adaptive_capable_bit_3 = j.at("Tx input equalizers auto-adaptive capable (Byte 193, Bit 3)").template get<bool>();
+        byte_193_option_values.tx_input_equalizers_fixed_programmable_settings_bit_2 = j.at("Tx input equalizers fixed-programmable settings implemented (Byte 193, Bit 2)").template get<bool>();
+        byte_193_option_values.rx_output_emphasis_fixed_programmable_settings_bit_1 = j.at("Rx output emphasis fixed-programmable settings implemented (Byte 193, Bit 1)").template get<bool>();
+        byte_193_option_values.rx_output_amplitude_fixed_programmable_settings_bit_0 = j.at("Rx output amplitude fixed-programmable settings implemented (Byte 193, Bit 0)").template get<bool>();
+
+        byte_194_option_values.tx_cdr_on_off_control_implemented_bit_7 = j.at("Tx CDR On/Off Control implemented (Byte 194, Bit 7)").template get<bool>();
+        byte_194_option_values.rx_cdr_on_off_control_implemented_bit_6 = j.at("Rx CDR On/Off Control implemented (Byte 194, Bit 6)").template get<bool>();
+        byte_194_option_values.tx_cdr_loss_of_lock_lol_flag_implemented_bit_5 = j.at("Tx CDR Loss of Lock (LOL) flag implemented (Byte 194, Bit 5)").template get<bool>();
+        byte_194_option_values.rx_cdr_loss_of_lock_lol_flag_implemented_bit_4 = j.at("Rx CDR Loss of Lock (LOL) flag implemented. (Byte 194, Bit 4)").template get<bool>();
+        byte_194_option_values.rx_squelch_disable_implemented_bit_3 = j.at("Rx Squelch Disable implemented (Byte 194, Bit 3)").template get<bool>();
+        byte_194_option_values.rx_output_disable_implemented_bit_2 = j.at("Rx Output Disable implemented (Byte 194, Bit 2)").template get<bool>();
+        byte_194_option_values.tx_squelch_disable_implemented_bit_1 = j.at("Tx Squelch Disable implemented (Byte 194, Bit 1)").template get<bool>();
+        byte_194_option_values.tx_squelch_implemented_bit_0 = j.at("Tx Squelch implemented (Byte 194, Bit 0)").template get<bool>();
+
+        byte_195_option_values.memory_page_02_provided_bit_7 = j.at("Memory Page 02 provided (Byte 195, Bit 7)").template get<bool>();
+        byte_195_option_values.memory_page_01h_provided_bit_6 = j.at("Memory Page 01h provided. (Byte 195, Bit 6)").template get<bool>();
+        byte_195_option_values.rate_select_implemented_bit_5 = j.at("Rate select is implemented as defined in Section 6.2.7 (Byte 195, Bit 5)").template get<bool>();
+        byte_195_option_values.tx_disable_implemented_bit_4 = j.at("Tx_Disable is implemented (Byte 195, Bit 4)").template get<bool>();
+        byte_195_option_values.tx_fault_signal_implemented_bit_3 = j.at("Tx_Fault signal implemented (Byte 195, Bit 3)").template get<bool>();
+        byte_195_option_values.tx_squelch_implemented_to_reduce_pave_bit_2 = j.at("Tx Squelch implemented to reduce Pave (Byte 195, Bit 2)").template get<bool>();
+        byte_195_option_values.tx_loss_of_signal_implemented_bit_1 = j.at("Tx Loss of Signal (Byte 195, Bit 1)").template get<bool>();
+        byte_195_option_values.pages_20_to_21h_implemented_bit_0 = j.at("Pages 20-21h implemented (Byte 195, Bit 0)").template get<bool>();
+
+        return std::make_tuple(std::move(byte_193_option_values), std::move(byte_194_option_values), std::move(byte_195_option_values));
+    }
+
+//############
+
+//############
+    nlohmann::json VendorSNToJSON(const std::array<unsigned char, 16>& vendorSNRaw) {
+        bool vendorSNPrintable = std::all_of(vendorSNRaw.begin(), vendorSNRaw.end(), [](char c) {return std::isprint(c); });
+
+        nlohmann::json j;
+
+    
+        if(vendorSNPrintable) {
+            std::string vendorSN = std::string(reinterpret_cast<char const *>(vendorSNRaw.data()), vendorSNRaw.size());
+            //rtrim
+            vendorSN.erase(std::find_if(vendorSN.rbegin(), vendorSN.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorSN.end());
+
+            j = vendorSN;
+        } else {
+            j["Type"] = "Base64";
+            j["Value"] = cppcodec::base64_rfc4648::encode(vendorSNRaw.data(), vendorSNRaw.size());
+        }
+
+        return j;
+    }
+
+    std::array<unsigned char, 16> VendorSNFromJSON(const nlohmann::json& j) {
+        std::array<unsigned char, 16> arr;
+
+
+        if(j.is_string()) {
+            auto strVal = j.template get<std::string>();
+            //We don't care whether it contains unprintable characters - when we serialise and check, it's only to prevent invalid JSON being generated
+            //However, as this is a parsed value, we know that the JSON must be valid. Let the user enter what they want...
+            if(strVal.size() > 16) throw std::invalid_argument("Vendor Serial Number must not have more than 16 characters");
+
+            if(strVal.size() < 16) strVal.resize(16, 0x20);
+
+            std::memcpy(arr.data(), strVal.data(), strVal.size());
+        } else if(j.is_object()) {
+            if(j.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Vendor Serial Number object must have Type Base64");
+
+            auto encodedVal = j.at("Value").template get<std::string>();
+
+            std::vector<uint8_t> decoded;
+            try {
+                decoded = cppcodec::base64_rfc4648::decode(encodedVal);
+            } catch(const cppcodec::parse_error& e) {
+                throw std::invalid_argument(fmt::format("Decoding base 64 failed: {}", e.what()));
+            }
+            if(decoded.size() != 16) throw std::invalid_argument("Vendor Serial Number specified as base64 must have exactly 16 characters!");
+
+            std::memcpy(arr.data(), decoded.data(), decoded.size());
+        } else {
+            throw std::invalid_argument("Vendor Serial Number has invalid type, must be either string or object");
+        }
+
+        return arr;
+    }
+//############
+
+//############
+    nlohmann::json DateCodeToJSON(const DateCode& dateCode) {
+        nlohmann::json j;
+
+        bool dateCodeYearIsNumber = std::isdigit(dateCode.year_low_order_digits[0]) && std::isdigit(dateCode.year_low_order_digits[1]);
+        
+        if(dateCodeYearIsNumber) {
+            int digits_of_year = std::stoi(std::string(reinterpret_cast<char const *>(dateCode.year_low_order_digits.data()), dateCode.year_low_order_digits.size()));
+
+            j["Year low order digits (Byte 212-213)"] = (unsigned)(digits_of_year);
+        } else {
+            j["Year low order digits (Byte 212-213)"]["Type"] = "Base64";
+            j["Year low order digits (Byte 212-213)"]["Value"] = cppcodec::base64_rfc4648::encode(dateCode.year_low_order_digits.data(), dateCode.year_low_order_digits.size());
+        }
+        
+
+        bool dateCodeMonthIsNumber = std::isdigit(dateCode.month_digits[0]) && std::isdigit(dateCode.month_digits[1]);
+
+        if(dateCodeMonthIsNumber) {
+            int digits_of_month  = std::stoi(std::string(reinterpret_cast<char const *>(dateCode.month_digits.data()), dateCode.month_digits.size()));
+
+            if(digits_of_month < 1 || digits_of_month > 12) {
+                j["Month digits (Byte 214-215)"]["Type"] = "Base64";
+                j["Month digits (Byte 214-215)"]["Value"] = cppcodec::base64_rfc4648::encode(dateCode.month_digits.data(), dateCode.month_digits.size());
+            } else {
+                j["Month digits (Byte 214-215)"] = (unsigned)(digits_of_month);
+            }
+        } else {
+            j["Month digits (Byte 214-215)"]["Type"] = "Base64";
+            j["Month digits (Byte 214-215)"]["Value"] = cppcodec::base64_rfc4648::encode(dateCode.month_digits.data(), dateCode.month_digits.size());
+        }
+
+        bool dateCodeDayIsNumber = std::isdigit(dateCode.day_digits[0]) && std::isdigit(dateCode.day_digits[1]);
+
+        if(dateCodeDayIsNumber) {
+            int day  = std::stoi(std::string(reinterpret_cast<char const *>(dateCode.day_digits.data()), dateCode.day_digits.size()));
+
+            if(day < 1 || day > 31) {
+                j["Day (Byte 216-217)"]["Type"] = "Base64";
+                j["Day (Byte 216-217)"]["Value"] = cppcodec::base64_rfc4648::encode(dateCode.day_digits.data(), dateCode.day_digits.size());
+            } else {
+                j["Day (Byte 216-217)"] = (unsigned)(day);
+            }
+        } else {
+            j["Day (Byte 216-217)"]["Type"] = "Base64";
+            j["Day (Byte 216-217)"]["Value"] = cppcodec::base64_rfc4648::encode(dateCode.day_digits.data(), dateCode.day_digits.size());
+        }
+
+        bool vendorLotCodePrintable = std::isprint(dateCode.lot_code[0]) && std::isprint(dateCode.lot_code[1]);
+        if(vendorLotCodePrintable) {
+            
+            std::string vendorLotCode = std::string(reinterpret_cast<char const *>(dateCode.lot_code.data()), dateCode.lot_code.size());
+            vendorLotCode.erase(std::find_if(vendorLotCode.rbegin(), vendorLotCode.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorLotCode.end());
+
+            j["Vendor Lot Code (Byte 218-219)"] = vendorLotCode;
+        } else {
+            j["Vendor Lot Code (Byte 218-219)"]["Type"] = "Base64";
+            j["Vendor Lot Code (Byte 218-219)"]["Value"] = cppcodec::base64_rfc4648::encode(dateCode.lot_code.data(), dateCode.lot_code.size());
+        }
+        
+        return j;
+    }
+
+    DateCode DateCodeFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Date Code must be an object");
+
+        DateCode dateCode;
+
+        auto dateCodeYearVal = j.at("Year low order digits (Byte 212-213)");
+        if(dateCodeYearVal.is_number_unsigned()) {
+            auto dateCodeNumVal = dateCodeYearVal.template get<std::uint64_t>();
+            if(dateCodeNumVal > 99) throw std::invalid_argument("Year low order digits (Byte 212-213) must not be greater than 99");
+
+            auto dateCodeStrVal = fmt::format("{}", dateCodeNumVal);
+            
+            //We don't care if the value is not in range... Could as well have been specified as base64
+            std::memcpy(dateCode.year_low_order_digits.data(), dateCodeStrVal.data(), 2);
+        } else if(dateCodeYearVal.is_object()) {
+            if(dateCodeYearVal.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Year low order digits (Byte 212-213) object must have Type Base64");
+
+            auto encodedVal = dateCodeYearVal.at("Value").template get<std::string>();
+
+            std::vector<uint8_t> decoded;
+            try {
+                decoded = cppcodec::base64_rfc4648::decode(encodedVal);
+            } catch(const cppcodec::parse_error& e) {
+                throw std::invalid_argument(fmt::format("Decoding base 64 failed: {}", e.what()));
+            }
+            if(decoded.size() != 2) throw std::invalid_argument("Year low order digits (Byte 212-213) specified as base64 must have exactly 2 characters!");
+
+            std::memcpy(dateCode.year_low_order_digits.data(), decoded.data(), decoded.size());
+        } else {
+            throw std::invalid_argument("Year low order digits (Byte 212-213) must either be a number or object");
+        }
+
+        auto dateCodeMonthVal = j.at("Month digits (Byte 214-215)");
+        if(dateCodeMonthVal.is_number_unsigned()) {
+            auto dateCodeNumVal = dateCodeYearVal.template get<std::uint64_t>();
+            if(dateCodeNumVal > 99) throw std::invalid_argument("Month digits (Byte 214-215) must not be greater than 99");
+
+            auto dateCodeStrVal = fmt::format("{}", dateCodeNumVal);
+            
+            //We don't care if the value is not in range... Could as well have been specified as base64
+            std::memcpy(dateCode.month_digits.data(), dateCodeStrVal.data(), 2);
+        } else if(dateCodeMonthVal.is_object()) {
+            if(dateCodeMonthVal.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Month digits (Byte 214-215) object must have Type Base64");
+
+            auto encodedVal = dateCodeMonthVal.at("Value").template get<std::string>();
+
+            std::vector<uint8_t> decoded;
+            try {
+                decoded = cppcodec::base64_rfc4648::decode(encodedVal);
+            } catch(const cppcodec::parse_error& e) {
+                throw std::invalid_argument(fmt::format("Decoding base 64 failed: {}", e.what()));
+            }
+            if(decoded.size() != 2) throw std::invalid_argument("Month digits (Byte 214-215) specified as base64 must have exactly 2 characters!");
+
+            std::memcpy(dateCode.month_digits.data(), decoded.data(), decoded.size());
+        } else {
+            throw std::invalid_argument("Month digits (Byte 214-215) must either be a number or object");
+        }
+
+        auto dateCodeDayVal = j.at("Day (Byte 216-217)");
+        if(dateCodeDayVal.is_number_unsigned()) {
+            auto dateCodeNumVal = dateCodeYearVal.template get<std::uint64_t>();
+            if(dateCodeNumVal > 99) throw std::invalid_argument("Day (Byte 216-217) must not be greater than 99");
+
+            auto dateCodeStrVal = fmt::format("{}", dateCodeNumVal);
+            
+            //We don't care if the value is not in range... Could as well have been specified as base64
+            std::memcpy(dateCode.day_digits.data(), dateCodeStrVal.data(), 2);
+        } else if(dateCodeDayVal.is_object()) {
+            if(dateCodeDayVal.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Day (Byte 216-217) object must have Type Base64");
+
+            auto encodedVal = dateCodeDayVal.at("Value").template get<std::string>();
+
+            std::vector<uint8_t> decoded;
+            try {
+                decoded = cppcodec::base64_rfc4648::decode(encodedVal);
+            } catch(const cppcodec::parse_error& e) {
+                throw std::invalid_argument(fmt::format("Decoding base 64 failed: {}", e.what()));
+            }
+            if(decoded.size() != 2) throw std::invalid_argument("Day (Byte 216-217) specified as base64 must have exactly 2 characters!");
+
+            std::memcpy(dateCode.day_digits.data(), decoded.data(), decoded.size());
+        } else {
+            throw std::invalid_argument("Day (Byte 216-217) must either be a number or object");
+        }
+
+        auto dateCodeLotVal = j.at("Vendor Lot Code (Byte 218-219)");
+        if(dateCodeLotVal.is_string()) {
+            auto dateCodeStrVal = dateCodeLotVal.template get<std::string>();
+            if(dateCodeStrVal.size() > 2) throw std::invalid_argument("Vendor Lot Code (Byte 218-219) string must not be longer than 2 characters");
+            if(dateCodeStrVal.size() < 2) dateCodeStrVal.resize(2, 0x20);
+            
+            //We don't care if it's not a valid number... Could as well have been specified as base64
+            std::memcpy(dateCode.lot_code.data(), dateCodeStrVal.data(), 2);
+        } else if(dateCodeLotVal.is_object()) {
+            if(dateCodeLotVal.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Vendor Lot Code (Byte 218-219) object must have Type Base64");
+
+            auto encodedVal = dateCodeLotVal.at("Value").template get<std::string>();
+
+            std::vector<uint8_t> decoded;
+            try {
+                decoded = cppcodec::base64_rfc4648::decode(encodedVal);
+            } catch(const cppcodec::parse_error& e) {
+                throw std::invalid_argument(fmt::format("Decoding base 64 failed: {}", e.what()));
+            }
+            if(decoded.size() != 2) throw std::invalid_argument("Vendor Lot Code (Byte 218-219) specified as base64 must have exactly 2 characters!");
+
+            std::memcpy(dateCode.lot_code.data(), decoded.data(), decoded.size());
+        } else {
+            throw std::invalid_argument("Vendor Lot Code (Byte 218-219) must either be a string or object");
+        }
+
+        return dateCode;
+    }
+//############
+
+//############
+
+    nlohmann::json Diagnostic_Monitoring_TypeToJSON(const Diagnostic_Monitoring_Type& value) {
+        nlohmann::json j;
+
+        j["Reserved (Bit 7)"] = value.reserved_bit_7;
+        j["Reserved (Bit 6)"] = value.reserved_bit_6;
+        j["Temperature monitoring implemented (Bit 5)"] = value.temperature_monitoring_implemented_bit_5;
+        j["Supply voltage monitoring implemented (Bit 4)"] = value.supply_voltage_monitoring_implemented_bit_4;
+        j["Received power measurements type (Bit 3)"] = value.received_power_measurement_is_average_bit_3 ? "Average": "OMA";
+        j["Transmitter power measurement supported (Bit 2)"] = value.transmitter_power_measurement_supported_bit_2;
+        j["Reserved (Bit 1)"] = value.reserved_bit_1;
+        j["Reserved (Bit 0)"] = value.reserved_bit_0;
+
+        return j;
+    }
+
+    Diagnostic_Monitoring_Type Diagnostic_Monitoring_TypeFromJSON(const nlohmann::json& j) {
+        Diagnostic_Monitoring_Type monitoringType;
+
+        monitoringType.reserved_bit_7 = j.at("Reserved (Bit 7)").template get<bool>();
+        monitoringType.reserved_bit_6 = j.at("Reserved (Bit 6)").template get<bool>();
+        monitoringType.temperature_monitoring_implemented_bit_5 = j.at("Temperature monitoring implemented (Bit 5)").template get<bool>();
+        monitoringType.supply_voltage_monitoring_implemented_bit_4 = j.at("Supply voltage monitoring implemented (Bit 4)").template get<bool>();
+
+        auto powerMeasurementStr = j.at("Received power measurements type (Bit 3)").template get<std::string>();
+        if(powerMeasurementStr == "Average") {
+            monitoringType.received_power_measurement_is_average_bit_3 = true;
+        } else if(powerMeasurementStr == "OMA") {
+            monitoringType.received_power_measurement_is_average_bit_3 = false;
+        } else {
+            throw std::invalid_argument("Received power measurements type (Bit 3) string has invalid value, must be either Average or OMA");
+        }
+
+        monitoringType.transmitter_power_measurement_supported_bit_2 = j.at("Transmitter power measurement supported (Bit 2)").template get<bool>();
+        monitoringType.reserved_bit_1 = j.at("Reserved (Bit 1)").template get<bool>();
+        monitoringType.reserved_bit_0 = j.at("Reserved (Bit 0)").template get<bool>();
+
+        return monitoringType;
+    }
+
+//############
+
+//############
+    nlohmann::json Enhanced_OptionsToJSON(const Enhanced_Options& value) {
+        nlohmann::json j;
+
+        j["Reserved (Bit 7)"] = value.reserved_bit_7;
+        j["Reserved (Bit 6)"] = value.reserved_bit_6;
+        j["Reserved (Bit 5)"] = value.reserved_bit_5;
+        j["Initialization Complete Flag implemented (Bit 4)"] = value.initialization_complete_flag_implemented_bit_4;
+        j["Extended Rate Selection implemented (Bit 3)"] = value.rate_selection_is_implemented_using_extended_rate_selection_bit_3;
+        j["Reserved (Bit 2)"] = value.reserved_bit_2;
+        j["TC readiness flag implemented (Bit 1)"] = value.readiness_flag_implemented_bit_1;
+        j["Software reset implemented (Bit 0)"] = value.software_reset_implemented_bit_0;
+
+        return j;
+    }
+
+    Enhanced_Options Enhanced_OptionsFromJSON(const nlohmann::json& j) {
+        Enhanced_Options enhancedOptions;
+
+        enhancedOptions.reserved_bit_7 = j.at("Reserved (Bit 7)").template get<bool>();
+        enhancedOptions.reserved_bit_6 = j.at("Reserved (Bit 6)").template get<bool>();
+        enhancedOptions.reserved_bit_5 = j.at("Reserved (Bit 5)").template get<bool>();
+        enhancedOptions.initialization_complete_flag_implemented_bit_4 = j.at("Initialization Complete Flag implemented (Bit 4)").template get<bool>();
+        enhancedOptions.rate_selection_is_implemented_using_extended_rate_selection_bit_3 = j["Extended Rate Selection implemented (Bit 3)"];
+        enhancedOptions.reserved_bit_2 = j.at("Reserved (Bit 2)").template get<bool>();
+        enhancedOptions.readiness_flag_implemented_bit_1 = j.at("TC readiness flag implemented (Bit 1)").template get<bool>();
+        enhancedOptions.software_reset_implemented_bit_0 = j.at("Software reset implemented (Bit 0)").template get<bool>();
+
+        return enhancedOptions;
+    }
+//############
+
+//############
+    nlohmann::json ExtendedBaudRate250MBaudToJSON(unsigned char byte_value) {
+        nlohmann::json j;
+
+        j = (unsigned long)(byte_value) * 250ul;
+
+        return j;
+    }
+
+    unsigned char ExtendedBaudRate250MBaudFromJSON(const nlohmann::json& j) {
+        auto numberValue = j.template get<std::uint64_t>();
+
+        if(numberValue % 250 != 0) throw std::invalid_argument("Extended Baud Rate must be divisble by 250");
+
+        if(numberValue > 63750) throw std::invalid_argument("Extended Baud Rate must not be larger than 25400");
+
+        return numberValue / 250;
+    }
+//############
+
+//############
+    nlohmann::json VendorSpecificToJSON(const std::array<unsigned char, 32>& vendorSpecificRaw) {
+        nlohmann::json j;
+
+        j["Type"] = "Base64";
+        j["Value"] = cppcodec::base64_rfc4648::encode(vendorSpecificRaw.data(), vendorSpecificRaw.size());
+
+        return j;
+    }
+
+    std::array<unsigned char, 32> VendorSpecificFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Vendor Specific must be a base64 object");
+
+        std::array<unsigned char, 32> arr;
+
+        if(j.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Vendor Specific object must have Type Base64");
+
+        auto encodedVal = j.at("Value").template get<std::string>();
+
+        std::vector<uint8_t> decoded;
+        try {
+            decoded = cppcodec::base64_rfc4648::decode(encodedVal);
+        } catch(const cppcodec::parse_error& e) {
+            throw std::invalid_argument(fmt::format("Decoding base 64 failed: {}", e.what()));
+        }
+        if(decoded.size() != 32) throw std::invalid_argument("Vendor Specific specified as base64 must have exactly 32 characters!");
+
+        std::memcpy(arr.data(), decoded.data(), decoded.size());
+
+
+        return arr;
+    }
+//############
+
     void SFF8636_Upper00hToJSON(nlohmann::json& j, const SFF8636_Upper00h& programming, bool copperMode) {
 
         j["Type"] = "SFF-8636 Upper Page 00h";
@@ -1342,11 +1833,31 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         j["Vendor OUI"] = VendorOUIToJSON(programming.byte_165_167_vendor_oui);
 
-        j["Vendor PN"] = VendorPNToJSON(programming.byte_168_183_vendor_pn);
+        j["Vendor Part Number"] = VendorPNToJSON(programming.byte_168_183_vendor_pn);
 
         j["Vendor Rev"] = VendorRevToJSON(programming.byte_184_185_vendor_rev);
 
         j["Maximum Case Temperature [degC]"] = MaxCaseTemperatureToJSON(programming.byte_190_max_case_temperature);
+
+        //FIXME: CC_BASE
+
+        j["Extended Specification Compliance Codes"] = ExtendedComplianceCodesToJSON(programming.byte_192_extended_specification_compliance_codes);
+
+        j["Options"] = OptionsToJSON(programming.byte_193_option_values, programming.byte_194_option_values, programming.byte_195_option_values);
+
+        j["Vendor Serial Number"] = VendorSNToJSON(programming.byte_196_211_vendor_sn);
+
+        j["Date Code"] = DateCodeToJSON(programming.byte_212_219_date_code);
+
+        j["Diagnostic Monitoring Type"] = Diagnostic_Monitoring_TypeToJSON(programming.byte_220_diagnostic_monitoring_type);
+
+        j["Enhanced Options"] = Enhanced_OptionsToJSON(programming.byte_221_enhanced_options);
+
+        j["Extended Baud Rate [MBaud] (Divisible by 250)"] = ExtendedBaudRate250MBaudToJSON(programming.byte_222_extended_baud_rate_in_250_mbaud);
+
+        //FIXME: CC_EXT
+
+        j["Vendor Specific"] = VendorSpecificToJSON(programming.byte_224_255_vendor_specific);
     }
 
 
@@ -1400,12 +1911,31 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         programming.byte_165_167_vendor_oui = VendorOUIFromJSON(j.at("Vendor OUI"));
 
-        programming.byte_168_183_vendor_pn = VendorPNFromJSON(j.at("Vendor PN"));
+        programming.byte_168_183_vendor_pn = VendorPNFromJSON(j.at("Vendor Part Number"));
 
         programming.byte_184_185_vendor_rev = VendorRevFromJSON(j.at("Vendor Rev"));
 
         programming.byte_190_max_case_temperature = MaxCaseTemperatureFromJSON(j.at("Maximum Case Temperature [degC]"));
-    }
+
+        //FIXME: CC_BASE
+
+        programming.byte_192_extended_specification_compliance_codes = ExtendedComplianceCodesFromJSON(j.at("Extended Specification Compliance Codes"));
+
+        std::tie(programming.byte_193_option_values, programming.byte_194_option_values, programming.byte_195_option_values) =
+            OptionsFromJSON(j.at("Options"));
+
+        programming.byte_196_211_vendor_sn = VendorSNFromJSON(j.at("Vendor Serial Number"));
+
+        programming.byte_212_219_date_code = DateCodeFromJSON(j.at("Date Code"));
+
+        programming.byte_220_diagnostic_monitoring_type = Diagnostic_Monitoring_TypeFromJSON(j.at("Diagnostic Monitoring Type"));
+
+        programming.byte_221_enhanced_options = Enhanced_OptionsFromJSON(j.at("Enhanced Options"));
+
+        programming.byte_222_extended_baud_rate_in_250_mbaud = ExtendedBaudRate250MBaudFromJSON(j.at("Extended Baud Rate [MBaud] (Divisible by 250)"));
+
+        //FIXME: CC_EXT
+    }   
 
 
 }

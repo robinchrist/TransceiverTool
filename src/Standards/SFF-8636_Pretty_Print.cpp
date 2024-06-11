@@ -388,7 +388,11 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
     str.append("\n");
 
 
-    bool vendorNamePrintable = std::all_of(programming.byte_148_163_vendor_name.begin(), programming.byte_148_163_vendor_name.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
+    bool vendorNamePrintable = std::all_of(
+        programming.byte_148_163_vendor_name.begin(),
+        programming.byte_148_163_vendor_name.end(),
+        [](char c) {return std::isprint(c); }
+    );
     if(vendorNamePrintable) {
         std::string vendorName = std::string(reinterpret_cast<char const *>(programming.byte_148_163_vendor_name.data()), programming.byte_148_163_vendor_name.size());
         //rtrim
@@ -455,7 +459,11 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
 
 
 
-    bool vendorPNPrintable = std::all_of(programming.byte_168_183_vendor_pn.begin(), programming.byte_168_183_vendor_pn.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
+    bool vendorPNPrintable = std::all_of(
+        programming.byte_168_183_vendor_pn.begin(),
+        programming.byte_168_183_vendor_pn.end(),
+        [](char c) {return std::isprint(c); }
+    );
     if(vendorPNPrintable) {
         std::string vendorPN = std::string(reinterpret_cast<char const *>(programming.byte_168_183_vendor_pn.data()), 16);
         //rtrim
@@ -477,7 +485,11 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
     str.append("\n");
 
 
-    bool vendorRevPrintable = std::all_of(programming.byte_184_185_vendor_rev.begin(), programming.byte_184_185_vendor_rev.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
+    bool vendorRevPrintable = std::all_of(
+        programming.byte_184_185_vendor_rev.begin(),
+        programming.byte_184_185_vendor_rev.end(),
+        [](char c) {return std::isprint(c); }
+    );
     if(vendorRevPrintable) {
         std::string vendorRev = std::string(reinterpret_cast<char const *>(programming.byte_184_185_vendor_rev.data()), 2);
         //rtrim
@@ -645,7 +657,11 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
 
 
 
-    bool vendorSerialNumberPrintable = std::all_of(programming.byte_196_211_vendor_sn.begin(), programming.byte_196_211_vendor_sn.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
+    bool vendorSerialNumberPrintable = std::all_of(
+        programming.byte_196_211_vendor_sn.begin(),
+        programming.byte_196_211_vendor_sn.end(),
+        [](char c) {return std::isprint(c); }
+    );
     if(vendorSerialNumberPrintable) {
         std::string vendorSerialNumber = std::string(reinterpret_cast<char const *>(programming.byte_196_211_vendor_sn.data()), 16);
         //rtrim
@@ -667,7 +683,11 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
     str.append("\n");
 
 
-    bool dateCodeYearPrintable = std::all_of(programming.byte_212_219_date_code.year_low_order_digits.begin(), programming.byte_212_219_date_code.year_low_order_digits.end(), [](char c) {return !(c <= 0x2F || c >= 0x3A); });
+    bool dateCodeYearPrintable = std::all_of(
+        programming.byte_212_219_date_code.year_low_order_digits.begin(),
+        programming.byte_212_219_date_code.year_low_order_digits.end(),
+        [](char c) {return std::isdigit(c); }
+    );
     if(dateCodeYearPrintable) {
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
             "Date Code, low order digits of year [212-213]", std::string(reinterpret_cast<char const *>(programming.byte_212_219_date_code.year_low_order_digits.data()), 2)
@@ -683,7 +703,11 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
         str.append("\n");
     }
 
-    bool dateCodeMonthPrintable = std::all_of(programming.byte_212_219_date_code.month_digits.begin(), programming.byte_212_219_date_code.month_digits.end(), [](char c) {return !(c <= 0x2F || c >= 0x3A); });
+    bool dateCodeMonthPrintable = std::all_of(
+        programming.byte_212_219_date_code.month_digits.begin(),
+        programming.byte_212_219_date_code.month_digits.end(), 
+        [](char c) {return std::isdigit(c); }
+    );
     if(dateCodeMonthPrintable) {
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
             "Date Code, digits of month [214-215]", std::string(reinterpret_cast<char const *>(programming.byte_212_219_date_code.month_digits.data()), 2)
@@ -699,7 +723,11 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
         str.append("\n");
     }
 
-    bool dateCodeDayPrintable = std::all_of(programming.byte_212_219_date_code.day_digits.begin(), programming.byte_212_219_date_code.day_digits.end(), [](char c) {return !(c <= 0x2F || c >= 0x3A); });
+    bool dateCodeDayPrintable = std::all_of(
+        programming.byte_212_219_date_code.day_digits.begin(),
+        programming.byte_212_219_date_code.day_digits.end(),
+        [](char c) {return std::isdigit(c); }
+    );
     if(dateCodeDayPrintable) {
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
             "Date Code, digits of day [216-217]", std::string(reinterpret_cast<char const *>(programming.byte_212_219_date_code.day_digits.data()), 2)
@@ -715,7 +743,7 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
         str.append("\n");
     }
 
-    bool lotCodePrintable = std::all_of(programming.byte_212_219_date_code.lot_code.begin(), programming.byte_212_219_date_code.lot_code.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
+    bool lotCodePrintable = std::all_of(programming.byte_212_219_date_code.lot_code.begin(), programming.byte_212_219_date_code.lot_code.end(), [](char c) {return std::isprint(c); });
     if(dateCodeDayPrintable) {
         fmt::format_to(std::back_inserter(str), "{: <85s}: {:?}\n", 
             "Date Code, lot code (wrapping quotes added by TransceiverTool) [218-219]", std::string(reinterpret_cast<char const *>(programming.byte_212_219_date_code.lot_code.data()), 2)
@@ -800,7 +828,11 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
     str.append("\n");
 
 
-    bool vendorExtensionPrintable = std::all_of(programming.byte_224_255_vendor_specific.begin(), programming.byte_224_255_vendor_specific.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
+    bool vendorExtensionPrintable = std::all_of(
+        programming.byte_224_255_vendor_specific.begin(),
+        programming.byte_224_255_vendor_specific.end(),
+        [](char c) {return std::isprint(c); }
+    );
     if(vendorExtensionPrintable) {
         fmt::format_to(std::back_inserter(str), "{: <85s}: {:?}\n", 
             "Vendor Specific (wrapping quotes added by TransceiverTool) [224-255]", std::string(reinterpret_cast<char const *>(programming.byte_224_255_vendor_specific.data()), 32)

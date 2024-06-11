@@ -4,7 +4,7 @@
 
 namespace TransceiverTool::Standards::SFF8636 {
 
-    //SFF-8636 Rev 2.11 Section 6.3.24 Options (00h 193-19
+    //SFF-8636 Rev 2.11 Section 6.3.24 Options (00h 193-195)
     struct Option_Values_Byte_193 {
         bool reserved_bit_7;
 
