@@ -1545,7 +1545,7 @@ namespace TransceiverTool::Standards::SFF8636 {
             auto dateCodeNumVal = dateCodeYearVal.template get<std::uint64_t>();
             if(dateCodeNumVal > 99) throw std::invalid_argument("Year low order digits (Byte 212-213) must not be greater than 99");
 
-            auto dateCodeStrVal = fmt::format("{}", dateCodeNumVal);
+            auto dateCodeStrVal = fmt::format("{:02}", dateCodeNumVal);
             
             //We don't care if the value is not in range... Could as well have been specified as base64
             std::memcpy(dateCode.year_low_order_digits.data(), dateCodeStrVal.data(), 2);
@@ -1569,10 +1569,10 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         auto dateCodeMonthVal = j.at("Month digits (Byte 214-215)");
         if(dateCodeMonthVal.is_number_unsigned()) {
-            auto dateCodeNumVal = dateCodeYearVal.template get<std::uint64_t>();
+            auto dateCodeNumVal = dateCodeMonthVal.template get<std::uint64_t>();
             if(dateCodeNumVal > 99) throw std::invalid_argument("Month digits (Byte 214-215) must not be greater than 99");
 
-            auto dateCodeStrVal = fmt::format("{}", dateCodeNumVal);
+            auto dateCodeStrVal = fmt::format("{:02}", dateCodeNumVal);
             
             //We don't care if the value is not in range... Could as well have been specified as base64
             std::memcpy(dateCode.month_digits.data(), dateCodeStrVal.data(), 2);
@@ -1596,10 +1596,10 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         auto dateCodeDayVal = j.at("Day (Byte 216-217)");
         if(dateCodeDayVal.is_number_unsigned()) {
-            auto dateCodeNumVal = dateCodeYearVal.template get<std::uint64_t>();
+            auto dateCodeNumVal = dateCodeDayVal.template get<std::uint64_t>();
             if(dateCodeNumVal > 99) throw std::invalid_argument("Day (Byte 216-217) must not be greater than 99");
 
-            auto dateCodeStrVal = fmt::format("{}", dateCodeNumVal);
+            auto dateCodeStrVal = fmt::format("{:02}", dateCodeNumVal);
             
             //We don't care if the value is not in range... Could as well have been specified as base64
             std::memcpy(dateCode.day_digits.data(), dateCodeStrVal.data(), 2);
@@ -1935,6 +1935,8 @@ namespace TransceiverTool::Standards::SFF8636 {
         programming.byte_222_extended_baud_rate_in_250_mbaud = ExtendedBaudRate250MBaudFromJSON(j.at("Extended Baud Rate [MBaud] (Divisible by 250)"));
 
         //FIXME: CC_EXT
+
+        programming.byte_224_255_vendor_specific = VendorSpecificFromJSON(j.at("Vendor Specific"));
     }   
 
 
