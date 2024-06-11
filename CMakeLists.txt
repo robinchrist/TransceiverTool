@@ -6,6 +6,7 @@ project ("Transceiver Tool")
 # Make sure we group dependencies here
 find_package(nlohmann_json REQUIRED)
 find_package(fmt REQUIRED)
+find_package(cppcodec REQUIRED)
 
 
 #set preferences
@@ -32,6 +33,7 @@ target_link_libraries(TransceiverTool PUBLIC stdc++fs)
 
 target_link_libraries(TransceiverTool PUBLIC nlohmann_json::nlohmann_json)
 target_link_libraries(TransceiverTool PUBLIC fmt::fmt)
+target_link_libraries(TransceiverTool PUBLIC cppcodec::cppcodec)
 
 
 target_include_directories(TransceiverTool PUBLIC include)

@@ -2,10 +2,13 @@
 #include "TransceiverTool/Standards/SFF-8024_Transceiver_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8636_Compliance_Codes.hpp"
 #include "TransceiverTool/Standards/SFF-8636_Extended_Identifier_Values.hpp"
+#include "TransceiverTool/Vendor_OUIs.hpp"
 #include <fmt/core.h>
 #include <limits>
+#include <nlohmann/json_fwd.hpp>
 #include <stdexcept>
 #include <cstdlib>
+#include <cppcodec/base64_rfc4648.hpp>
 
 namespace TransceiverTool::Standards::SFF8636 {
 
@@ -29,9 +32,11 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         if(byteValueStr[0] != '0' || byteValueStr[1] != 'x') throw std::invalid_argument("byteValue does not start with 0x");
         
+        if(!std::isxdigit(byteValueStr[2]) || !std::isxdigit(byteValueStr[3])) throw std::invalid_argument("byteValue has invalid characters");
+        
         char* outPtr;
         unsigned long longValue = strtoul(byteValueStr.c_str(), &outPtr, 16);
-        if(outPtr != byteValueStr.c_str() + 4) throw std::invalid_argument("byteValue is not valid hex number!");
+        if(outPtr != byteValueStr.c_str() + 4) throw std::invalid_argument("byteValue is not valid hex number??");
         if(longValue > std::numeric_limits<unsigned char>::max()) throw std::invalid_argument("byteValue exceeds byte range?!");
 
         return longValue;
@@ -944,6 +949,8 @@ namespace TransceiverTool::Standards::SFF8636 {
         return parsedStruct;
     }
 //############
+
+//############
     nlohmann::json Device_Technology_and_Transmitter_TechnologyToJSON(const Device_Technology_and_Transmitter_Technology& value) {
         nlohmann::json j;
 
@@ -991,7 +998,295 @@ namespace TransceiverTool::Standards::SFF8636 {
 
 //############
 
+//############
+    nlohmann::json VendorNameToJSON(const std::array<unsigned char, 16>& vendorNameRaw) {
+        bool vendorNamePrintable = std::all_of(vendorNameRaw.begin(), vendorNameRaw.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
 
+        nlohmann::json j;
+
+    
+        if(vendorNamePrintable) {
+            std::string vendorName = std::string(reinterpret_cast<char const *>(vendorNameRaw.data()), vendorNameRaw.size());
+            //rtrim
+            vendorName.erase(std::find_if(vendorName.rbegin(), vendorName.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorName.end());
+
+            j = vendorName;
+        } else {
+            j["Type"] = "Base64";
+            j["Value"] = cppcodec::base64_rfc4648::encode(vendorNameRaw.data(), vendorNameRaw.size());
+        }
+
+        return j;
+    }
+
+    std::array<unsigned char, 16> VendorNameFromJSON(const nlohmann::json& j) {
+        std::array<unsigned char, 16> arr;
+
+
+        if(j.is_string()) {
+            auto strVal = j.template get<std::string>();
+            //We don't care whether it contains unprintable characters - when we serialise and check, it's only to prevent invalid JSON being generated
+            //However, as this is a parsed value, we know that the JSON must be valid. Let the user enter what they want...
+            if(strVal.size() > 16) throw std::invalid_argument("Vendor Name must not have more than 16 characters");
+
+            if(strVal.size() < 16) strVal.resize(16, 0x20);
+
+            std::memcpy(arr.data(), strVal.data(), strVal.size());
+        } else if(j.is_object()) {
+            if(j.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Vendor Name object must have Type Base64");
+
+            auto encodedVal = j.at("Value").template get<std::string>();
+
+            std::vector<uint8_t> decoded;
+            try {
+                decoded = cppcodec::base64_rfc4648::decode(encodedVal);
+            } catch(const cppcodec::parse_error& e) {
+                throw std::invalid_argument(fmt::format("Decoding base 64 failed: {}", e.what()));
+            }
+            if(decoded.size() != 16) throw std::invalid_argument("Vendor Name specified as base64 must have exactly 16 characters!");
+
+            std::memcpy(arr.data(), decoded.data(), decoded.size());
+        } else {
+            throw std::invalid_argument("Vendor Name has invalid type, must be either string or object");
+        }
+
+        return arr;
+    }
+//############
+
+//############
+    nlohmann::json Extended_Module_CodesToJSON(const Extended_Module_Codes& codes) {
+        nlohmann::json j;
+
+        j["Reserved (Bit 7)"] = codes.reserved_bit_7;
+        j["Reserved (Bit 6)"] = codes.reserved_bit_6;
+        j["HDR (200G) Infiniband supported (Bit 5)"] = codes.HDR_bit_5;
+        j["EDR (100G) Infiniband supported (Bit 4)"] = codes.EDR_bit_4;
+        j["FDR (56G) Infiniband supported (Bit 3)"] = codes.FDR_bit_3;
+        j["QDR (40G) Infiniband supported (Bit 2)"] = codes.QDR_bit_2;
+        j["DDR (20G) Infiniband supported (Bit 1)"] = codes.DDR_bit_1;
+        j["SDR (10G) Infiniband supported (Bit 0)"] = codes.SDR_bit_0;
+
+        return j;
+    }
+
+    Extended_Module_Codes Extended_Module_CodesFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Extended Module Codes (Infiniband) must be an object");
+
+        Extended_Module_Codes codes;
+
+        codes.reserved_bit_7 = j.at("Reserved (Bit 7)").template get<bool>();
+        codes.reserved_bit_6 = j.at("Reserved (Bit 6)").template get<bool>();
+        codes.HDR_bit_5 = j.at("HDR (200G) Infiniband supported (Bit 5)").template get<bool>();
+        codes.EDR_bit_4 = j.at("EDR (100G) Infiniband supported (Bit 4)").template get<bool>();
+        codes.FDR_bit_3 = j.at("FDR (56G) Infiniband supported (Bit 3)").template get<bool>();
+        codes.QDR_bit_2 = j.at("QDR (40G) Infiniband supported (Bit 2)").template get<bool>();
+        codes.DDR_bit_1 = j.at("DDR (20G) Infiniband supported (Bit 1)").template get<bool>();
+        codes.SDR_bit_0 = j.at("SDR (10G) Infiniband supported (Bit 0)").template get<bool>();
+
+        return codes;
+    }
+//############
+
+//############
+    nlohmann::json VendorOUIToJSON(const std::array<unsigned char, 3>& vendorOUI) {
+        nlohmann::json j;
+
+
+        auto VendorOUIsIt = std::find_if(
+            TransceiverTool::VendorOUIs.begin(),
+            TransceiverTool::VendorOUIs.end(),
+            [seek = vendorOUI](const VendorOUI elem) { return elem.byte_value == seek; }
+        );
+
+        if(VendorOUIsIt != TransceiverTool::VendorOUIs.end()) {
+            j["Vendor Name"] = VendorOUIsIt->name;
+        } else {
+            j = fmt::format("{:02x}:{:02x}:{:02x}", vendorOUI[0], vendorOUI[1], vendorOUI[2]);
+        }
+
+        return j;
+    }
+
+    std::array<unsigned char, 3> VendorOUIFromJSON(const nlohmann::json& j) {
+        std::array<unsigned char, 3> arr;
+
+
+        if(j.is_string()) {
+            auto strVal = j.template get<std::string>();
+
+            if(strVal.size() != 8) throw std::invalid_argument("Vendor OUI string must be exactly 8 characters long");
+
+            if(!std::isxdigit(strVal[0]) || !std::isxdigit(strVal[1]) || strVal[2] != ':' ||
+                !std::isxdigit(strVal[3]) || !std::isxdigit(strVal[4]) || strVal[5] != ':' ||
+                !std::isxdigit(strVal[6]) || !std::isxdigit(strVal[7])
+            ) {
+                throw std::invalid_argument("Vendor OUI string has invalid characters or format");
+            }
+
+            unsigned long longValue = strtoul(strVal.c_str(), nullptr, 16);
+            if(longValue > std::numeric_limits<unsigned char>::max()) throw std::invalid_argument("byteValue exceeds byte range?!");
+            arr[0] = longValue;
+
+            longValue = strtoul(strVal.c_str() + 3, nullptr, 16);
+            if(longValue > std::numeric_limits<unsigned char>::max()) throw std::invalid_argument("byteValue exceeds byte range?!");
+            arr[1] = longValue;
+
+            longValue = strtoul(strVal.c_str() + 6, nullptr, 16);
+            if(longValue > std::numeric_limits<unsigned char>::max()) throw std::invalid_argument("byteValue exceeds byte range?!");
+            arr[2] = longValue;
+        } else if(j.is_object()) {
+
+            auto vendorName = j.at("Vendor Name").template get<std::string>();
+
+            auto VendorOUIsIt = std::find_if(
+                TransceiverTool::VendorOUIs.begin(),
+                TransceiverTool::VendorOUIs.end(),
+                [&vendorName](const VendorOUI elem) { return elem.name == vendorName; }
+            );
+            if(VendorOUIsIt == TransceiverTool::VendorOUIs.end()) throw std::invalid_argument("Vendor OUI Vendor Name not known");
+
+            arr = VendorOUIsIt->byte_value;
+        } else {
+            throw std::invalid_argument("Vendor OUI has invalid type, must be either string or object");
+        }
+
+        return arr;
+    }
+//############
+
+//############
+    nlohmann::json VendorPNToJSON(const std::array<unsigned char, 16>& vendorPNRaw) {
+        bool vendorPNPrintable = std::all_of(vendorPNRaw.begin(), vendorPNRaw.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
+
+        nlohmann::json j;
+
+    
+        if(vendorPNPrintable) {
+            std::string vendorPN = std::string(reinterpret_cast<char const *>(vendorPNRaw.data()), vendorPNRaw.size());
+            //rtrim
+            vendorPN.erase(std::find_if(vendorPN.rbegin(), vendorPN.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorPN.end());
+
+            j = vendorPN;
+        } else {
+            j["Type"] = "Base64";
+            j["Value"] = cppcodec::base64_rfc4648::encode(vendorPNRaw.data(), vendorPNRaw.size());
+        }
+
+        return j;
+    }
+
+    std::array<unsigned char, 16> VendorPNFromJSON(const nlohmann::json& j) {
+        std::array<unsigned char, 16> arr;
+
+
+        if(j.is_string()) {
+            auto strVal = j.template get<std::string>();
+            //We don't care whether it contains unprintable characters - when we serialise and check, it's only to prevent invalid JSON being generated
+            //However, as this is a parsed value, we know that the JSON must be valid. Let the user enter what they want...
+            if(strVal.size() > 16) throw std::invalid_argument("Vendor PN must not have more than 16 characters");
+
+            if(strVal.size() < 16) strVal.resize(16, 0x20);
+
+            std::memcpy(arr.data(), strVal.data(), strVal.size());
+        } else if(j.is_object()) {
+            if(j.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Vendor PN object must have Type Base64");
+
+            auto encodedVal = j.at("Value").template get<std::string>();
+
+            std::vector<uint8_t> decoded;
+            try {
+                decoded = cppcodec::base64_rfc4648::decode(encodedVal);
+            } catch(const cppcodec::parse_error& e) {
+                throw std::invalid_argument(fmt::format("Decoding base 64 failed: {}", e.what()));
+            }
+            if(decoded.size() != 16) throw std::invalid_argument("Vendor PN specified as base64 must have exactly 16 characters!");
+
+            std::memcpy(arr.data(), decoded.data(), decoded.size());
+        } else {
+            throw std::invalid_argument("Vendor PN has invalid type, must be either string or object");
+        }
+
+        return arr;
+    }
+//############
+
+//############
+    nlohmann::json VendorRevToJSON(const std::array<unsigned char, 2>& vendorRevRaw) {
+        bool vendorRevPrintable = std::all_of(vendorRevRaw.begin(), vendorRevRaw.end(), [](char c) {return !(c <= 0x19 || c >= 0x7F); });
+
+        nlohmann::json j;
+
+    
+        if(vendorRevPrintable) {
+            std::string vendorRev = std::string(reinterpret_cast<char const *>(vendorRevRaw.data()), vendorRevRaw.size());
+            //rtrim
+            vendorRev.erase(std::find_if(vendorRev.rbegin(), vendorRev.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorRev.end());
+
+            j = vendorRev;
+        } else {
+            j["Type"] = "Base64";
+            j["Value"] = cppcodec::base64_rfc4648::encode(vendorRevRaw.data(), vendorRevRaw.size());
+        }
+
+        return j;
+    }
+
+    std::array<unsigned char, 2> VendorRevFromJSON(const nlohmann::json& j) {
+        std::array<unsigned char, 2> arr;
+
+
+        if(j.is_string()) {
+            auto strVal = j.template get<std::string>();
+            //We don't care whether it contains unprintable characters - when we serialise and check, it's only to prevent invalid JSON being generated
+            //However, as this is a parsed value, we know that the JSON must be valid. Let the user enter what they want...
+            if(strVal.size() > 2) throw std::invalid_argument("Vendor Rev must not have more than 2 characters");
+
+            if(strVal.size() < 2) strVal.resize(2, 0x20);
+
+            std::memcpy(arr.data(), strVal.data(), strVal.size());
+        } else if(j.is_object()) {
+            if(j.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Vendor Rev object must have Type Base64");
+
+            auto encodedVal = j.at("Value").template get<std::string>();
+
+            std::vector<uint8_t> decoded;
+            try {
+                decoded = cppcodec::base64_rfc4648::decode(encodedVal);
+            } catch(const cppcodec::parse_error& e) {
+                throw std::invalid_argument(fmt::format("Decoding base 64 failed: {}", e.what()));
+            }
+            if(decoded.size() != 2) throw std::invalid_argument("Vendor Rev specified as base64 must have exactly 2 characters!");
+
+            std::memcpy(arr.data(), decoded.data(), decoded.size());
+        } else {
+            throw std::invalid_argument("Vendor Rev has invalid type, must be either string or object");
+        }
+
+        return arr;
+    }
+//############
+
+//############
+    nlohmann::json MaxCaseTemperatureToJSON(unsigned char maxCaseTemperature) {
+        nlohmann::json j;
+
+        if(maxCaseTemperature == 0) maxCaseTemperature = 70;
+
+        j = (unsigned long)(maxCaseTemperature);
+
+        return j;
+    }
+
+    unsigned char MaxCaseTemperatureFromJSON(const nlohmann::json& j) {
+        auto numberValue = j.template get<std::uint64_t>();
+
+        if(numberValue > 255) throw std::invalid_argument("Maximum Case Temperature [degC] must not be larger than 255");
+
+        if(numberValue == 70) numberValue = 0;
+
+        return numberValue;
+    }
 //############
 
     void SFF8636_Upper00hToJSON(nlohmann::json& j, const SFF8636_Upper00h& programming, bool copperMode) {
@@ -1040,6 +1335,18 @@ namespace TransceiverTool::Standards::SFF8636 {
         );
 
         j["Device & Transmitter Properties"] = Device_Technology_and_Transmitter_TechnologyToJSON(programming.byte_147_device_technology_and_transmitter_technology);
+
+        j["Vendor Name"] = VendorNameToJSON(programming.byte_148_163_vendor_name);
+
+        j["Extended Module Codes (Infiniband)"] = Extended_Module_CodesToJSON(programming.byte_164_extended_module_codes);
+
+        j["Vendor OUI"] = VendorOUIToJSON(programming.byte_165_167_vendor_oui);
+
+        j["Vendor PN"] = VendorPNToJSON(programming.byte_168_183_vendor_pn);
+
+        j["Vendor Rev"] = VendorRevToJSON(programming.byte_184_185_vendor_rev);
+
+        j["Maximum Case Temperature [degC]"] = MaxCaseTemperatureToJSON(programming.byte_190_max_case_temperature);
     }
 
 
@@ -1086,6 +1393,18 @@ namespace TransceiverTool::Standards::SFF8636 {
         programming.byte_189_wavelength_tolerance_low_order_or_copper_attenuation = copperOrFibreInfoToJSONReturn.byte_189_wavelength_tolerance_low_order_or_copper_attenuation;
 
         programming.byte_147_device_technology_and_transmitter_technology = Device_Technology_and_Transmitter_TechnologyFromJSON(j.at("Device & Transmitter Properties"));
+
+        programming.byte_148_163_vendor_name = VendorNameFromJSON(j.at("Vendor Name"));
+
+        programming.byte_164_extended_module_codes = Extended_Module_CodesFromJSON(j.at("Extended Module Codes (Infiniband)"));
+
+        programming.byte_165_167_vendor_oui = VendorOUIFromJSON(j.at("Vendor OUI"));
+
+        programming.byte_168_183_vendor_pn = VendorPNFromJSON(j.at("Vendor PN"));
+
+        programming.byte_184_185_vendor_rev = VendorRevFromJSON(j.at("Vendor Rev"));
+
+        programming.byte_190_max_case_temperature = MaxCaseTemperatureFromJSON(j.at("Maximum Case Temperature [degC]"));
     }
 
 

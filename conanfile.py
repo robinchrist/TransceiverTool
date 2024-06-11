@@ -9,6 +9,8 @@ class TransceiverToolRecipe(ConanFile):
 
         self.requires("fmt/[^10]")
 
+        self.requires("cppcodec/0.2")
+
     def build_requirements(self):
         pass
 
