@@ -1,4 +1,6 @@
 #include "TransceiverTool/Standards/SFF-8636_Pretty_Print.hpp"
+#include "TransceiverTool/Standards/SFF-8636_Assembler.hpp"
+#include "TransceiverTool/Standards/SFF-8636_Checksum.hpp"
 #include "fmt/format.h"
 #include "fmt/color.h"
 #include <algorithm>
@@ -16,6 +18,12 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
             return "N/A";
         }
     };
+
+    std::vector<unsigned char> binary; binary.resize(256, 0x00);
+    assembleToBinary(binary.data(), programming, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
+
+    unsigned char CC_BASE = calculateCC_BASEChecksum(binary.data());
+    unsigned char CC_EXT = calculateCC_EXTChecksum(binary.data());
 
 
     std::string str;
@@ -560,10 +568,16 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
     );
     str.append("\n");
 
-    //FIXME: indicate whether checksum is correct or not
-    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "CC_BASE checksum [191]", fmt::format("{:#04x}", programming.byte_191_CC_BASE)
-    );
+
+    if(programming.byte_191_CC_BASE == CC_BASE) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "CC_BASE checksum [191]", fmt::format("{:#04x} (correct)", programming.byte_191_CC_BASE)
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "CC_BASE checksum [191]", fmt::format("{:#04x} (incorrect, should be {:#04x})", programming.byte_191_CC_BASE, CC_BASE)
+        );
+    }
     str.append("\n");
 
 
@@ -821,10 +835,15 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
     str.append("\n");
 
 
-    //FIXME: indicate whether checksum is correct or not
-    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "CC_EXT checksum [223]", fmt::format("{:#04x}", programming.byte_223_CC_EXT)
-    );
+    if(programming.byte_223_CC_EXT == CC_EXT) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "CC_EXT checksum [223]", fmt::format("{:#04x} (correct)", programming.byte_223_CC_EXT)
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "CC_EXT checksum [223]", fmt::format("{:#04x} (incorrect, should be {:#04x})", programming.byte_223_CC_EXT, CC_EXT)
+        );
+    }
     str.append("\n");
 
 

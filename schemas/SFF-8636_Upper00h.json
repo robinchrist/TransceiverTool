@@ -746,6 +746,14 @@
             "minimum": 0,
             "maximum": 255
         },
+        "sff-8636_cc_base_checksum": {
+            "$id": "/schemas/sff-8636_cc_base_checksum",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {  "const": "auto" },
+                { "$ref": "/schemas/base64_obj" }
+            ]
+        },
         "sff-8636_extended_specification_compliance_codes": {
             "$id": "/schemas/sff-8636_extended_specification_compliance_codes",
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -1012,6 +1020,14 @@
             "minimum": 0,
             "maximum": 63750
         },
+        "sff-8636_cc_ext_checksum": {
+            "$id": "/schemas/sff-8636_cc_ext_checksum",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {  "const": "auto" },
+                { "$ref": "/schemas/base64_obj" }
+            ]
+        },
         "sff-8636_vendor_specific": {
             "$id": "/schemas/sff-8636_vendor_specific",
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -1049,6 +1065,7 @@
         "Vendor Part Number": {"$ref": "/schemas/sff-8636_vendor_part_number"},
         "Vendor Rev": {"$ref": "/schemas/sff-8636_vendor_rev"},
         "Maximum Case Temperature [degC]": {"$ref": "/schemas/sff-8636_maximum_case_temperature"},
+        "CC_BASE": {"$ref": "/schemas/sff-8636_cc_base_checksum"},
         "Extended Specification Compliance Codes": {"$ref": "/schemas/sff-8636_extended_specification_compliance_codes"},
         "Options": {"$ref": "/schemas/sff-8636_options"},
         "Vendor Serial Number": {"$ref": "/schemas/sff-8636_vendor_serial_number"},
@@ -1056,6 +1073,7 @@
         "Diagnostic Monitoring Type": {"$ref": "/schemas/sff-8636_diagnostic_monitoring_type"},
         "Enhanced Options": {"$ref": "/schemas/sff-8636_enhanced_options"},
         "Extended Baud Rate [MBaud] (Divisible by 250)": {"$ref": "/schemas/sff-8636_extended_baud_rate_250"},
+        "CC_EXT": {"$ref": "/schemas/sff-8636_cc_ext_checksum"},
         "Vendor Specific": {"$ref": "/schemas/sff-8636_vendor_specific"}
     },
 
@@ -1086,6 +1104,7 @@
         "Vendor Part Number",
         "Vendor Rev",
         "Maximum Case Temperature [degC]",
+        "CC_BASE",
         "Extended Specification Compliance Codes",
         "Options",
         "Vendor Serial Number",
@@ -1093,6 +1112,7 @@
         "Diagnostic Monitoring Type",
         "Enhanced Options",
         "Extended Baud Rate [MBaud] (Divisible by 250)",
+        "CC_EXT",
         "Vendor Specific"
     ]
 }

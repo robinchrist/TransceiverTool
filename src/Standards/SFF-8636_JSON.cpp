@@ -1,4 +1,6 @@
 #include "TransceiverTool/Standards/SFF-8636_JSON.hpp"
+#include "TransceiverTool/Standards/SFF-8636_Assembler.hpp"
+#include "TransceiverTool/Standards/SFF-8636_Checksum.hpp"
 #include "TransceiverTool/Standards/SFF-8636_Upper00h.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Transceiver_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8636_Compliance_Codes.hpp"
@@ -12,6 +14,7 @@
 #include <stdexcept>
 #include <cstdlib>
 #include <cppcodec/base64_rfc4648.hpp>
+#include <optional>
 
 namespace TransceiverTool::Standards::SFF8636 {
 
@@ -1300,6 +1303,34 @@ namespace TransceiverTool::Standards::SFF8636 {
     }
 //############
 
+//############
+    nlohmann::ordered_json CC_BASEChecksumToJSON(unsigned char checkSumInProgramming, unsigned char correctChecksum) {
+        nlohmann::ordered_json j;
+
+        if(checkSumInProgramming == correctChecksum) {
+            j = "auto";
+        } else {
+            j = charToJSONByteStruct(checkSumInProgramming);
+        }
+
+        return j;
+    }
+    
+    //nullopt -> checksum auto in file
+    std::optional<unsigned char> CC_BASEChecksumFromJSON(const nlohmann::json& j) {
+        if(j.is_string()) {
+            auto strValue = j.template get<std::string>();
+            if(strValue != "auto") throw std::invalid_argument("CC_BASE string value must be auto");
+
+            return std::nullopt;
+        } else if(j.is_object()) {
+            return std::make_optional(charFromJSONByteStruct(j));
+        } else {
+            throw std::invalid_argument("CC_BASE must be either string or object");
+        }
+    }
+//############
+
 
 //############
     nlohmann::ordered_json ExtendedComplianceCodesToJSON(unsigned char byte_value) {
@@ -1748,6 +1779,34 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
 //############
+    nlohmann::ordered_json CC_EXTChecksumToJSON(unsigned char checkSumInProgramming, unsigned char correctChecksum) {
+        nlohmann::ordered_json j;
+
+        if(checkSumInProgramming == correctChecksum) {
+            j = "auto";
+        } else {
+            j = charToJSONByteStruct(checkSumInProgramming);
+        }
+
+        return j;
+    }
+    
+    //nullopt -> checksum auto in file
+    std::optional<unsigned char> CC_EXTChecksumFromJSON(const nlohmann::json& j) {
+        if(j.is_string()) {
+            auto strValue = j.template get<std::string>();
+            if(strValue != "auto") throw std::invalid_argument("CC_EXT string value must be auto");
+
+            return std::nullopt;
+        } else if(j.is_object()) {
+            return std::make_optional(charFromJSONByteStruct(j));
+        } else {
+            throw std::invalid_argument("CC_EXT must be either string or object");
+        }
+    }
+//############
+
+//############
     nlohmann::ordered_json VendorSpecificToJSON(const std::array<unsigned char, 32>& vendorSpecificRaw) {
         nlohmann::ordered_json j;
 
@@ -1782,6 +1841,17 @@ namespace TransceiverTool::Standards::SFF8636 {
 //############
 
     void SFF8636_Upper00hToJSON(nlohmann::ordered_json& j, const SFF8636_Upper00h& programming, bool copperMode) {
+
+        //Calculate the correct checksums
+        //If the checksums in the programming are correct, serialise as Checksum: Auto
+        //If the checksums are incorrect, serialise as manual checksum value
+        std::vector<unsigned char> binaryBuffer; binaryBuffer.resize(256, 0x00);
+        //Use MANUAL_USE_VALUE_IN_PROGRAMMING to avoid double calculation of checksum - we don't want to seek it in the binary
+        assembleToBinary(binaryBuffer.data(), programming, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
+
+        unsigned char correctCC_BASEChecksum = calculateCC_BASEChecksum(binaryBuffer.data());
+        unsigned char correctCC_EXTChecksum = calculateCC_EXTChecksum(binaryBuffer.data());
+
 
         j["Type"] = "SFF-8636 Rev 2.11 Upper Page 00h";
         
@@ -1840,7 +1910,7 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         j["Maximum Case Temperature [degC]"] = MaxCaseTemperatureToJSON(programming.byte_190_max_case_temperature);
 
-        //FIXME: CC_BASE
+        j["CC_BASE"] = CC_BASEChecksumToJSON(programming.byte_191_CC_BASE, correctCC_BASEChecksum);
 
         j["Extended Specification Compliance Codes"] = ExtendedComplianceCodesToJSON(programming.byte_192_extended_specification_compliance_codes);
 
@@ -1856,7 +1926,7 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         j["Extended Baud Rate [MBaud] (Divisible by 250)"] = ExtendedBaudRate250MBaudToJSON(programming.byte_222_extended_baud_rate_in_250_mbaud);
 
-        //FIXME: CC_EXT
+        j["CC_EXT"] = CC_EXTChecksumToJSON(programming.byte_223_CC_EXT, correctCC_EXTChecksum);
 
         j["Vendor Specific"] = VendorSpecificToJSON(programming.byte_224_255_vendor_specific);
     }
@@ -1919,7 +1989,7 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         programming.byte_190_max_case_temperature = MaxCaseTemperatureFromJSON(j.at("Maximum Case Temperature [degC]"));
 
-        //FIXME: CC_BASE
+        //CC_BASE is done later
 
         programming.byte_192_extended_specification_compliance_codes = ExtendedComplianceCodesFromJSON(j.at("Extended Specification Compliance Codes"));
 
@@ -1936,8 +2006,32 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         programming.byte_222_extended_baud_rate_in_250_mbaud = ExtendedBaudRate250MBaudFromJSON(j.at("Extended Baud Rate [MBaud] (Divisible by 250)"));
 
-        //FIXME: CC_EXT
+        //CC_EXT is done later
 
         programming.byte_224_255_vendor_specific = VendorSpecificFromJSON(j.at("Vendor Specific"));
+
+        //Calculate the correct checksums
+        std::vector<unsigned char> binaryBuffer; binaryBuffer.resize(256, 0x00);
+        //Use MANUAL_USE_VALUE_IN_PROGRAMMING to avoid double calculation of checksum - we don't want to seek it in the binary
+        assembleToBinary(binaryBuffer.data(), programming, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
+
+        
+        unsigned char correctCC_EXTChecksum = calculateCC_EXTChecksum(binaryBuffer.data());
+
+        auto CC_BASEVal = CC_BASEChecksumFromJSON(j.at("CC_BASE"));
+        if(CC_BASEVal.has_value()) {
+            programming.byte_191_CC_BASE = CC_BASEVal.value();
+        } else {
+            //Checksum == Auto
+            programming.byte_191_CC_BASE = calculateCC_BASEChecksum(binaryBuffer.data());
+        }
+
+        auto CC_EXTVal = CC_EXTChecksumFromJSON(j.at("CC_EXT"));
+        if(CC_EXTVal.has_value()) {
+            programming.byte_223_CC_EXT = CC_EXTVal.value();
+        } else {
+            //Checksum == Auto
+            programming.byte_223_CC_EXT = calculateCC_EXTChecksum(binaryBuffer.data());
+        }
     }   
 }
