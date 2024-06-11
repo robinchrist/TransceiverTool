@@ -1,8 +1,8 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "$id": "https://example.com/product.schema.json",
-    "title": "SFF-8636 Upper Page 00h",
-    "description": "JSON Format for SFF-8636 Upper Page 00h",
+    "title": "SFF-8636 Rev 2.11 Upper Page 00h",
+    "description": "JSON Format for SFF-8636 Rev 2.11 Upper Page 00h",
     "type": "object",
 
     "$defs": {
@@ -1023,7 +1023,7 @@
 
     "properties": {
         "Type": {
-            "const": "SFF-8636 Upper Page 00h"
+            "const": "SFF-8636 Rev 2.11 Upper Page 00h"
         },
         "Identifier": { "$ref": "/schemas/sff-8636_identifier" },
         "Extended Identifier": { "$ref": "/schemas/sff-8636_extended_identifier" },
