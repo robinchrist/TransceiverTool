@@ -20,7 +20,7 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
     };
 
     std::vector<unsigned char> binary; binary.resize(256, 0x00);
-    assembleToBinary(binary.data(), programming, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
+    assembleToBinary(binary.data(), programming, Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
 
     unsigned char CC_BASE = calculateCC_BASEChecksum(binary.data());
     unsigned char CC_EXT = calculateCC_EXTChecksum(binary.data());

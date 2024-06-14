@@ -1,0 +1,62 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/product.schema.json",
+    "title": "SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Lower Page A0h",
+    "description": "JSON Format for SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Lower Page A0h",
+    "type": "object",
+
+    "$defs": {
+        "single_byte_value_obj": {
+            "$id": "/schemas/single_byte_value_obj",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "byteValue": {
+                    "type": "string",
+                    "pattern": "^0x[0-9a-fA-F]{2}$"
+                }
+            },
+            "required": ["byteValue"] 
+        },
+        "base64_obj": {
+            "$id": "/schemas/base64_obj",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Type": { "const": "Base64" },
+                "Value": {
+                    "type": "string",
+                    "contentEncoding": "base64"
+                }
+            },
+            "required": ["Type", "Value"] 
+        },
+        "sff-8472_identifier": {
+            "$id": "/schemas/sff-8472_identifier",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                { "$ref": "/schemas/single_byte_value_obj" },
+                { 
+                    "enum": [
+                        "Unknown or unspecified",
+                        "GBIC",
+                        "Module soldered to motherboard (ex: SFF)",
+                        "SFP or SFP+"
+                    ]
+                }
+            ]
+        }
+    },
+
+    "properties": {
+        "Type": {
+            "const": "SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Lower Page A0h"
+        },
+        "Identifier": { "$ref": "/schemas/sff-8472_identifier" },
+    },
+
+    "required": [
+        "Type",
+        "Identifier"
+    ]
+}

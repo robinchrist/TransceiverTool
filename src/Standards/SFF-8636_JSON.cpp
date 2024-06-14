@@ -1859,7 +1859,7 @@ namespace TransceiverTool::Standards::SFF8636 {
         //If the checksums are incorrect, serialise as manual checksum value
         std::vector<unsigned char> binaryBuffer; binaryBuffer.resize(256, 0x00);
         //Use MANUAL_USE_VALUE_IN_PROGRAMMING to avoid double calculation of checksum - we don't want to seek it in the binary
-        assembleToBinary(binaryBuffer.data(), programming, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
+        assembleToBinary(binaryBuffer.data(), programming, Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
 
         unsigned char correctCC_BASEChecksum = calculateCC_BASEChecksum(binaryBuffer.data());
         unsigned char correctCC_EXTChecksum = calculateCC_EXTChecksum(binaryBuffer.data());
@@ -2025,7 +2025,7 @@ namespace TransceiverTool::Standards::SFF8636 {
         //Calculate the correct checksums
         std::vector<unsigned char> binaryBuffer; binaryBuffer.resize(256, 0x00);
         //Use MANUAL_USE_VALUE_IN_PROGRAMMING to avoid double calculation of checksum - we don't want to seek it in the binary
-        assembleToBinary(binaryBuffer.data(), programming, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
+        assembleToBinary(binaryBuffer.data(), programming, Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
 
         
         unsigned char correctCC_EXTChecksum = calculateCC_EXTChecksum(binaryBuffer.data());

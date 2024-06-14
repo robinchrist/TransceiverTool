@@ -243,7 +243,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
 
     void validateCC_BASEChecksum(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
         std::vector<unsigned char> buffer; buffer.resize(256, 0x00);
-        assembleToBinary(buffer.data(), programming, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
+        assembleToBinary(buffer.data(), programming, Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
 
         auto correctChecksum = calculateCC_BASEChecksum(buffer.data());
 
@@ -463,7 +463,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
 
     void validateCC_EXTChecksum(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
         std::vector<unsigned char> buffer; buffer.resize(256, 0x00);
-        assembleToBinary(buffer.data(), programming, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
+        assembleToBinary(buffer.data(), programming, Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
 
         auto correctChecksum = calculateCC_EXTChecksum(buffer.data());
 
