@@ -17,8 +17,10 @@ namespace TransceiverTool::Standards::SFF8024 {
         std::string name;
         if(it != TransceiverReferenceAssignedValues.end()) {
             name = it->name;
-        } else {
+        } else if(byte <= 0x7F) {
             name = "Reserved";
+        } else {
+            name = "Vendor Specific";
         }
 
         return fmt::format("{} ({:#04x})", name, byte);
