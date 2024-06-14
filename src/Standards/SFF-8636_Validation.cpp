@@ -8,7 +8,7 @@
 
 namespace TransceiverTool::Standards::SFF8636::Validation {
 
-    void validateIdentifierValues(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateIdentifierValues(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         //SFF-8024 Rev 4.11 Table 4-1 Identifier Values
         if(programming.byte_128_Identifier >= 0x26 && programming.byte_128_Identifier <= 0x7F) {
             validationResult.errors.push_back(
@@ -22,7 +22,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         }
     }
 
-    void validateExtendedIdentifierValues(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateExtendedIdentifierValues(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         //SFF-8636 Rev 2.11 Table 6-16 Extended Identifier Values (Page 00h Byte 129)
         //If bit 1-0 is not 00 (i.e. Power Class 5/6/7), bit 7-6 must indicate 11 (Power Class 4-7)
         if(programming.byte_129_extended_identifier.power_class_bit_1_0 != TransceiverTool::Standards::SFF8636::Extended_Identifier_Bit_1_0::POWER_CLASSES_1_TO_4_0b00 &&
@@ -38,7 +38,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         }
     }
 
-    void validateConnectorTypes(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateConnectorTypes(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         //SFF-8024 Rev 4.11 Table 4-3 Connector Types
         if(
             (programming.byte_130_Connector_Type >= 0x0E && programming.byte_130_Connector_Type <= 0x1F) ||
@@ -55,7 +55,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         }
     }
 
-    void validateSpecificationComplianceCodes(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateSpecificationComplianceCodes(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         //SFF-8636 Rev 2.11 Table 6-17 Specification Compliance Codes (Page 00h Bytes 131-138)
         //Byte 132: SONET Compliance Codes
         if(programming.byte_132_sonet_compliance_codes.reserved_bit_7 || programming.byte_132_sonet_compliance_codes.reserved_bit_6 ||
@@ -115,7 +115,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         }
     }
 
-    void validateEncodingValues(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateEncodingValues(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         //SFF-8024 Rev 4.11 Table 4-2 Encoding Values
         if(programming.byte_139_Encoding >= 0x09) {
             validationResult.errors.push_back(
@@ -124,7 +124,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         }
     }
 
-    void validateNominalSignalingRate(const SFF8636_Upper00h &programming, ValidationResult &validationResult) {
+    void validateNominalSignalingRate(const SFF8636_Upper00h &programming, common::ValidationResult &validationResult) {
         //SFF-8636 Rev 2.11 Section 6.3.6 Nominal Signaling Rate (00h 140) & Table 6-26 Extended Baud Rate: Nominal (Page 00h Byte 222)
         if(programming.byte_140_nominal_signaling_rate_in_100_mbaud == 0) {
             validationResult.warnings.push_back(
@@ -148,7 +148,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         }
     }
 
-    void validateExtendedRateSelectCompliance(const SFF8636_Upper00h &programming, ValidationResult &validationResult) {
+    void validateExtendedRateSelectCompliance(const SFF8636_Upper00h &programming, common::ValidationResult &validationResult) {
         //SFF-8636 Rev 2.11 Table 6-18 Extended Rate Select Compliance Tag Assignment (Page 00h Byte 141)
         if(programming.byte_141_extended_rate_select_compliance.reserved_bit_7 || programming.byte_141_extended_rate_select_compliance.reserved_bit_6 ||
             programming.byte_141_extended_rate_select_compliance.reserved_bit_5 || programming.byte_141_extended_rate_select_compliance.reserved_bit_4 ||
@@ -167,7 +167,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         }
     }
 
-    void validateVendorName(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateVendorName(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         for(int index = 0; index < programming.byte_148_163_vendor_name.size(); ++index) {
             if(!std::isprint(programming.byte_148_163_vendor_name[index])) {
                 validationResult.errors.push_back(
@@ -181,7 +181,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         //TODO: Warn if Vendor Name field is not left aligned, padded with spaces (0x20)?
     }
 
-    void validateExtendedModuleCodes(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateExtendedModuleCodes(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         //SFF-8636 Rev 2.11 Table 6-21 Extended Module Code Values (Page 00h Byte 164)
         if(programming.byte_164_extended_module_codes.reserved_bit_7 || programming.byte_164_extended_module_codes.reserved_bit_6) {
             validationResult.errors.push_back(
@@ -193,7 +193,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         }
     }
 
-    void validateVendorPartNumber(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateVendorPartNumber(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         //SFF-8636 Rev 2.11 Section 6.3.17 Vendor Part Number (00h 168-183)
         bool vendorPNAllZeros = std::all_of(programming.byte_168_183_vendor_pn.begin(), programming.byte_168_183_vendor_pn.end(), [](unsigned char val) { return val == 0; });
         if(!vendorPNAllZeros) {
@@ -211,7 +211,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         //TODO: Warn if Vendor PN field is not left aligned, padded with spaces (0x20)?
     }
 
-    void validateVendorRevisionNumber(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateVendorRevisionNumber(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         //SFF-8636 Rev 2.11 Section 6.3.18 Vendor Revision Number (00h 184-185)
         bool vendorRevAllZeros = std::all_of(programming.byte_184_185_vendor_rev.begin(), programming.byte_184_185_vendor_rev.end(), [](unsigned char val) { return val == 0; });
         if(!vendorRevAllZeros) {
@@ -229,7 +229,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         //TODO: Warn if Vendor Rev field is not left aligned, padded with spaces (0x20)?
     }
 
-    void validateMaximumCaseTemperature(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateMaximumCaseTemperature(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         //SFF-8636 Rev 2.11 Section 6.3.21 Maximum Case Temperature (00h 190)
         if(programming.byte_190_max_case_temperature == 70) {
             validationResult.warnings.push_back(
@@ -241,9 +241,9 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         }
     }
 
-    void validateCC_BASEChecksum(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateCC_BASEChecksum(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         std::vector<unsigned char> buffer; buffer.resize(256, 0x00);
-        assembleToBinary(buffer.data(), programming, Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
+        assembleToBinary(buffer.data(), programming, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
 
         auto correctChecksum = calculateCC_BASEChecksum(buffer.data());
 
@@ -254,7 +254,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         }
     }
 
-    void validateExtendedSpecificationComplianceCodes(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateExtendedSpecificationComplianceCodes(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         //SFF-8024 Rev 4.11 Table 4-4 Extended Specification Compliance Codes
         if(programming.byte_192_extended_specification_compliance_codes == 0x0A || programming.byte_192_extended_specification_compliance_codes == 0x0F ||
             (programming.byte_192_extended_specification_compliance_codes >= 0x3B && programming.byte_192_extended_specification_compliance_codes <= 0x3E) ||
@@ -267,7 +267,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         }
     }
 
-    void validateOptionValues(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateOptionValues(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         //SFF-8636 Rev 2.11 Table 6-22 Option Values (Page 00h Bytes 193-195)
         if(programming.byte_193_option_values.reserved_bit_7) {
             validationResult.errors.push_back(
@@ -276,7 +276,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         }
     }
 
-    void validateVendorSerialNumber(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateVendorSerialNumber(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         //SFF-8636 Rev 2.11 Section 6.3.25 Vendor Serial Number (00h 196-211)
         bool vendorSNAllZeros = std::all_of(programming.byte_196_211_vendor_sn.begin(), programming.byte_196_211_vendor_sn.end(), [](unsigned char val) { return val == 0; });
         if(!vendorSNAllZeros) {
@@ -294,7 +294,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         //TODO: Warn if Vendor SN field is not left aligned, padded with spaces (0x20)?
     }
 
-    void validateDateCode(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateDateCode(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         //SFF-8636 Rev 2.11 Date Code (00h 212-219)
         if(
             !std::isdigit(programming.byte_212_219_date_code.year_low_order_digits[0]) || 
@@ -378,7 +378,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         }
     }
 
-    void validateDiagnosticMonitoringType(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateDiagnosticMonitoringType(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         //SFF-8636 Rev 2.11 Section 6.3.27 Diagnostic Monitoring Type (00h 220)
         if(programming.byte_220_diagnostic_monitoring_type.reserved_bit_7 || programming.byte_220_diagnostic_monitoring_type.reserved_bit_6 ||
             programming.byte_220_diagnostic_monitoring_type.reserved_bit_1 || programming.byte_220_diagnostic_monitoring_type.reserved_bit_0
@@ -393,7 +393,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         }
     }
 
-    void validateEnhancedOptions(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateEnhancedOptions(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         if(programming.byte_221_enhanced_options.reserved_bit_7 || programming.byte_221_enhanced_options.reserved_bit_6 ||
             programming.byte_221_enhanced_options.reserved_bit_5 || programming.byte_221_enhanced_options.reserved_bit_2
         ) {
@@ -407,7 +407,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         }
     }
 
-    void validateExtendedBaudRate(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateExtendedBaudRate(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         //SFF-8636 Rev 2.11 Table 6-26 Extended Baud Rate: Nominal (Page 00h Byte 222)
         if(programming.byte_222_extended_baud_rate_in_250_mbaud != 0 && programming.byte_140_nominal_signaling_rate_in_100_mbaud != 0xFF) {
             validationResult.warnings.push_back(
@@ -416,7 +416,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         }
     }
 
-    void validateRateSelectionConsistency(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateRateSelectionConsistency(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         //SFF-8636 Rev 2.11 Section 6.2.7
         //The free side device shall implement one of two options:
         //a) Provide no support for rate selection
@@ -461,9 +461,9 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
 
     }
 
-    void validateCC_EXTChecksum(const SFF8636_Upper00h& programming, ValidationResult& validationResult) {
+    void validateCC_EXTChecksum(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult) {
         std::vector<unsigned char> buffer; buffer.resize(256, 0x00);
-        assembleToBinary(buffer.data(), programming, Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
+        assembleToBinary(buffer.data(), programming, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
 
         auto correctChecksum = calculateCC_EXTChecksum(buffer.data());
 
@@ -476,8 +476,8 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
 
 
     //TODO: Introduce options to not warn on values in "Vendor Specific" ranges (in case this tool is used by actual vendor?)
-    ValidationResult validateSFF8636_Upper00h(const TransceiverTool::Standards::SFF8636::SFF8636_Upper00h& programming) {
-        ValidationResult validationResult;
+    common::ValidationResult validateSFF8636_Upper00h(const TransceiverTool::Standards::SFF8636::SFF8636_Upper00h& programming) {
+        common::ValidationResult validationResult;
 
         //SFF-8024 Rev 4.11 Table 4-1 Identifier Values
         validateIdentifierValues(programming, validationResult);
