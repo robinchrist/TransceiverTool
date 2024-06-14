@@ -7,6 +7,7 @@ target_sources(
     Standards/SFF-8472_LowerA0h.cpp
     Standards/SFF-8472_Parser.cpp
     Standards/SFF-8472_Pretty_Print.cpp
+    Standards/SFF-8472_Utils.cpp
     Standards/SFF-8472_Validation.cpp
     Standards/SFF-8636_Assembler.cpp
     Standards/SFF-8636_Checksum.cpp

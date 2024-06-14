@@ -1,4 +1,6 @@
 #pragma once
+#include <vector>
+#include <string>
 
 namespace TransceiverTool::Standards::common {
 
@@ -10,5 +12,10 @@ namespace TransceiverTool::Standards::common {
     enum class ChecksumDirective {
         AUTO_CALCULATE_FROM_CONTENT,
         MANUAL_USE_VALUE_IN_PROGRAMMING
+    };
+
+    struct ValidationResult {
+        std::vector<std::string> errors;
+        std::vector<std::string> warnings;
     };
 }
