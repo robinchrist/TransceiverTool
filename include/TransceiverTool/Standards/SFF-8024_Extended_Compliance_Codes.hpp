@@ -89,7 +89,7 @@ namespace TransceiverTool::Standards::SFF8024 {
     };
 
     //SFF-8024 Rev 4.11 Table 4-4 Extended Specification Compliance Codes
-    inline const std::array<ExtendedComplianceCodesAssignedValue, 76> ExtendedComplianceCodesAssignedValues {{
+    inline const std::array<ExtendedComplianceCodesAssignedValue, 74> ExtendedComplianceCodesAssignedValues {{
         {ExtendedComplianceCodes::Unspecified , "Unspecified", 0x00},
         {ExtendedComplianceCodes::_100G_AOC_Active_Optical_Cable_retimed_or_25GAUI_C2M_AOC_Providing_a_worst_BER_of_5_x_10_5 , "100G AOC (Active Optical Cable), retimed or 25GAUI C2M AOC. Providing a worst BER of 5 x 10-5", 0x01},
         {ExtendedComplianceCodes::_100GBASE_SR4_or_25GBASE_SR , "100GBASE-SR4 or 25GBASE-SR", 0x02},

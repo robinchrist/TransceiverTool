@@ -5,10 +5,9 @@
 namespace TransceiverTool::Standards::SFF8636 {
 
 
-    //Creates the last 128 target of page 00h SFF-8636
-    //Needs 128 byte of space in target, will write to first 128 target
-    //so usually, you would just call if assembleToBinary(page00hbuffer+128, ...)
-    void assembleToBinary(unsigned char * target, const SFF8636_Upper00h& programming, ChecksumDirective CC_BASEDirective, ChecksumDirective CC_EXTDirective) {
+    //Creates the last 128 bytes of target (page 00h SFF-8636)
+    //i.e. target must be 256 bytes big
+    void assembleToBinary(unsigned char * target, const SFF8636_Upper00h& programming, Standards::common::ChecksumDirective CC_BASEDirective, Standards::common::ChecksumDirective CC_EXTDirective) {
 
         target[128] = programming.byte_128_Identifier;
 
@@ -159,9 +158,9 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         target[190] = programming.byte_190_max_case_temperature;
 
-        if(CC_BASEDirective == ChecksumDirective::AUTO_CALCULATE_FROM_CONTENT) {
+        if(CC_BASEDirective == Standards::common::ChecksumDirective::AUTO_CALCULATE_FROM_CONTENT) {
             target[191] = calculateCC_BASEChecksum(target);
-        } else if(CC_BASEDirective == ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING) {
+        } else if(CC_BASEDirective == Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING) {
             target[191] = programming.byte_191_CC_BASE;
         } else {
             throw std::runtime_error("Unhandled enum case!");
@@ -228,9 +227,9 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         target[222] = programming.byte_222_extended_baud_rate_in_250_mbaud;
         
-        if(CC_EXTDirective == ChecksumDirective::AUTO_CALCULATE_FROM_CONTENT) {
+        if(CC_EXTDirective == Standards::common::ChecksumDirective::AUTO_CALCULATE_FROM_CONTENT) {
             target[223] = calculateCC_EXTChecksum(target);
-        } else if(CC_EXTDirective == ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING) {
+        } else if(CC_EXTDirective == Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING) {
             target[223] = programming.byte_223_CC_EXT;
         } else {
             throw std::runtime_error("Unhandled enum case!");
