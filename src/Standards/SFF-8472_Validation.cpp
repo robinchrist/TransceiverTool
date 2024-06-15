@@ -8,24 +8,24 @@
 namespace TransceiverTool::Standards::SFF8472::Validation {
 
     void validateIdentifierValues(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
-        //SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Table 5-1 Physical Device Identifier Values
+        //SFF-8472 Rev 12.4 Table 5-1 Physical Device Identifier Values
         if(programming.byte_0_Identifier >= 0x04 && programming.byte_0_Identifier <= 0x7F) {
             validationResult.errors.push_back(
-                fmt::format("Byte 0 (\"Identifier\") value corresponds to \"Not used by this specification\" / \"Reserved\" range (SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Table 5-1 \"Physical Device Identifier Values\"), value is {:#04x}", programming.byte_0_Identifier)
+                fmt::format("Byte 0 (\"Identifier\") value corresponds to \"Not used by this specification\" / \"Reserved\" range (SFF-8472 Rev 12.4 Table 5-1 \"Physical Device Identifier Values\"), value is {:#04x}", programming.byte_0_Identifier)
             );
         }
         if(programming.byte_0_Identifier >= 0x80) {
             validationResult.warnings.push_back(
-                fmt::format("Byte 0 (\"Identifier\") value corresponds to \"Vendor Specific\" range (SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Table 5-1 \"Physical Device Identifier Values\"), value is {:#04x}", programming.byte_0_Identifier)
+                fmt::format("Byte 0 (\"Identifier\") value corresponds to \"Vendor Specific\" range (SFF-8472 Rev 12.4 Table 5-1 \"Physical Device Identifier Values\"), value is {:#04x}", programming.byte_0_Identifier)
             );
         }
     }
 
     void validateExtendedIdentifierValues(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
-        //SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Table 5-2 Physical Device Extended Identifier Values
+        //SFF-8472 Rev 12.4 Table 5-2 Physical Device Extended Identifier Values
         if(programming.byte_1_extended_identifier >= 0x08) {
             validationResult.errors.push_back(
-                fmt::format("Byte 1 (\"Extended Identifier\") value corresponds to \"Reserved\" range (SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Table 5-2 \"Physical Device Extended Identifier Values\"), value is {:#04x}", programming.byte_1_extended_identifier)
+                fmt::format("Byte 1 (\"Extended Identifier\") value corresponds to \"Reserved\" range (SFF-8472 Rev 12.4 Table 5-2 \"Physical Device Extended Identifier Values\"), value is {:#04x}", programming.byte_1_extended_identifier)
             );
         }
     }
@@ -51,10 +51,10 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
     common::ValidationResult validateSFF8472_LowerA0h(const TransceiverTool::Standards::SFF8472::SFF8472_LowerA0h& programming) {
         common::ValidationResult validationResult;
 
-        //SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Table 5-1 Physical Device Identifier Values
+        //SFF-8472 Rev 12.4 Table 5-1 Physical Device Identifier Values
         validateIdentifierValues(programming, validationResult);
 
-        //SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Table 5-2 Physical Device Extended Identifier Values
+        //SFF-8472 Rev 12.4 Table 5-2 Physical Device Extended Identifier Values
         validateExtendedIdentifierValues(programming, validationResult);
 
         //SFF-8024 Rev 4.11 Table 4-3 Connector Types

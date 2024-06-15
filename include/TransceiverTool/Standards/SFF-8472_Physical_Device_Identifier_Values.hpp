@@ -17,7 +17,7 @@ namespace TransceiverTool::Standards::SFF8472 {
         unsigned char byte_value;
     };
 
-    //SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Table 5-1 Physical Device Identifier Values
+    //SFF-8472 Rev 12.4 Table 5-1 Physical Device Identifier Values
     inline const std::array<PhysicalDeviceIdentifierAssignedValue, 4> PhysicalDeviceIdentifierAssignedValues {{
         {PhysicalDeviceIdentifier::Unknown_or_unspecified, "Unknown or unspecified", 0x00},
         {PhysicalDeviceIdentifier::GBIC, "GBIC", 0x01},
