@@ -11,6 +11,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         parsedStruct.byte_1_extended_identifier = bytes[1];
 
+        parsedStruct.byte_2_Connector_type = bytes[2];
+
         return parsedStruct;
     }
 

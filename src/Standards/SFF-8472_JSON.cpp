@@ -1,4 +1,5 @@
 #include "TransceiverTool/Standards/SFF-8472_JSON.hpp"
+#include "TransceiverTool/Standards/SFF-8024_Transceiver_Connector_Type.hpp"
 #include "TransceiverTool/Standards/SFF-8472_LowerA0h.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Extended_Identifier_Values.hpp"
@@ -119,6 +120,48 @@ namespace TransceiverTool::Standards::SFF8472 {
 //############
 
 
+//############
+    nlohmann::ordered_json TransceiverConnectorTypeToJSON(unsigned char byte_value) {
+        nlohmann::ordered_json j;
+
+        auto it = std::find_if(
+            SFF8024::TransceiverConnectorTypeAssignedValues.begin(),
+            SFF8024::TransceiverConnectorTypeAssignedValues.end(),
+            [byte_value](const SFF8024::TransceiverConnectorTypeAssignedValue& entry) { return entry.byte_value == byte_value; }
+        );
+
+        if(it != SFF8024::TransceiverConnectorTypeAssignedValues.end()) {
+            j = it->name;
+        } else {
+            j = charToJSONByteStruct(byte_value);
+        }
+
+        return j;
+    }
+
+    unsigned char TransceiverConnectorTypeFromJSON(const nlohmann::json& j) {
+        if(j.is_string()) {
+            auto strValue = j.template get<std::string>();
+
+            auto it = std::find_if(
+                SFF8024::TransceiverConnectorTypeAssignedValues.begin(),
+                SFF8024::TransceiverConnectorTypeAssignedValues.end(),
+                [&strValue](const SFF8024::TransceiverConnectorTypeAssignedValue& entry) { return entry.name == strValue; }
+            );
+
+            if(it == SFF8024::TransceiverConnectorTypeAssignedValues.end()) throw std::invalid_argument("Connector Type is not a known string value");
+
+            return it->byte_value;
+        } else if(j.is_object()) {
+            return charFromJSONByteStruct(j);
+        } else {
+            throw std::invalid_argument("Connector Type has wrong type (neither string nor object)");
+        }
+    }
+
+//############
+
+
     void SFF8472_LowerA0hToJSON(nlohmann::ordered_json& j, const SFF8472_LowerA0h& programming, bool copperMode) {
 
         std::vector<unsigned char> binaryBuffer; binaryBuffer.resize(128, 0x00);
@@ -129,6 +172,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         j["Identifier"] = PhysicalDeviceIdentifierToJSON(programming.byte_0_Identifier);
 
         j["Extended Identifier"] = PhysicalDeviceExtendedIdentifierToJSON(programming.byte_1_extended_identifier);
+
+        j["Connector Type"] = TransceiverConnectorTypeToJSON(programming.byte_2_Connector_type);
     }
 
 
@@ -142,5 +187,7 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_0_Identifier = PhysicalDeviceIdentifierFromJSON(j.at("Identifier"));
 
         programming.byte_1_extended_identifier = PhysicalDeviceExtendedIdentifierFromJSON(j.at("Extended Identifier"));
+
+        programming.byte_2_Connector_type = TransceiverConnectorTypeFromJSON(j.at("Connector Type"));
     }   
 }
