@@ -21,12 +21,24 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         }
     }
 
+    void validateExtendedIdentifierValues(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
+        //SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Table 5-2 Physical Device Extended Identifier Values
+        if(programming.byte_1_extended_identifier >= 0x08) {
+            validationResult.errors.push_back(
+                fmt::format("Byte 1 (\"Extended Identifier\") value corresponds to \"Reserved\" range (SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Table 5-2 \"Physical Device Extended Identifier Values\"), value is {:#04x}", programming.byte_1_extended_identifier)
+            );
+        }
+    }
+
     //TODO: Introduce options to not warn on values in "Vendor Specific" ranges (in case this tool is used by an actual vendor?)
     common::ValidationResult validateSFF8472_LowerA0h(const TransceiverTool::Standards::SFF8472::SFF8472_LowerA0h& programming) {
         common::ValidationResult validationResult;
 
         //SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Table 5-1 Physical Device Identifier Values
         validateIdentifierValues(programming, validationResult);
+
+        //SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Table 5-2 Physical Device Extended Identifier Values
+        validateExtendedIdentifierValues(programming, validationResult);
 
         return validationResult;
     }
