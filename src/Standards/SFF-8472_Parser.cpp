@@ -9,7 +9,7 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         parsedStruct.byte_0_Identifier = bytes[0];
 
-
+        parsedStruct.byte_1_extended_identifier = bytes[1];
 
         return parsedStruct;
     }

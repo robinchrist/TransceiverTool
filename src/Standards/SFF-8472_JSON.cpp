@@ -1,6 +1,7 @@
 #include "TransceiverTool/Standards/SFF-8472_JSON.hpp"
 #include "TransceiverTool/Standards/SFF-8472_LowerA0h.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Identifier_Values.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Physical_Device_Extended_Identifier_Values.hpp"
 #include <fmt/core.h>
 
 
@@ -38,7 +39,7 @@ namespace TransceiverTool::Standards::SFF8472 {
 //############
 
 //############
-    nlohmann::ordered_json PhysicalDeviceIdentifierAssignedValueToJSON(unsigned char byte_value) {
+    nlohmann::ordered_json PhysicalDeviceIdentifierToJSON(unsigned char byte_value) {
         nlohmann::ordered_json j;
 
         auto it = std::find_if(
@@ -56,7 +57,7 @@ namespace TransceiverTool::Standards::SFF8472 {
         return j;
     }
 
-    unsigned char PhysicalDeviceIdentifierAssignedValueFromJSON(const nlohmann::json& j) {
+    unsigned char PhysicalDeviceIdentifierFromJSON(const nlohmann::json& j) {
         if(j.is_string()) {
             auto strValue = j.template get<std::string>();
 
@@ -77,6 +78,46 @@ namespace TransceiverTool::Standards::SFF8472 {
     }
 //############
 
+//############
+    nlohmann::ordered_json PhysicalDeviceExtendedIdentifierToJSON(unsigned char byte_value) {
+        nlohmann::ordered_json j;
+
+        auto it = std::find_if(
+            SFF8472::PhysicalDeviceExtendedIdentifierAssignedValues.begin(),
+            SFF8472::PhysicalDeviceExtendedIdentifierAssignedValues.end(),
+            [byte_value](const SFF8472::PhysicalDeviceExtendedIdentifierAssignedValue& entry) { return entry.byte_value == byte_value; }
+        );
+
+        if(it != SFF8472::PhysicalDeviceExtendedIdentifierAssignedValues.end()) {
+            j = it->name;
+        } else {
+            j = charToJSONByteStruct(byte_value);
+        }
+
+        return j;
+    }
+
+    unsigned char PhysicalDeviceExtendedIdentifierFromJSON(const nlohmann::json& j) {
+        if(j.is_string()) {
+            auto strValue = j.template get<std::string>();
+
+            auto it = std::find_if(
+                SFF8472::PhysicalDeviceExtendedIdentifierAssignedValues.begin(),
+                SFF8472::PhysicalDeviceExtendedIdentifierAssignedValues.end(),
+                [&strValue](const SFF8472::PhysicalDeviceExtendedIdentifierAssignedValue& entry) { return entry.name == strValue; }
+            );
+
+            if(it == SFF8472::PhysicalDeviceExtendedIdentifierAssignedValues.end()) throw std::invalid_argument("Extended Identifier is not a known string value");
+
+            return it->byte_value;
+        } else if(j.is_object()) {
+            return charFromJSONByteStruct(j);
+        } else {
+            throw std::invalid_argument("Extended Identifier has wrong type (neither string nor object)");
+        }
+    }
+//############
+
 
     void SFF8472_LowerA0hToJSON(nlohmann::ordered_json& j, const SFF8472_LowerA0h& programming, bool copperMode) {
 
@@ -85,9 +126,9 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         j["Type"] = "SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Lower Page A0h";
         
-        j["Identifier"] = PhysicalDeviceIdentifierAssignedValueToJSON(programming.byte_0_Identifier);
+        j["Identifier"] = PhysicalDeviceIdentifierToJSON(programming.byte_0_Identifier);
 
-    
+        j["Extended Identifier"] = PhysicalDeviceExtendedIdentifierToJSON(programming.byte_1_extended_identifier);
     }
 
 
@@ -98,7 +139,8 @@ namespace TransceiverTool::Standards::SFF8472 {
             throw std::invalid_argument("JSON specifies wrong type");
         }
 
-        programming.byte_0_Identifier = PhysicalDeviceIdentifierAssignedValueFromJSON(j.at("Identifier"));
+        programming.byte_0_Identifier = PhysicalDeviceIdentifierFromJSON(j.at("Identifier"));
 
+        programming.byte_1_extended_identifier = PhysicalDeviceExtendedIdentifierFromJSON(j.at("Extended Identifier"));
     }   
 }

@@ -45,6 +45,25 @@
                     ]
                 }
             ]
+        },
+        "sff-8472_extended_identifier": {
+            "$id": "/schemas/sff-8472_extended_identifier",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                { "$ref": "/schemas/single_byte_value_obj" },
+                { 
+                    "enum": [
+                        "GBIC definition is not specified or the GBIC definition is not compliant with a defined MOD_DEF. See product specification for details.",
+                        "GBIC is compliant with MOD_DEF 1",
+                        "GBIC is compliant with MOD_DEF 2",
+                        "GBIC is compliant with MOD_DEF 3",
+                        "GBIC/SFP function is defined by 2-wire interface ID only",
+                        "GBIC is compliant with MOD_DEF 5",
+                        "GBIC is compliant with MOD_DEF 6",
+                        "GBIC is compliant with MOD_DEF 7",
+                    ]
+                }
+            ]
         }
     },
 
@@ -53,10 +72,12 @@
             "const": "SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Lower Page A0h"
         },
         "Identifier": { "$ref": "/schemas/sff-8472_identifier" },
+        "Extended Identifier": { "$ref": "/schemas/sff-8472_extended_identifier" },
     },
 
     "required": [
         "Type",
-        "Identifier"
+        "Identifier",
+        "Extended Identifier"
     ]
 }
