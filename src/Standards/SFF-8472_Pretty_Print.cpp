@@ -1,6 +1,7 @@
 #include "TransceiverTool/Standards/SFF-8472_Pretty_Print.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Extended_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Identifier_Values.hpp"
+#include "TransceiverTool/Standards/SFF-8024_Transceiver_Connector_Type.hpp"
 #include "fmt/format.h"
 #include "fmt/color.h"
 #include <algorithm>
@@ -30,6 +31,11 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
     str.append("\n");
 
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, "Extended Identifier [1]", SFF8472::byteToPhysicalDeviceExtendedIdentifierString(programming.byte_1_extended_identifier));
+    str.append("\n");
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Connector Type [2]", SFF8024::byteToTransceiverConnectorTypeString(programming.byte_2_Connector_type)
+    );
     str.append("\n");
 
     return str;

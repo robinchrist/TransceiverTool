@@ -12,5 +12,7 @@ namespace TransceiverTool::Standards::SFF8472 {
         target[0] = programming.byte_0_Identifier;
 
         target[1] = programming.byte_1_extended_identifier;
+
+        target[2] = programming.byte_2_Connector_type;
     }
 }
