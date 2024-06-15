@@ -167,7 +167,7 @@ namespace TransceiverTool::Standards::SFF8472 {
         std::vector<unsigned char> binaryBuffer; binaryBuffer.resize(128, 0x00);
 
 
-        j["Type"] = "SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Lower Page A0h";
+        j["Type"] = "SFF-8472 Rev 12.4 Lower Page A0h";
         
         j["Identifier"] = PhysicalDeviceIdentifierToJSON(programming.byte_0_Identifier);
 
@@ -180,7 +180,7 @@ namespace TransceiverTool::Standards::SFF8472 {
 
     void SFF8472_LowerA0hFromJSON(const nlohmann::json& j, SFF8472_LowerA0h& programming) {
 
-        if(j.at("Type").template get<std::string>() != "SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Lower Page A0h") {
+        if(j.at("Type").template get<std::string>() != "SFF-8472 Rev 12.4 Lower Page A0h") {
             throw std::invalid_argument("JSON specifies wrong type");
         }
 

@@ -21,7 +21,7 @@ namespace TransceiverTool::Standards::SFF8472 {
         unsigned char byte_value;
     };
 
-    //SFF-8472 Rev 12.4.2 (Draft July 18, 2023) Table 5-1 Physical Device Identifier Values
+    //SFF-8472 Rev 12.4 Table 5-1 Physical Device Identifier Values
     inline const std::array<PhysicalDeviceExtendedIdentifierAssignedValue, 8> PhysicalDeviceExtendedIdentifierAssignedValues {{
         {PhysicalDeviceExtendedIdentifier::definition_is_not_specified, "GBIC definition is not specified or the GBIC definition is not compliant with a defined MOD_DEF. See product specification for details.", 0x00},
         {PhysicalDeviceExtendedIdentifier::compliant_with_MOD_DEF_1, "GBIC is compliant with MOD_DEF 1", 0x01},
