@@ -1,5 +1,6 @@
 #include "TransceiverTool/Standards/SFF-8472_JSON.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Transceiver_Connector_Type.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Compliance_Codes.hpp"
 #include "TransceiverTool/Standards/SFF-8472_LowerA0h.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Extended_Identifier_Values.hpp"
@@ -161,6 +162,60 @@ namespace TransceiverTool::Standards::SFF8472 {
 
 //############
 
+//############
+    nlohmann::ordered_json _10G_Ethernet_Compliance_CodesToJSON(const _10G_Ethernet_Compliance_Codes& value) {
+        nlohmann::ordered_json j;
+
+        j["10GBASE-ER compliant (Bit 7)"] = value._10GBASE_ER_bit_7;
+        j["10GBASE-LRM compliant (Bit 6)"] = value._10GBASE_LRM_bit_6;
+        j["10GBASE-LR compliant (Bit 5)"] = value._10GBASE_LR_bit_5;
+        j["10GBASE-SR compliant (Bit 4)"] = value._10GBASE_SR_bit_4;
+
+        return j;
+    }
+
+    _10G_Ethernet_Compliance_Codes _10G_Ethernet_Compliance_CodesFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("10G Ethernet Compliance Codes must be an object");
+
+        _10G_Ethernet_Compliance_Codes complianceCodes;
+
+        complianceCodes._10GBASE_ER_bit_7 = j.at("10GBASE-ER compliant (Bit 7)").template get<bool>();
+        complianceCodes._10GBASE_LRM_bit_6 = j.at("10GBASE-LRM compliant (Bit 6)").template get<bool>();
+        complianceCodes._10GBASE_LR_bit_5 = j.at("10GBASE-LR compliant (Bit 5)").template get<bool>();
+        complianceCodes._10GBASE_SR_bit_4 = j.at("10GBASE-SR compliant (Bit 4)").template get<bool>();
+
+        return complianceCodes;
+    }
+
+//############
+
+//############
+    nlohmann::ordered_json Infiniband_Compliance_CodesToJSON(const Infiniband_Compliance_Codes& value) {
+        nlohmann::ordered_json j;
+
+        j["1X SX compliant (Bit 3)"] = value._1X_SX_bit_3;
+        j["1X LX compliant (Bit 2)"] = value._1X_LX_bit_2;
+        j["1X Copper Active compliant (Bit 1)"] = value._1X_Copper_Active_bit_1;
+        j["1X Copper Passive compliant (Bit 0)"] = value._1X_Copper_Passive_bit_0;
+
+        return j;
+    }
+
+    Infiniband_Compliance_Codes Infiniband_Compliance_CodesFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Infiniband Compliance Codes must be an object");
+
+        Infiniband_Compliance_Codes complianceCodes;
+
+        complianceCodes._1X_SX_bit_3 = j.at("1X SX compliant (Bit 3)").template get<bool>();
+        complianceCodes._1X_LX_bit_2 = j.at("1X LX compliant (Bit 2)").template get<bool>();
+        complianceCodes._1X_Copper_Active_bit_1 = j.at("1X Copper Active compliant (Bit 1)").template get<bool>();
+        complianceCodes._1X_Copper_Passive_bit_0 = j.at("1X Copper Passive compliant (Bit 0)").template get<bool>();
+
+        return complianceCodes;
+    }
+
+//############
+
 
     void SFF8472_LowerA0hToJSON(nlohmann::ordered_json& j, const SFF8472_LowerA0h& programming, bool copperMode) {
 
@@ -174,6 +229,10 @@ namespace TransceiverTool::Standards::SFF8472 {
         j["Extended Identifier"] = PhysicalDeviceExtendedIdentifierToJSON(programming.byte_1_extended_identifier);
 
         j["Connector Type"] = TransceiverConnectorTypeToJSON(programming.byte_2_Connector_type);
+
+
+        j["10G Ethernet Compliance Codes"] = _10G_Ethernet_Compliance_CodesToJSON(programming.byte_3_ethernet_compliance_codes);
+        j["Infiniband Compliance Codes"] = Infiniband_Compliance_CodesToJSON(programming.byte_3_infiniband_compliance_codes);
     }
 
 
@@ -189,5 +248,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_1_extended_identifier = PhysicalDeviceExtendedIdentifierFromJSON(j.at("Extended Identifier"));
 
         programming.byte_2_Connector_type = TransceiverConnectorTypeFromJSON(j.at("Connector Type"));
+
+        programming.byte_3_ethernet_compliance_codes = _10G_Ethernet_Compliance_CodesFromJSON(j.at("10G Ethernet Compliance Codes"));
+        programming.byte_3_infiniband_compliance_codes = Infiniband_Compliance_CodesFromJSON(j.at("Infiniband Compliance Codes"));
     }   
 }
