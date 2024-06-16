@@ -271,7 +271,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         //SFF-8636 Rev 2.11 Table 6-22 Option Values (Page 00h Bytes 193-195)
         if(programming.byte_193_option_values.reserved_bit_7) {
             validationResult.errors.push_back(
-                fmt::format("Byte 193 (\"Option Values\") reserved bit 7 is set", programming.byte_192_extended_specification_compliance_codes)
+                fmt::format("Byte 193 (\"Option Values\") reserved bit 7 is set")
             );
         }
     }
