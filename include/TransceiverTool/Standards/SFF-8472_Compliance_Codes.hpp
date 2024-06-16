@@ -42,8 +42,8 @@ namespace TransceiverTool::Standards::SFF8472 {
     };
 
     //SFF-8472 Rev 12.4 Table 5-1 Physical Device Identifier Values
-    inline const std::array<SONETReachSpecifierAssignedValue, 8> SONETReachSpecifierAssignedValues {{
-        {SONETReachSpecifier::SONET_SR, "SONET SR compliant", 0b00},
+    inline const std::array<SONETReachSpecifierAssignedValue, 4> SONETReachSpecifierAssignedValues {{
+        {SONETReachSpecifier::SONET_SR, "SONET SR compliant or not specified", 0b00},
         {SONETReachSpecifier::SONET_SR_IR_LR_1, "SONET [SR/IR/LR]-1 compliant", 0b10},
         {SONETReachSpecifier::SONET_IR_LR_2, "SONET [IR/LR]-2 compliant", 0b01},
         {SONETReachSpecifier::SONET_LR_3, "SONET LR-3 compliant", 0b11}

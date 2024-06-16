@@ -37,12 +37,33 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
             (programming.byte_2_Connector_type >= 0x29 && programming.byte_2_Connector_type <= 0x7F)
         ) {
             validationResult.errors.push_back(
-                fmt::format("Byte 2 (\"Connector Type\") value corresponds to \"Reserved\" range (SFF-8024 Rev 4.11 Table 4-3 \"Connector Types\"), value is {:#04x}")
+                fmt::format(
+                    "Byte 2 (\"Connector Type\") value corresponds to \"Reserved\" range (SFF-8024 Rev 4.11 Table 4-3 \"Connector Types\"), value is {:#04x}",
+                    programming.byte_2_Connector_type
+                )
             );
         }
         if(programming.byte_2_Connector_type >= 0x80) {
             validationResult.warnings.push_back(
-                fmt::format("Byte 2 (\"Connector Type\") value corresponds to \"Vendor specific\" range (SFF-8024 Rev 4.11 Table 4-3 \"Connector Types\"), value is {:#04x}")
+                fmt::format(
+                    "Byte 2 (\"Connector Type\") value corresponds to \"Vendor specific\" range (SFF-8024 Rev 4.11 Table 4-3 \"Connector Types\"), value is {:#04x}",
+                    programming.byte_2_Connector_type
+                )
+            );
+        }
+    }
+
+    void validateSONETComplianceCodes(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
+
+        //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
+        if(programming.byte_4_5_sonet_compliance_codes.reserved_byte_5_bit_7 || 
+            programming.byte_4_5_sonet_compliance_codes.reserved_byte_5_bit_3
+        ) {
+            validationResult.errors.push_back(
+                fmt::format(
+                    "Byte 5 (\"SONET Compliance Codes\") value has at least one reserved bit set: Bit 7 {:d}, Bit 3 {:d}",
+                    programming.byte_4_5_sonet_compliance_codes.reserved_byte_5_bit_7, programming.byte_4_5_sonet_compliance_codes.reserved_byte_5_bit_3
+                )
             );
         }
     }
@@ -59,6 +80,9 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
 
         //SFF-8024 Rev 4.11 Table 4-3 Connector Types
         validateConnectorTypes(programming, validationResult);
+
+        //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
+        validateSONETComplianceCodes(programming, validationResult);
 
         return validationResult;
     }

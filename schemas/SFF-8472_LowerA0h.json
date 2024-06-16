@@ -133,6 +133,61 @@
                 "1X Copper Passive compliant (Bit 0)"
             ]
         },
+        "sff-8472_escon_compliance_codes": {
+            "$id": "/schemas/sff-8472_escon_compliance_codes",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "ESCON MMF, 1310nm LED compliant (Bit 7)": {"type": "boolean"},
+                "ESCON SMF, 1310nm Laser compliant (Bit 6)": {"type": "boolean"}
+            },
+            "required": [
+                "ESCON MMF, 1310nm LED compliant (Bit 7)",
+                "ESCON SMF, 1310nm Laser compliant (Bit 6)"
+            ]
+        },
+        "sff-8472_sonet_compliance_codes": {
+            "$id": "/schemas/sff-8472_sonet_compliance_codes",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "OC-192, short reach compliant (Byte 4, Bit 5)": {"type": "boolean"},
+                "SONET reach specifier (Byte 4, Bit 4-3)": {
+                    "enum": [
+                       "SONET SR compliant or not specified",
+                        "SONET [SR/IR/LR]-1 compliant",
+                        "SONET [IR/LR]-2 compliant",
+                        "SONET LR-3 compliant"
+                    ]
+                },
+                "OC-48, long reach compliant (Byte 4, Bit 2)": {"type": "boolean"},
+                "OC-48, intermediate reach compliant (Byte 4, Bit 1)": {"type": "boolean"},
+                "OC-48, short reach compliant (Byte 4, Bit 0)": {"type": "boolean"},
+                "Reserved (Byte 5, Bit 7)": {"type": "boolean"},
+                "OC-12, single mode, long reach compliant (Byte 5, Bit 6)": {"type": "boolean"},
+                "OC-12, single mode, intermediate reach compliant (Byte 5, Bit 5)": {"type": "boolean"},
+                "OC-12, short reach compliant (Byte 5, Bit 4)": {"type": "boolean"},
+                "Reserved (Byte 5, Bit 3)": {"type": "boolean"},
+                "OC-3, single mode, long reach compliant (Byte 5, Bit 2)": {"type": "boolean"},
+                "OC-3, single mode, intermediate reach compliant (Byte 5, Bit 1)": {"type": "boolean"},
+                "OC-3, short reach compliant (Byte 5, Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "OC-192, short reach compliant (Byte 4, Bit 5)",
+                "SONET reach specifier (Byte 4, Bit 4-3)",
+                "OC-48, long reach compliant (Byte 4, Bit 2)",
+                "OC-48, intermediate reach compliant (Byte 4, Bit 1)",
+                "OC-48, short reach compliant (Byte 4, Bit 0)",
+                "Reserved (Byte 5, Bit 7)",
+                "OC-12, single mode, long reach compliant (Byte 5, Bit 6)",
+                "OC-12, single mode, intermediate reach compliant (Byte 5, Bit 5)",
+                "OC-12, short reach compliant (Byte 5, Bit 4)",
+                "Reserved (Byte 5, Bit 3)",
+                "OC-3, single mode, long reach compliant (Byte 5, Bit 2)",
+                "OC-3, single mode, intermediate reach compliant (Byte 5, Bit 1)",
+                "OC-3, short reach compliant (Byte 5, Bit 0)"
+            ]
+        },
     },
 
     "properties": {
@@ -143,7 +198,9 @@
         "Extended Identifier": { "$ref": "/schemas/sff-8472_extended_identifier" },
         "Connector Type": { "$ref": "/schemas/sff-8024_connector_type" },
         "10G Ethernet Compliance Codes": { "$ref": "/schemas/sff-8472_10G_ethernet_compliance_codes" },
-        "Infiniband Compliance Codes": { "$ref": "/schemas/sff-8472_infiniband_compliance_codes" }
+        "Infiniband Compliance Codes": { "$ref": "/schemas/sff-8472_infiniband_compliance_codes" },
+        "ESCON Compliance Codes": { "$ref": "/schemas/sff-8472_escon_compliance_codes" },
+        "SONET Compliance Codes": { "$ref": "/schemas/sff-8472_sonet_compliance_codes" },
     },
 
     "required": [
@@ -152,6 +209,8 @@
         "Extended Identifier",
         "Connector Type",
         "10G Ethernet Compliance Codes",
-        "Infiniband Compliance Codes"
+        "Infiniband Compliance Codes",
+        "ESCON Compliance Codes",
+        "SONET Compliance Codes"
     ]
 }

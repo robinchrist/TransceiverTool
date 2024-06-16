@@ -21,5 +21,11 @@ namespace TransceiverTool::Standards::SFF8472 {
         //Byte 3: 10G Ethernet Compliance Code & Infiniband Compliance Codes
         _10G_Ethernet_Compliance_Codes byte_3_ethernet_compliance_codes;
         Infiniband_Compliance_Codes byte_3_infiniband_compliance_codes;
+
+        //Byte 4: ESCON Compliance Codes
+        ESCON_Compliance_Codes byte_4_escon_compliance_codes;
+
+        //Byte 4 + 5: SONET Compliance Codes
+        SONET_Compliance_Codes byte_4_5_sonet_compliance_codes;
     };
 }

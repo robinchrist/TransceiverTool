@@ -1,5 +1,6 @@
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Extended_Identifier_Values.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Compliance_Codes.hpp"
 #include "fmt/core.h"
 #include <algorithm>
 
@@ -39,5 +40,20 @@ namespace TransceiverTool::Standards::SFF8472 {
         }
 
         return fmt::format("{} ({:#04x})", name, byte);
+    }
+
+    const SONETReachSpecifierAssignedValue& getSFF8472_SONETReachSpecifierInfo(SONETReachSpecifier enum_value) {
+        return *std::find_if(
+            SONETReachSpecifierAssignedValues.begin(),
+            SONETReachSpecifierAssignedValues.end(),
+            [enum_value](const SONETReachSpecifierAssignedValue& entry) { return entry.enum_value == enum_value; }
+        );
+    }
+    SONETReachSpecifier getSFF8472_SONETReachSpecifier_From_Char(unsigned char value) {
+        return std::find_if(
+            SONETReachSpecifierAssignedValues.begin(),
+            SONETReachSpecifierAssignedValues.end(),
+            [value](const SONETReachSpecifierAssignedValue& entry) { return entry.byte_value == ((value >> 3) & 0b00000011 ); }
+        )->enum_value;
     }
 }
