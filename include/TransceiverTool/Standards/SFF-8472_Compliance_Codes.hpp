@@ -151,5 +151,5 @@ namespace TransceiverTool::Standards::SFF8472 {
         bool reserved_bit_2;
         bool reserved_bit_1;
         bool _64_GFC_bit_0;
-    }
+    };
 }

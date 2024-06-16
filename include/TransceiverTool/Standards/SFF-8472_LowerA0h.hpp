@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <array>
+#include "TransceiverTool/Standards/SFF-8472_Compliance_Codes.hpp"
 
 namespace TransceiverTool::Standards::SFF8472 {
     struct SFF8472_LowerA0h {
@@ -16,5 +17,9 @@ namespace TransceiverTool::Standards::SFF8472 {
         //Byte 2: Connector
         //Code for connector type (see SFF-8024 SFF Module Management Reference Code Tables)
         unsigned char byte_2_Connector_type;
+
+        //Byte 3: 10G Ethernet Compliance Code & Infiniband Compliance Codes
+        _10G_Ethernet_Compliance_Codes byte_3_ethernet_compliance_codes;
+        Infiniband_Compliance_Codes byte_3_infiniband_compliance_codes;
     };
 }

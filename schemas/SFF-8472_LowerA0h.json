@@ -99,6 +99,40 @@
                 }
             ]
         },
+        "sff-8472_10G_ethernet_compliance_codes": {
+            "$id": "/schemas/sff-8472_10G_ethernet_compliance_codes",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "10GBASE-ER compliant (Bit 7)": {"type": "boolean"},
+                "10GBASE-LRM compliant (Bit 6)": {"type": "boolean"},
+                "10GBASE-LR compliant (Bit 5)": {"type": "boolean"},
+                "10GBASE-SR compliant (Bit 4)": {"type": "boolean"}
+            },
+            "required": [
+                "10GBASE-ER compliant (Bit 7)",
+                "10GBASE-LRM compliant (Bit 6)",
+                "10GBASE-LR compliant (Bit 5)",
+                "10GBASE-SR compliant (Bit 4)"
+            ]
+        },
+        "sff-8472_infiniband_compliance_codes": {
+            "$id": "/schemas/sff-8472_infiniband_compliance_codes",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "1X SX compliant (Bit 3)": {"type": "boolean"},
+                "1X LX compliant (Bit 2)": {"type": "boolean"},
+                "1X Copper Active compliant (Bit 1)": {"type": "boolean"},
+                "1X Copper Passive compliant (Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "1X SX compliant (Bit 3)",
+                "1X LX compliant (Bit 2)",
+                "1X Copper Active compliant (Bit 1)",
+                "1X Copper Passive compliant (Bit 0)"
+            ]
+        },
     },
 
     "properties": {
@@ -108,12 +142,16 @@
         "Identifier": { "$ref": "/schemas/sff-8472_identifier" },
         "Extended Identifier": { "$ref": "/schemas/sff-8472_extended_identifier" },
         "Connector Type": { "$ref": "/schemas/sff-8024_connector_type" },
+        "10G Ethernet Compliance Codes": { "$ref": "/schemas/sff-8472_10G_ethernet_compliance_codes" },
+        "Infiniband Compliance Codes": { "$ref": "/schemas/sff-8472_infiniband_compliance_codes" }
     },
 
     "required": [
         "Type",
         "Identifier",
         "Extended Identifier",
-        "Connector Type"
+        "Connector Type",
+        "10G Ethernet Compliance Codes",
+        "Infiniband Compliance Codes"
     ]
 }
