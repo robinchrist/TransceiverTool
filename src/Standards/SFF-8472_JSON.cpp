@@ -327,6 +327,94 @@ namespace TransceiverTool::Standards::SFF8472 {
     }
 //############
 
+
+//############
+    nlohmann::ordered_json Fibre_Channel_Link_Length_CodesToJSON(const Fibre_Channel_Link_Length_Codes& value) {
+        nlohmann::ordered_json j;
+
+        j["very long distance (V) compliant (Bit 7)"] = value.very_long_distance_v_bit_7;
+        j["short distance (S) compliant (Bit 6)"] = value.short_distance_s_bit_6;
+        j["intermediate distance (I) compliant (Bit 5)"] = value.intermediate_distance_i_bit_5;
+        j["long distance (L) compliant (Bit 4)"] = value.long_distance_l_bit_4;
+        j["medium distance (M) compliant (Bit 3)"] = value.medium_distance_m_bit_3;
+
+        return j;
+    }
+
+    Fibre_Channel_Link_Length_Codes Fibre_Channel_Link_Length_CodesFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Fibre Channel Link Length must be an object");
+
+        Fibre_Channel_Link_Length_Codes complianceCodes;
+
+        complianceCodes.very_long_distance_v_bit_7 = j.at("very long distance (V) compliant (Bit 7)").template get<bool>();
+        complianceCodes.short_distance_s_bit_6 = j.at("short distance (S) compliant (Bit 6)").template get<bool>();
+        complianceCodes.intermediate_distance_i_bit_5 = j.at("intermediate distance (I) compliant (Bit 5)").template get<bool>();
+        complianceCodes.long_distance_l_bit_4 = j.at("long distance (L) compliant (Bit 4)").template get<bool>();
+        complianceCodes.medium_distance_m_bit_3 = j.at("medium distance (M) compliant (Bit 3)").template get<bool>();
+
+
+        return complianceCodes;
+    }
+//############
+
+//############
+    nlohmann::ordered_json Fibre_Channel_Technology_CodesToJSON(const Fibre_Channel_Technology_Codes& value) {
+        nlohmann::ordered_json j;
+
+        j["Shortwave laser, linear Rx (SA) compliant (Byte 7, Bit 2)"] = value.Shortwave_laser_linear_Rx_SA_byte_7_bit_2;
+        j["Longwave laser (LC) compliant (Byte 7, Bit 1)"] = value.Longwave_laser_LC_byte_7_bit_1;
+        j["Electrical inter-enclosure (EL) compliant (Byte 7, Bit 0)"] = value.Electrical_inter_enclosure_EL_byte_7_bit_0;
+        j["Electrical intra-enclosure (EL) compliant (Byte 8, Bit 7)"] = value.Electrical_intra_enclosure_EL_byte_byte_8_bit_7;
+        j["Shortwave laser w/o OFC (SN) compliant (Byte 8, Bit 6)"] = value.Shortwave_laser_w_o_OFC_SN_byte_8_bit_6;
+        j["Shortwave laser with OFC (SL) compliant (Byte 8, Bit 5)"] = value.Shortwave_laser_with_OFC_SL_byte_8_bit_5;
+        j["Longwave laser (LL) compliant (Byte 8, Bit 4)"] = value.Longwave_Laser_LL_byte_8_bit_4;
+        
+        return j;
+    }
+
+    Fibre_Channel_Technology_Codes Fibre_Channel_Technology_CodesFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Fibre Channel Technology must be an object");
+
+        Fibre_Channel_Technology_Codes complianceCodes;
+
+        complianceCodes.Shortwave_laser_linear_Rx_SA_byte_7_bit_2 = j.at("Shortwave laser, linear Rx (SA) compliant (Byte 7, Bit 2)").template get<bool>();
+        complianceCodes.Longwave_laser_LC_byte_7_bit_1 = j.at("Longwave laser (LC) compliant (Byte 7, Bit 1)").template get<bool>();
+        complianceCodes.Electrical_inter_enclosure_EL_byte_7_bit_0 = j.at("Electrical inter-enclosure (EL) compliant (Byte 7, Bit 0)").template get<bool>();
+        complianceCodes.Electrical_intra_enclosure_EL_byte_byte_8_bit_7 = j.at("Electrical intra-enclosure (EL) compliant (Byte 8, Bit 7)").template get<bool>();
+        complianceCodes.Shortwave_laser_w_o_OFC_SN_byte_8_bit_6 = j.at("Shortwave laser w/o OFC (SN) compliant (Byte 8, Bit 6)").template get<bool>();
+        complianceCodes.Shortwave_laser_w_o_OFC_SN_byte_8_bit_6 = j.at("Shortwave laser with OFC (SL) compliant (Byte 8, Bit 5)").template get<bool>();
+        complianceCodes.Shortwave_laser_with_OFC_SL_byte_8_bit_5 = j.at("Longwave laser (LL) compliant (Byte 8, Bit 4)").template get<bool>();
+
+        return complianceCodes;
+    }
+//############
+
+//############
+    nlohmann::ordered_json SFP_plus_Cable_Technology_CodesToJSON(const SFP_plus_Cable_Technology_Codes& value) {
+        nlohmann::ordered_json j;
+
+        j["Active Cable compliant (Bit 3)"] = value.Active_Cable_bit_3;
+        j["Passive Cable compliant (Bit 2)"] = value.Passive_Cable_bit_2;
+        j["Reserved (Bit 1)"] = value.reserved_bit_1;
+        j["Reserved (Bit 0)"] = value.reserved_bit_0;
+
+        return j;
+    }
+
+    SFP_plus_Cable_Technology_Codes SFP_plus_Cable_Technology_CodesFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("SFP+ Cable Technology must be an object");
+
+        SFP_plus_Cable_Technology_Codes complianceCodes;
+
+        complianceCodes.Active_Cable_bit_3 = j.at("Active Cable compliant (Bit 3)").template get<bool>();
+        complianceCodes.Passive_Cable_bit_2 = j.at("Passive Cable compliant (Bit 2)").template get<bool>();
+        complianceCodes.reserved_bit_1 = j.at("Reserved (Bit 1)").template get<bool>();
+        complianceCodes.reserved_bit_0 = j.at("Reserved (Bit 0)").template get<bool>();
+
+        return complianceCodes;
+    }
+//############
+
     void SFF8472_LowerA0hToJSON(nlohmann::ordered_json& j, const SFF8472_LowerA0h& programming, bool copperMode) {
 
         std::vector<unsigned char> binaryBuffer; binaryBuffer.resize(128, 0x00);
@@ -348,6 +436,10 @@ namespace TransceiverTool::Standards::SFF8472 {
         j["SONET Compliance Codes"] = SONET_Compliance_CodesToJSON(programming.byte_4_5_sonet_compliance_codes);
 
         j["Ethernet Compliance Codes"] = Ethernet_Compliance_CodesToJSON(programming.byte_6_ethernet_compliance_codes);
+
+        j["Fibre Channel Link Length"] = Fibre_Channel_Link_Length_CodesToJSON(programming.byte_7_fibre_channel_link_length_codes);
+        j["Fibre Channel Technology"] = Fibre_Channel_Technology_CodesToJSON(programming.byte_7_8_fibre_channel_technology_codes);
+        j["SFP+ Cable Technology"] = SFP_plus_Cable_Technology_CodesToJSON(programming.byte_8_sfp_plus_cable_technology_codes);
     }
 
 
@@ -371,5 +463,9 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_4_5_sonet_compliance_codes = SONET_Compliance_CodesFromJSON(j.at("SONET Compliance Codes"));
 
         programming.byte_6_ethernet_compliance_codes = Ethernet_Compliance_CodesFromJSON(j.at("Ethernet Compliance Codes"));
+
+        programming.byte_7_fibre_channel_link_length_codes = Fibre_Channel_Link_Length_CodesFromJSON(j.at("Fibre Channel Link Length"));
+        programming.byte_7_8_fibre_channel_technology_codes = Fibre_Channel_Technology_CodesFromJSON(j.at("Fibre Channel Technology"));
+        programming.byte_8_sfp_plus_cable_technology_codes = SFP_plus_Cable_Technology_CodesFromJSON(j.at("SFP+ Cable Technology"));
     }   
 }
