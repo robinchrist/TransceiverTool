@@ -44,6 +44,17 @@ namespace TransceiverTool::Standards::SFF8472 {
             (unsigned char)(programming.byte_4_5_sonet_compliance_codes.OC_3_single_mode_long_reach_byte_5_bit_2) << 2 |
             (unsigned char)(programming.byte_4_5_sonet_compliance_codes.OC_3_single_mode_intermediate_reach_byte_5_bit_1) << 1 |
             (unsigned char)(programming.byte_4_5_sonet_compliance_codes.OC_3_short_reach__byte_5_bit_0) << 0;
+
+
+         target[6] = 
+            (unsigned char)(programming.byte_6_ethernet_compliance_codes.BASE_PX_bit_7) << 7 |
+            (unsigned char)(programming.byte_6_ethernet_compliance_codes.BASE_BX10_bit_6) << 6 |
+            (unsigned char)(programming.byte_6_ethernet_compliance_codes._100BASE_FX_bit_5) << 5 |
+            (unsigned char)(programming.byte_6_ethernet_compliance_codes._100BASE_LX_LX10_bit_4) << 4 |
+            (unsigned char)(programming.byte_6_ethernet_compliance_codes._1000BASE_T_bit_3) << 3 |
+            (unsigned char)(programming.byte_6_ethernet_compliance_codes._1000BASE_CX_bit_2) << 2 |
+            (unsigned char)(programming.byte_6_ethernet_compliance_codes._1000BASE_LX_bit_1) << 1 |
+            (unsigned char)(programming.byte_6_ethernet_compliance_codes._1000BASE_SX_bit_0) << 0;
     
     }
 }

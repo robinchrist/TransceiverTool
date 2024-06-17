@@ -188,6 +188,31 @@
                 "OC-3, short reach compliant (Byte 5, Bit 0)"
             ]
         },
+        "sff-8472_ethernet_compliance_codes": {
+            "$id": "/schemas/sff-8472_ethernet_compliance_codes",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "BASE-PX compliant (Bit 7)": {"type": "boolean"},
+                "BASE-BX10 compliant (Bit 6)": {"type": "boolean"},
+                "100BASE-FX compliant (Bit 5)": {"type": "boolean"},
+                "100BASE-LX/LX10 compliant (Bit 4)": {"type": "boolean"},
+                "1000BASE-T compliant (Bit 3)": {"type": "boolean"},
+                "1000BASE-CX compliant (Bit 2)": {"type": "boolean"},
+                "1000BASE-LX compliant (Bit 1)": {"type": "boolean"},
+                "1000BASE-SX compliant (Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "BASE-PX compliant (Bit 7)",
+                "BASE-BX10 compliant (Bit 6)",
+                "100BASE-FX compliant (Bit 5)",
+                "100BASE-LX/LX10 compliant (Bit 4)",
+                "1000BASE-T compliant (Bit 3)",
+                "1000BASE-CX compliant (Bit 2)",
+                "1000BASE-LX compliant (Bit 1)",
+                "1000BASE-SX compliant (Bit 0)"
+            ]
+        },
     },
 
     "properties": {
@@ -201,6 +226,7 @@
         "Infiniband Compliance Codes": { "$ref": "/schemas/sff-8472_infiniband_compliance_codes" },
         "ESCON Compliance Codes": { "$ref": "/schemas/sff-8472_escon_compliance_codes" },
         "SONET Compliance Codes": { "$ref": "/schemas/sff-8472_sonet_compliance_codes" },
+        "Ethernet Compliance Codes": { "$ref": "/schemas/sff-8472_ethernet_compliance_codes" },
     },
 
     "required": [
@@ -211,6 +237,7 @@
         "10G Ethernet Compliance Codes",
         "Infiniband Compliance Codes",
         "ESCON Compliance Codes",
-        "SONET Compliance Codes"
+        "SONET Compliance Codes",
+        "Ethernet Compliance Codes"
     ]
 }

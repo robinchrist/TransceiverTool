@@ -41,6 +41,15 @@ namespace TransceiverTool::Standards::SFF8472 {
         parsedStruct.byte_4_5_sonet_compliance_codes.OC_3_single_mode_intermediate_reach_byte_5_bit_1 = bytes[5] & (1 << 1);
         parsedStruct.byte_4_5_sonet_compliance_codes.OC_3_short_reach__byte_5_bit_0 = bytes[5] & (1 << 0);
 
+        parsedStruct.byte_6_ethernet_compliance_codes.BASE_PX_bit_7 = bytes[6] & (1 << 7);
+        parsedStruct.byte_6_ethernet_compliance_codes.BASE_BX10_bit_6 = bytes[6] & (1 << 6);
+        parsedStruct.byte_6_ethernet_compliance_codes._100BASE_FX_bit_5 = bytes[6] & (1 << 5);
+        parsedStruct.byte_6_ethernet_compliance_codes._100BASE_LX_LX10_bit_4 = bytes[6] & (1 << 4);
+        parsedStruct.byte_6_ethernet_compliance_codes._1000BASE_T_bit_3 = bytes[6] & (1 << 3);
+        parsedStruct.byte_6_ethernet_compliance_codes._1000BASE_CX_bit_2 = bytes[6] & (1 << 2);
+        parsedStruct.byte_6_ethernet_compliance_codes._1000BASE_LX_bit_1 = bytes[6] & (1 << 1);
+        parsedStruct.byte_6_ethernet_compliance_codes._1000BASE_SX_bit_0 = bytes[6] & (1 << 0);
+
         return parsedStruct;
     }
 
