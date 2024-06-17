@@ -46,7 +46,7 @@ namespace TransceiverTool::Standards::SFF8472 {
             (unsigned char)(programming.byte_4_5_sonet_compliance_codes.OC_3_short_reach__byte_5_bit_0) << 0;
 
 
-         target[6] = 
+        target[6] = 
             (unsigned char)(programming.byte_6_ethernet_compliance_codes.BASE_PX_bit_7) << 7 |
             (unsigned char)(programming.byte_6_ethernet_compliance_codes.BASE_BX10_bit_6) << 6 |
             (unsigned char)(programming.byte_6_ethernet_compliance_codes._100BASE_FX_bit_5) << 5 |
@@ -55,6 +55,28 @@ namespace TransceiverTool::Standards::SFF8472 {
             (unsigned char)(programming.byte_6_ethernet_compliance_codes._1000BASE_CX_bit_2) << 2 |
             (unsigned char)(programming.byte_6_ethernet_compliance_codes._1000BASE_LX_bit_1) << 1 |
             (unsigned char)(programming.byte_6_ethernet_compliance_codes._1000BASE_SX_bit_0) << 0;
+
+
+        target[7] = 
+            (unsigned char)(programming.byte_7_fibre_channel_link_length_codes.very_long_distance_v_bit_7) << 7 |
+            (unsigned char)(programming.byte_7_fibre_channel_link_length_codes.short_distance_s_bit_6) << 6 |
+            (unsigned char)(programming.byte_7_fibre_channel_link_length_codes.intermediate_distance_i_bit_5) << 5 |
+            (unsigned char)(programming.byte_7_fibre_channel_link_length_codes.long_distance_l_bit_4) << 4 |
+            (unsigned char)(programming.byte_7_fibre_channel_link_length_codes.medium_distance_m_bit_3) << 3 |
+            (unsigned char)(programming.byte_7_8_fibre_channel_technology_codes.Shortwave_laser_linear_Rx_SA_byte_7_bit_2) << 2 |
+            (unsigned char)(programming.byte_7_8_fibre_channel_technology_codes.Longwave_laser_LC_byte_7_bit_1) << 1 |
+            (unsigned char)(programming.byte_7_8_fibre_channel_technology_codes.Electrical_inter_enclosure_EL_byte_7_bit_0) << 0;
+
+
+        target[8] = 
+            (unsigned char)(programming.byte_7_8_fibre_channel_technology_codes.Electrical_intra_enclosure_EL_byte_byte_8_bit_7) << 7 |
+            (unsigned char)(programming.byte_7_8_fibre_channel_technology_codes.Shortwave_laser_w_o_OFC_SN_byte_8_bit_6) << 6 |
+            (unsigned char)(programming.byte_7_8_fibre_channel_technology_codes.Shortwave_laser_with_OFC_SL_byte_8_bit_5) << 5 |
+            (unsigned char)(programming.byte_7_8_fibre_channel_technology_codes.Longwave_Laser_LL_byte_8_bit_4) << 4 |
+            (unsigned char)(programming.byte_8_sfp_plus_cable_technology_codes.Active_Cable_bit_3) << 3 |
+            (unsigned char)(programming.byte_8_sfp_plus_cable_technology_codes.Passive_Cable_bit_2) << 2 |
+            (unsigned char)(programming.byte_8_sfp_plus_cable_technology_codes.reserved_bit_1) << 1 |
+            (unsigned char)(programming.byte_8_sfp_plus_cable_technology_codes.reserved_bit_0) << 0;
     
     }
 }

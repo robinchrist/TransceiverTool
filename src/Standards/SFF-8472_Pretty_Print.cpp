@@ -149,7 +149,63 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
         "Specification Compliance, Ethernet Compliance Codes [6, 0]", programming.byte_6_ethernet_compliance_codes._1000BASE_SX_bit_0 ? "1000BASE-SX compliant" : "Not 1000BASE-SX compliant"
     );
+    str.append("\n");
 
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Link Length [7, 7]", programming.byte_7_fibre_channel_link_length_codes.very_long_distance_v_bit_7 ? "very long distance (V) compliant" : "Not very long distance (V) compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Link Length [7, 6]", programming.byte_7_fibre_channel_link_length_codes.short_distance_s_bit_6 ? "short distance (S) compliant" : "Not short distance (S) compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Link Length [7, 5]", programming.byte_7_fibre_channel_link_length_codes.intermediate_distance_i_bit_5 ? "intermediate distance (I) compliant" : "Not intermediate distance (I) compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Link Length [7, 4]", programming.byte_7_fibre_channel_link_length_codes.long_distance_l_bit_4 ? "long distance (L) compliant" : "Not long distance (L) compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Link Length [7, 3]", programming.byte_7_fibre_channel_link_length_codes.medium_distance_m_bit_3 ? "medium distance (M) compliant" : "Not medium distance (M) compliant"
+    );
+    str.append("\n");
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Technology [7, 2]", programming.byte_7_8_fibre_channel_technology_codes.Shortwave_laser_linear_Rx_SA_byte_7_bit_2 ? "Shortwave laser, linear Rx (SA) compliant" : "Not Shortwave laser, linear Rx (SA) compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Technology [7, 1]", programming.byte_7_8_fibre_channel_technology_codes.Longwave_laser_LC_byte_7_bit_1 ? "Longwave laser (LC) compliant" : "Not Longwave laser (LC) compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Technology [7, 0]", programming.byte_7_8_fibre_channel_technology_codes.Electrical_inter_enclosure_EL_byte_7_bit_0 ? "Electrical inter-enclosure (EL) compliant" : "Not Electrical inter-enclosure (EL) compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Technology [8, 7]", programming.byte_7_8_fibre_channel_technology_codes.Electrical_intra_enclosure_EL_byte_byte_8_bit_7 ? "Electrical intra-enclosure (EL) compliant" : "Not Electrical intra-enclosure (EL) compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Technology [8, 6]", programming.byte_7_8_fibre_channel_technology_codes.Shortwave_laser_w_o_OFC_SN_byte_8_bit_6 ? "Shortwave laser w/o OFC (SN) compliant" : "Not Shortwave laser w/o OFC (SN) compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Technology [8, 5]", programming.byte_7_8_fibre_channel_technology_codes.Shortwave_laser_with_OFC_SL_byte_8_bit_5 ? "Shortwave laser with OFC (SL) 4 compliant" : "Not Shortwave laser with OFC (SL) 4 compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Technology [8, 4]", programming.byte_7_8_fibre_channel_technology_codes.Longwave_Laser_LL_byte_8_bit_4 ? "Longwave laser (LL) compliant" : "Not Longwave laser (LL) compliant"
+    );
+    str.append("\n");
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, SFP+ Cable Technology [8, 3]", programming.byte_8_sfp_plus_cable_technology_codes.Active_Cable_bit_3 ? " compliant" : "Not Active Cable compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, SFP+ Cable Technology [8, 2]", programming.byte_8_sfp_plus_cable_technology_codes.Passive_Cable_bit_2 ? " compliant" : "Not Passive Cable compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, SFP+ Cable Technology [8, 1]", formatReservedBit(programming.byte_8_sfp_plus_cable_technology_codes.reserved_bit_1)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, SFP+ Cable Technology [8, 0]", formatReservedBit(programming.byte_8_sfp_plus_cable_technology_codes.reserved_bit_0)
+    );
     str.append("\n");
 
     return str;

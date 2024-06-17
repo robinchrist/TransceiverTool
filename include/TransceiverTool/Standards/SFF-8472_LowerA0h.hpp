@@ -30,5 +30,14 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         //Byte 6: Ethernet Compliance Codes
         Ethernet_Compliance_Codes byte_6_ethernet_compliance_codes;
+
+        //Byte 7: Fibre Channel Link Length
+        Fibre_Channel_Link_Length_Codes byte_7_fibre_channel_link_length_codes;
+
+        //Byte 7+8: Fibre Channel Technology
+        Fibre_Channel_Technology_Codes byte_7_8_fibre_channel_technology_codes;
+
+        //Byte 8: SFP+ Cable Technology
+        SFP_plus_Cable_Technology_Codes byte_8_sfp_plus_cable_technology_codes;
     };
 }

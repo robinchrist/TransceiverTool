@@ -213,6 +213,65 @@
                 "1000BASE-SX compliant (Bit 0)"
             ]
         },
+        "sff-8472_fibre_channel_link_length_compliance_codes": {
+            "$id": "/schemas/sff-8472_fibre_channel_link_length_compliance_codes",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "very long distance (V) compliant (Bit 7)": {"type": "boolean"},
+                "short distance (S) compliant (Bit 6)": {"type": "boolean"},
+                "intermediate distance (I) compliant (Bit 5)": {"type": "boolean"},
+                "long distance (L) compliant (Bit 4)": {"type": "boolean"},
+                "medium distance (M) compliant (Bit 3)": {"type": "boolean"}
+            },
+            "required": [
+                "very long distance (V) compliant (Bit 7)",
+                "short distance (S) compliant (Bit 6)",
+                "intermediate distance (I) compliant (Bit 5)",
+                "long distance (L) compliant (Bit 4)",
+                "medium distance (M) compliant (Bit 3)"
+            ]
+        },
+        "sff-8472_fibre_channel_technology_compliance_codes": {
+            "$id": "/schemas/sff-8472_fibre_channel_technology_compliance_codes",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Shortwave laser, linear Rx (SA) compliant (Byte 7, Bit 2)": {"type": "boolean"},
+                "Longwave laser (LC) compliant (Byte 7, Bit 1)": {"type": "boolean"},
+                "Electrical inter-enclosure (EL) compliant (Byte 7, Bit 0)": {"type": "boolean"},
+                "Electrical intra-enclosure (EL) compliant (Byte 8, Bit 7)": {"type": "boolean"},
+                "Shortwave laser w/o OFC (SN) compliant (Byte 8, Bit 6)": {"type": "boolean"},
+                "Shortwave laser with OFC (SL) compliant (Byte 8, Bit 5)": {"type": "boolean"},
+                "Longwave laser (LL) compliant (Byte 8, Bit 4)": {"type": "boolean"}
+            },
+            "required": [
+                "Shortwave laser, linear Rx (SA) compliant (Byte 7, Bit 2)",
+                "Longwave laser (LC) compliant (Byte 7, Bit 1)",
+                "Electrical inter-enclosure (EL) compliant (Byte 7, Bit 0)",
+                "Electrical intra-enclosure (EL) compliant (Byte 8, Bit 7)",
+                "Shortwave laser w/o OFC (SN) compliant (Byte 8, Bit 6)",
+                "Shortwave laser with OFC (SL) compliant (Byte 8, Bit 5)",
+                "Longwave laser (LL) compliant (Byte 8, Bit 4)"
+            ]
+        },
+        "sff-8472_sfp_plus_cable_technology_compliance_codes": {
+            "$id": "/schemas/sff-8472_sfp_plus_cable_technology_compliance_codes",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Active Cable compliant (Bit 3)": {"type": "boolean"},
+                "Passive Cable compliant (Bit 2)": {"type": "boolean"},
+                "Reserved (Bit 1)": {"type": "boolean"},
+                "Reserved (Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "Active Cable compliant (Bit 3)",
+                "Passive Cable compliant (Bit 2)",
+                "Reserved (Bit 1)",
+                "Reserved (Bit 0)"
+            ]
+        },
     },
 
     "properties": {
@@ -227,6 +286,9 @@
         "ESCON Compliance Codes": { "$ref": "/schemas/sff-8472_escon_compliance_codes" },
         "SONET Compliance Codes": { "$ref": "/schemas/sff-8472_sonet_compliance_codes" },
         "Ethernet Compliance Codes": { "$ref": "/schemas/sff-8472_ethernet_compliance_codes" },
+        "Fibre Channel Link Length": { "$ref": "/schemas/sff-8472_fibre_channel_link_length_compliance_codes" },
+        "Fibre Channel Technology": { "$ref": "/schemas/sff-8472_fibre_channel_technology_compliance_codes" },
+        "SFP+ Cable Technology": { "$ref": "/schemas/sff-8472_sfp_plus_cable_technology_compliance_codes" },
     },
 
     "required": [
@@ -238,6 +300,9 @@
         "Infiniband Compliance Codes",
         "ESCON Compliance Codes",
         "SONET Compliance Codes",
-        "Ethernet Compliance Codes"
+        "Ethernet Compliance Codes",
+        "Fibre Channel Link Length",
+        "Fibre Channel Technology",
+        "SFP+ Cable Technology"
     ]
 }
