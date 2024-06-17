@@ -27,5 +27,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         //Byte 4 + 5: SONET Compliance Codes
         SONET_Compliance_Codes byte_4_5_sonet_compliance_codes;
+
+        //Byte 6: Ethernet Compliance Codes
+        Ethernet_Compliance_Codes byte_6_ethernet_compliance_codes;
     };
 }

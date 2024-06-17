@@ -292,6 +292,41 @@ namespace TransceiverTool::Standards::SFF8472 {
     }
 //############
 
+//############
+    nlohmann::ordered_json Ethernet_Compliance_CodesToJSON(const Ethernet_Compliance_Codes& value) {
+        nlohmann::ordered_json j;
+
+        j["BASE-PX compliant (Bit 7)"] = value.BASE_PX_bit_7;
+        j["BASE-BX10 compliant (Bit 6)"] = value.BASE_BX10_bit_6;
+        j["100BASE-FX compliant (Bit 5)"] = value._100BASE_FX_bit_5;
+        j["100BASE-LX/LX10 compliant (Bit 4)"] = value._100BASE_LX_LX10_bit_4;
+        j["1000BASE-T compliant (Bit 3)"] = value._1000BASE_T_bit_3;
+        j["1000BASE-CX compliant (Bit 2)"] = value._1000BASE_CX_bit_2;
+        j["1000BASE-LX compliant (Bit 1)"] = value._1000BASE_LX_bit_1;
+        j["1000BASE-SX compliant (Bit 0)"] = value._1000BASE_SX_bit_0;
+
+        return j;
+    }
+
+    Ethernet_Compliance_Codes Ethernet_Compliance_CodesFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Ethernet Compliance Codes must be an object");
+
+        Ethernet_Compliance_Codes complianceCodes;
+
+        complianceCodes.BASE_PX_bit_7 = j.at("BASE-PX compliant (Bit 7)").template get<bool>();
+        complianceCodes.BASE_BX10_bit_6 = j.at("BASE-BX10 compliant (Bit 6)").template get<bool>();
+        complianceCodes._100BASE_FX_bit_5 = j.at("100BASE-FX compliant (Bit 5)").template get<bool>();
+        complianceCodes._100BASE_LX_LX10_bit_4 = j.at("100BASE-LX/LX10 compliant (Bit 4)").template get<bool>();
+        complianceCodes._1000BASE_T_bit_3 = j.at("1000BASE-T compliant (Bit 3)").template get<bool>();
+        complianceCodes._1000BASE_CX_bit_2 = j.at("1000BASE-CX compliant (Bit 2)").template get<bool>();
+        complianceCodes._1000BASE_LX_bit_1 = j.at("1000BASE-LX compliant (Bit 1)").template get<bool>();
+        complianceCodes._1000BASE_SX_bit_0 = j.at("1000BASE-SX compliant (Bit 0)").template get<bool>();
+
+
+        return complianceCodes;
+    }
+//############
+
     void SFF8472_LowerA0hToJSON(nlohmann::ordered_json& j, const SFF8472_LowerA0h& programming, bool copperMode) {
 
         std::vector<unsigned char> binaryBuffer; binaryBuffer.resize(128, 0x00);
@@ -311,6 +346,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         j["ESCON Compliance Codes"] = ESCON_Compliance_CodesToJSON(programming.byte_4_escon_compliance_codes);
         j["SONET Compliance Codes"] = SONET_Compliance_CodesToJSON(programming.byte_4_5_sonet_compliance_codes);
+
+        j["Ethernet Compliance Codes"] = Ethernet_Compliance_CodesToJSON(programming.byte_6_ethernet_compliance_codes);
     }
 
 
@@ -332,5 +369,7 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         programming.byte_4_escon_compliance_codes = ESCON_Compliance_CodesFromJSON(j.at("ESCON Compliance Codes"));
         programming.byte_4_5_sonet_compliance_codes = SONET_Compliance_CodesFromJSON(j.at("SONET Compliance Codes"));
+
+        programming.byte_6_ethernet_compliance_codes = Ethernet_Compliance_CodesFromJSON(j.at("Ethernet Compliance Codes"));
     }   
 }

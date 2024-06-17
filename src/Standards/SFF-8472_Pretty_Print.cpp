@@ -122,6 +122,33 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
         "Specification Compliance, SONET Compliance Codes [5, 0]", programming.byte_4_5_sonet_compliance_codes.OC_3_short_reach__byte_5_bit_0 ? "OC-3, short reach compliant" : "Not OC-3, short reach compliant"
     );
+    str.append("\n");
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Ethernet Compliance Codes [6, 7]", programming.byte_6_ethernet_compliance_codes.BASE_PX_bit_7 ? "BASE-PX compliant" : "Not BASE-PX compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Ethernet Compliance Codes [6, 6]", programming.byte_6_ethernet_compliance_codes.BASE_BX10_bit_6 ? "BASE-BX10 compliant" : "Not BASE-BX10 compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Ethernet Compliance Codes [6, 5]", programming.byte_6_ethernet_compliance_codes._100BASE_FX_bit_5 ? "100BASE-FX compliant" : "Not 100BASE-FX compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Ethernet Compliance Codes [6, 4]", programming.byte_6_ethernet_compliance_codes._100BASE_LX_LX10_bit_4 ? "100BASE-LX/LX10 compliant" : "Not 100BASE-LX/LX10 compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Ethernet Compliance Codes [6, 3]", programming.byte_6_ethernet_compliance_codes._1000BASE_T_bit_3 ? "1000BASE-T compliant" : "Not 1000BASE-T compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Ethernet Compliance Codes [6, 2]", programming.byte_6_ethernet_compliance_codes._1000BASE_CX_bit_2 ? "1000BASE-CX compliant" : "Not 1000BASE-CX compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Ethernet Compliance Codes [6, 1]", programming.byte_6_ethernet_compliance_codes._1000BASE_LX_bit_1 ? "1000BASE-LX compliant" : "Not 1000BASE-LX compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Ethernet Compliance Codes [6, 0]", programming.byte_6_ethernet_compliance_codes._1000BASE_SX_bit_0 ? "1000BASE-SX compliant" : "Not 1000BASE-SX compliant"
+    );
 
     str.append("\n");
 
