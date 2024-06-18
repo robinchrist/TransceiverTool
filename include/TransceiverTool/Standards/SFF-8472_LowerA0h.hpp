@@ -39,5 +39,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         //Byte 8: SFP+ Cable Technology
         SFP_plus_Cable_Technology_Codes byte_8_sfp_plus_cable_technology_codes;
+
+        //Byte 9: Fibre Channel Transmission Media
+        Fibre_Channel_Transmission_Media_Codes byte_9_fibre_channel_transmission_media_codes;
     };
 }
