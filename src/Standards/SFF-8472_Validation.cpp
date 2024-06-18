@@ -81,6 +81,18 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         }
     }
 
+    void validateFibreChannelTransmissionMediaCodes(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
+
+        //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
+        if(programming.byte_9_fibre_channel_transmission_media_codes.reserved_bit_1) {
+            validationResult.errors.push_back(
+                fmt::format(
+                    "Byte 9 (\"Fibre Channel Transmission Media\") has reserved bit 1 set"
+                )
+            );
+        }
+    }   
+
     //TODO: Introduce options to not warn on values in "Vendor Specific" ranges (in case this tool is used by an actual vendor?)
     common::ValidationResult validateSFF8472_LowerA0h(const TransceiverTool::Standards::SFF8472::SFF8472_LowerA0h& programming) {
         common::ValidationResult validationResult;
@@ -99,6 +111,9 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
 
         //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
         validateSFPPlusCableTechnologyCodes(programming, validationResult);
+
+        //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
+        validateFibreChannelTransmissionMediaCodes(programming, validationResult);
 
         return validationResult;
     }

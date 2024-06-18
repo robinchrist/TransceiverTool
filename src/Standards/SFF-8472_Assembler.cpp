@@ -77,6 +77,16 @@ namespace TransceiverTool::Standards::SFF8472 {
             (unsigned char)(programming.byte_8_sfp_plus_cable_technology_codes.Passive_Cable_bit_2) << 2 |
             (unsigned char)(programming.byte_8_sfp_plus_cable_technology_codes.reserved_bit_1) << 1 |
             (unsigned char)(programming.byte_8_sfp_plus_cable_technology_codes.reserved_bit_0) << 0;
-    
+
+
+        target[9] = 
+            (unsigned char)(programming.byte_9_fibre_channel_transmission_media_codes.Twin_Axial_Pair_TW_bit_7) << 7 |
+            (unsigned char)(programming.byte_9_fibre_channel_transmission_media_codes.Twisted_Pair_TP_bit_6) << 6 |
+            (unsigned char)(programming.byte_9_fibre_channel_transmission_media_codes.Miniature_Coax_MI_bit_5) << 5 |
+            (unsigned char)(programming.byte_9_fibre_channel_transmission_media_codes.Video_Coax_TV_bit_4) << 4 |
+            (unsigned char)(programming.byte_9_fibre_channel_transmission_media_codes.Multimode_62_5_um_M6_bit_3) << 3 |
+            (unsigned char)(programming.byte_9_fibre_channel_transmission_media_codes.Multimode_50_um_M5_M5E_bit_2) << 2 |
+            (unsigned char)(programming.byte_9_fibre_channel_transmission_media_codes.reserved_bit_1) << 1 |
+            (unsigned char)(programming.byte_9_fibre_channel_transmission_media_codes.Single_Mode_SM_bit_0) << 0;
     }
 }

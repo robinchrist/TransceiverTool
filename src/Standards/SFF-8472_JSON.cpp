@@ -415,6 +415,40 @@ namespace TransceiverTool::Standards::SFF8472 {
     }
 //############
 
+//############
+    nlohmann::ordered_json Fibre_Channel_Transmission_Media_CodesToJSON(const Fibre_Channel_Transmission_Media_Codes& value) {
+        nlohmann::ordered_json j;
+
+        j["Twin Axial Pair (TW) compliant (Bit 7)"] = value.Twin_Axial_Pair_TW_bit_7;
+        j["Twisted Pair (TP) compliant (Bit 6)"] = value.Twisted_Pair_TP_bit_6;
+        j["Miniature Coax (MI compliant (Bit 5)"] = value.Miniature_Coax_MI_bit_5;
+        j["Video Coax (TV) compliant (Bit 4)"] = value.Video_Coax_TV_bit_4;
+        j["Multimode, 62.5um (M6) compliant (Bit 3)"] = value.Multimode_62_5_um_M6_bit_3;
+        j["Multimode, 50um (M5, M5E) compliant (Bit 2)"] = value.Multimode_50_um_M5_M5E_bit_2;
+        j["Reserved (Bit 1)"] = value.reserved_bit_1;
+        j["Single Mode (SM) compliant (Bit 0)"] = value.Single_Mode_SM_bit_0;
+
+        return j;
+    }
+
+    Fibre_Channel_Transmission_Media_Codes Fibre_Channel_Transmission_Media_CodesFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Fibre Channel Technology must be an object");
+
+        Fibre_Channel_Transmission_Media_Codes complianceCodes;
+
+        complianceCodes.Twin_Axial_Pair_TW_bit_7 = j.at("Twin Axial Pair (TW) compliant (Bit 7)").template get<bool>();
+        complianceCodes.Twisted_Pair_TP_bit_6 = j.at("Twisted Pair (TP) compliant (Bit 6)").template get<bool>();
+        complianceCodes.Miniature_Coax_MI_bit_5 = j.at("Miniature Coax (MI compliant (Bit 5)").template get<bool>();
+        complianceCodes.Video_Coax_TV_bit_4 = j.at("Video Coax (TV) compliant (Bit 4)").template get<bool>();
+        complianceCodes.Multimode_62_5_um_M6_bit_3 = j.at("Multimode, 62.5um (M6) compliant (Bit 3)").template get<bool>();
+        complianceCodes.Multimode_50_um_M5_M5E_bit_2 = j.at("Multimode, 50um (M5, M5E) compliant (Bit 2)").template get<bool>();
+        complianceCodes.reserved_bit_1 = j.at("Reserved (Bit 1)").template get<bool>();
+        complianceCodes.Single_Mode_SM_bit_0 = j.at("Single Mode (SM) compliant (Bit 0)").template get<bool>();
+
+        return complianceCodes;
+    }
+//############
+
     void SFF8472_LowerA0hToJSON(nlohmann::ordered_json& j, const SFF8472_LowerA0h& programming, bool copperMode) {
 
         std::vector<unsigned char> binaryBuffer; binaryBuffer.resize(128, 0x00);
@@ -440,6 +474,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         j["Fibre Channel Link Length"] = Fibre_Channel_Link_Length_CodesToJSON(programming.byte_7_fibre_channel_link_length_codes);
         j["Fibre Channel Technology"] = Fibre_Channel_Technology_CodesToJSON(programming.byte_7_8_fibre_channel_technology_codes);
         j["SFP+ Cable Technology"] = SFP_plus_Cable_Technology_CodesToJSON(programming.byte_8_sfp_plus_cable_technology_codes);
+
+        j["Fibre Channel Transmission Media"] = Fibre_Channel_Transmission_Media_CodesToJSON(programming.byte_9_fibre_channel_transmission_media_codes);
     }
 
 
@@ -467,5 +503,7 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_7_fibre_channel_link_length_codes = Fibre_Channel_Link_Length_CodesFromJSON(j.at("Fibre Channel Link Length"));
         programming.byte_7_8_fibre_channel_technology_codes = Fibre_Channel_Technology_CodesFromJSON(j.at("Fibre Channel Technology"));
         programming.byte_8_sfp_plus_cable_technology_codes = SFP_plus_Cable_Technology_CodesFromJSON(j.at("SFP+ Cable Technology"));
+
+        programming.byte_9_fibre_channel_transmission_media_codes = Fibre_Channel_Transmission_Media_CodesFromJSON(j.at("Fibre Channel Transmission Media"));
     }   
 }

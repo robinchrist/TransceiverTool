@@ -71,6 +71,16 @@ namespace TransceiverTool::Standards::SFF8472 {
         parsedStruct.byte_8_sfp_plus_cable_technology_codes.reserved_bit_1 =  bytes[8] & (1 << 1);
         parsedStruct.byte_8_sfp_plus_cable_technology_codes.reserved_bit_0 =  bytes[8] & (1 << 0);
 
+
+        parsedStruct.byte_9_fibre_channel_transmission_media_codes.Twin_Axial_Pair_TW_bit_7 = bytes[9] & (1 << 7);
+        parsedStruct.byte_9_fibre_channel_transmission_media_codes.Twisted_Pair_TP_bit_6 = bytes[9] & (1 << 6);
+        parsedStruct.byte_9_fibre_channel_transmission_media_codes.Miniature_Coax_MI_bit_5 = bytes[9] & (1 << 5);
+        parsedStruct.byte_9_fibre_channel_transmission_media_codes.Video_Coax_TV_bit_4 = bytes[9] & (1 << 4);
+        parsedStruct.byte_9_fibre_channel_transmission_media_codes.Multimode_62_5_um_M6_bit_3 = bytes[9] & (1 << 3);
+        parsedStruct.byte_9_fibre_channel_transmission_media_codes.Multimode_50_um_M5_M5E_bit_2 = bytes[9] & (1 << 2);
+        parsedStruct.byte_9_fibre_channel_transmission_media_codes.reserved_bit_1 = bytes[9] & (1 << 1);
+        parsedStruct.byte_9_fibre_channel_transmission_media_codes.Single_Mode_SM_bit_0 = bytes[9] & (1 << 0);
+
         return parsedStruct;
     }
 

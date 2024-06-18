@@ -195,16 +195,43 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
 
 
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "Specification Compliance, SFP+ Cable Technology [8, 3]", programming.byte_8_sfp_plus_cable_technology_codes.Active_Cable_bit_3 ? " compliant" : "Not Active Cable compliant"
+        "Specification Compliance, SFP+ Cable Technology [8, 3]", programming.byte_8_sfp_plus_cable_technology_codes.Active_Cable_bit_3 ? "Active Cable compliant" : "Not Active Cable compliant"
     );
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "Specification Compliance, SFP+ Cable Technology [8, 2]", programming.byte_8_sfp_plus_cable_technology_codes.Passive_Cable_bit_2 ? " compliant" : "Not Passive Cable compliant"
+        "Specification Compliance, SFP+ Cable Technology [8, 2]", programming.byte_8_sfp_plus_cable_technology_codes.Passive_Cable_bit_2 ? "Passive Cable compliant" : "Not Passive Cable compliant"
     );
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
         "Specification Compliance, SFP+ Cable Technology [8, 1]", formatReservedBit(programming.byte_8_sfp_plus_cable_technology_codes.reserved_bit_1)
     );
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
         "Specification Compliance, SFP+ Cable Technology [8, 0]", formatReservedBit(programming.byte_8_sfp_plus_cable_technology_codes.reserved_bit_0)
+    );
+    str.append("\n");
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Transmission Media [9, 7]", programming.byte_9_fibre_channel_transmission_media_codes.Twin_Axial_Pair_TW_bit_7 ? "Twin Axial Pair (TW) compliant" : "Not Twin Axial Pair (TW) compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Transmission Media [9, 6]", programming.byte_9_fibre_channel_transmission_media_codes.Twisted_Pair_TP_bit_6 ? "Twisted Pair (TP) compliant" : "Not Twisted Pair (TP) compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Transmission Media [9, 5]", programming.byte_9_fibre_channel_transmission_media_codes.Miniature_Coax_MI_bit_5 ? "Miniature Coax (MI) compliant" : "Not Miniature Coax (MI) compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Transmission Media [9, 4]", programming.byte_9_fibre_channel_transmission_media_codes.Video_Coax_TV_bit_4 ? "Video Coax (TV) compliant" : "Not Video Coax (TV) compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Transmission Media [9, 3]", programming.byte_9_fibre_channel_transmission_media_codes.Multimode_62_5_um_M6_bit_3 ? "Multimode, 62.5um (M6) compliant" : "Not Multimode, 62.5um (M6) compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Transmission Media [9, 2]", programming.byte_9_fibre_channel_transmission_media_codes.Multimode_50_um_M5_M5E_bit_2 ? "Multimode, 50um (M5, M5E) compliant" : "Not Multimode, 50um (M5, M5E) compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Transmission Media [9, 1]", formatReservedBit(programming.byte_9_fibre_channel_transmission_media_codes.reserved_bit_1)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Transmission Media [9, 0]", programming.byte_9_fibre_channel_transmission_media_codes.Single_Mode_SM_bit_0 ? "Single Mode (SM) compliant" : "Not Single Mode (SM) compliant"
     );
     str.append("\n");
 

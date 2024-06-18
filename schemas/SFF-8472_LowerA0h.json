@@ -272,6 +272,32 @@
                 "Reserved (Bit 0)"
             ]
         },
+        "sff-8472_fibre_channel_transmission_media_codes": {
+            "$id": "/schemas/sff-8472_fibre_channel_transmission_media_codes",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Active Cable compliant (Bit 3)": {"type": "boolean"},
+                "Twin Axial Pair (TW) compliant (Bit 7)": {"type": "boolean"},
+                "Twisted Pair (TP) compliant (Bit 6)": {"type": "boolean"},
+                "Miniature Coax (MI compliant (Bit 5)": {"type": "boolean"},
+                "Video Coax (TV) compliant (Bit 4)": {"type": "boolean"},
+                "Multimode, 62.5um (M6) compliant (Bit 3)": {"type": "boolean"},
+                "Multimode, 50um (M5, M5E) compliant (Bit 2)": {"type": "boolean"},
+                "Reserved (Bit 1)": {"type": "boolean"},
+                "Single Mode (SM) compliant (Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "Twin Axial Pair (TW) compliant (Bit 7)",
+                "Twisted Pair (TP) compliant (Bit 6)",
+                "Miniature Coax (MI compliant (Bit 5)",
+                "Video Coax (TV) compliant (Bit 4)",
+                "Multimode, 62.5um (M6) compliant (Bit 3)",
+                "Multimode, 50um (M5, M5E) compliant (Bit 2)",
+                "Reserved (Bit 1)",
+                "Single Mode (SM) compliant (Bit 0)"
+            ]
+        },
     },
 
     "properties": {
@@ -289,6 +315,7 @@
         "Fibre Channel Link Length": { "$ref": "/schemas/sff-8472_fibre_channel_link_length_compliance_codes" },
         "Fibre Channel Technology": { "$ref": "/schemas/sff-8472_fibre_channel_technology_compliance_codes" },
         "SFP+ Cable Technology": { "$ref": "/schemas/sff-8472_sfp_plus_cable_technology_compliance_codes" },
+        "Fibre Channel Transmission Media": { "$ref": "/schemas/sff-8472_fibre_channel_transmission_media_codes" },
     },
 
     "required": [
@@ -303,6 +330,7 @@
         "Ethernet Compliance Codes",
         "Fibre Channel Link Length",
         "Fibre Channel Technology",
-        "SFP+ Cable Technology"
+        "SFP+ Cable Technology",
+        "Fibre Channel Transmission Media"
     ]
 }
