@@ -42,5 +42,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         //Byte 9: Fibre Channel Transmission Media
         Fibre_Channel_Transmission_Media_Codes byte_9_fibre_channel_transmission_media_codes;
+
+        //Byte 10: Fibre Channel Speed
+        Fibre_Channel_Speed_Codes byte_10_fibre_channel_speed_codes;
     };
 }

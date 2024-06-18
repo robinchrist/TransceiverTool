@@ -235,6 +235,34 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
     );
     str.append("\n");
 
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Speed [10, 7]", programming.byte_10_fibre_channel_speed_codes._1200_MBytes_sec_bit_7 ? "1200 MBytes/sec compliant" : "Not 1200 MBytes/sec compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Speed [10, 6]", programming.byte_10_fibre_channel_speed_codes._800_MBytes_sec_bit_6 ? "800 MBytes/sec compliant" : "Not 800 MBytes/sec compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Speed [10, 5]", programming.byte_10_fibre_channel_speed_codes._1600_MBytes_sec_bit_5 ? "1600 MBytes/sec compliant" : "Not 1600 MBytes/sec compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Speed [10, 4]", programming.byte_10_fibre_channel_speed_codes._400_MBytes_sec_bit_4 ? "400 MBytes/sec compliant" : "Not 400 MBytes/sec compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Speed [10, 3]", programming.byte_10_fibre_channel_speed_codes._3200_MBytes_sec_bit_3 ? "3200 MBytes/sec compliant" : "Not 3200 MBytes/sec compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Speed [10, 2]", programming.byte_10_fibre_channel_speed_codes._200_MBytes_sec_bit_2 ? "200 MBytes/sec compliant" : "Not 200 MBytes/sec compliant"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Speed [10, 1]", programming.byte_10_fibre_channel_speed_codes.see_byte_62_fibre_channel_speed_2_bit_1 ? "See byte 62 \"Fibre Channel Speed 2\"" : "No \"Fibre Channel Speed 2\""
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Speed [10, 0]", programming.byte_10_fibre_channel_speed_codes._100_MBytes_sec_bit_0 ? "100 MBytes/sec compliant" : "Not 100 MBytes/sec compliant"
+    );
+    str.append("\n");
+
     return str;
 
 }

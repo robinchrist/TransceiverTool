@@ -81,6 +81,16 @@ namespace TransceiverTool::Standards::SFF8472 {
         parsedStruct.byte_9_fibre_channel_transmission_media_codes.reserved_bit_1 = bytes[9] & (1 << 1);
         parsedStruct.byte_9_fibre_channel_transmission_media_codes.Single_Mode_SM_bit_0 = bytes[9] & (1 << 0);
 
+
+        parsedStruct.byte_10_fibre_channel_speed_codes._1200_MBytes_sec_bit_7 = bytes[10] & (1 << 7);
+        parsedStruct.byte_10_fibre_channel_speed_codes._800_MBytes_sec_bit_6 = bytes[10] & (1 << 6);
+        parsedStruct.byte_10_fibre_channel_speed_codes._1600_MBytes_sec_bit_5 = bytes[10] & (1 << 5);
+        parsedStruct.byte_10_fibre_channel_speed_codes._400_MBytes_sec_bit_4 = bytes[10] & (1 << 4);
+        parsedStruct.byte_10_fibre_channel_speed_codes._3200_MBytes_sec_bit_3 = bytes[10] & (1 << 3);
+        parsedStruct.byte_10_fibre_channel_speed_codes._200_MBytes_sec_bit_2 = bytes[10] & (1 << 2);
+        parsedStruct.byte_10_fibre_channel_speed_codes.see_byte_62_fibre_channel_speed_2_bit_1 = bytes[10] & (1 << 1);
+        parsedStruct.byte_10_fibre_channel_speed_codes._100_MBytes_sec_bit_0 = bytes[10] & (1 << 0);
+
         return parsedStruct;
     }
 

@@ -88,5 +88,16 @@ namespace TransceiverTool::Standards::SFF8472 {
             (unsigned char)(programming.byte_9_fibre_channel_transmission_media_codes.Multimode_50_um_M5_M5E_bit_2) << 2 |
             (unsigned char)(programming.byte_9_fibre_channel_transmission_media_codes.reserved_bit_1) << 1 |
             (unsigned char)(programming.byte_9_fibre_channel_transmission_media_codes.Single_Mode_SM_bit_0) << 0;
+
+
+        target[10] = 
+            (unsigned char)(programming.byte_10_fibre_channel_speed_codes._1200_MBytes_sec_bit_7) << 7 |
+            (unsigned char)(programming.byte_10_fibre_channel_speed_codes._800_MBytes_sec_bit_6) << 6 |
+            (unsigned char)(programming.byte_10_fibre_channel_speed_codes._1600_MBytes_sec_bit_5) << 5 |
+            (unsigned char)(programming.byte_10_fibre_channel_speed_codes._400_MBytes_sec_bit_4) << 4 |
+            (unsigned char)(programming.byte_10_fibre_channel_speed_codes._3200_MBytes_sec_bit_3) << 3 |
+            (unsigned char)(programming.byte_10_fibre_channel_speed_codes._200_MBytes_sec_bit_2) << 2 |
+            (unsigned char)(programming.byte_10_fibre_channel_speed_codes.see_byte_62_fibre_channel_speed_2_bit_1) << 1 |
+            (unsigned char)(programming.byte_10_fibre_channel_speed_codes._100_MBytes_sec_bit_0) << 0;
     }
 }
