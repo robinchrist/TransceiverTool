@@ -141,7 +141,8 @@ int main() {
 
         std::cout << "Reassembly succeeded!" << std::endl;
     } else {
-        std::ifstream file("/data/dev/TransceiverTool_Go/2340070714", std::ios::in | std::ios::binary);
+        std::ifstream file("/data/dev/TransceiverTool_Go/Brocade-57-1000027-01.bin", std::ios::in | std::ios::binary);
+        //std::ifstream file("/data/dev/TransceiverTool_Go/2340070714", std::ios::in | std::ios::binary);
         file.ignore( std::numeric_limits<std::streamsize>::max() );
         std::streamsize length = file.gcount();
         file.clear();   //  Since ignore will have set eof.

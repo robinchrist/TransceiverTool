@@ -298,6 +298,31 @@
                 "Single Mode (SM) compliant (Bit 0)"
             ]
         },
+        "sff-8472_fibre_channel_speed_codes": {
+            "$id": "/schemas/sff-8472_fibre_channel_speed_codes",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "1200 MBytes/sec compliant (Bit 7)": {"type": "boolean"},
+                "800 MBytes/sec compliant (Bit 6)": {"type": "boolean"},
+                "1600 MBytes/sec compliant (Bit 5)": {"type": "boolean"},
+                "400 MBytes/sec compliant (Bit 4)": {"type": "boolean"},
+                "3200 MBytes/sec compliant (Bit 3)": {"type": "boolean"},
+                "200 MBytes/sec compliant (Bit 2)": {"type": "boolean"},
+                "See byte 62 \"Fibre Channel Speed 2\" (Bit 1)": {"type": "boolean"},
+                "100 MBytes/sec compliant (Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "1200 MBytes/sec compliant (Bit 7)",
+                "800 MBytes/sec compliant (Bit 6)",
+                "1600 MBytes/sec compliant (Bit 5)",
+                "400 MBytes/sec compliant (Bit 4)",
+                "3200 MBytes/sec compliant (Bit 3)",
+                "200 MBytes/sec compliant (Bit 2)",
+                "See byte 62 \"Fibre Channel Speed 2\" (Bit 1)",
+                "100 MBytes/sec compliant (Bit 0)"
+            ]
+        },
     },
 
     "properties": {
@@ -316,6 +341,7 @@
         "Fibre Channel Technology": { "$ref": "/schemas/sff-8472_fibre_channel_technology_compliance_codes" },
         "SFP+ Cable Technology": { "$ref": "/schemas/sff-8472_sfp_plus_cable_technology_compliance_codes" },
         "Fibre Channel Transmission Media": { "$ref": "/schemas/sff-8472_fibre_channel_transmission_media_codes" },
+        "Fibre Channel Speed": { "$ref": "/schemas/sff-8472_fibre_channel_speed_codes" },
     },
 
     "required": [
@@ -331,6 +357,7 @@
         "Fibre Channel Link Length",
         "Fibre Channel Technology",
         "SFP+ Cable Technology",
-        "Fibre Channel Transmission Media"
+        "Fibre Channel Transmission Media",
+        "Fibre Channel Speed"
     ]
 }

@@ -449,6 +449,42 @@ namespace TransceiverTool::Standards::SFF8472 {
     }
 //############
 
+//############
+    nlohmann::ordered_json Fibre_Channel_Speed_CodesToJSON(const Fibre_Channel_Speed_Codes& value) {
+        nlohmann::ordered_json j;
+
+        j["1200 MBytes/sec compliant (Bit 7)"] = value._1200_MBytes_sec_bit_7;
+        j["800 MBytes/sec compliant (Bit 6)"] = value._800_MBytes_sec_bit_6;
+        j["1600 MBytes/sec compliant (Bit 5)"] = value._1600_MBytes_sec_bit_5;
+        j["400 MBytes/sec compliant (Bit 4)"] = value._400_MBytes_sec_bit_4;
+        j["3200 MBytes/sec compliant (Bit 3)"] = value._3200_MBytes_sec_bit_3;
+        j["200 MBytes/sec compliant (Bit 2)"] = value._200_MBytes_sec_bit_2;
+        j["See byte 62 \"Fibre Channel Speed 2\" (Bit 1)"] = value.see_byte_62_fibre_channel_speed_2_bit_1;
+        j["100 MBytes/sec compliant (Bit 0)"] = value._100_MBytes_sec_bit_0;
+
+
+        return j;
+    }
+
+    Fibre_Channel_Speed_Codes Fibre_Channel_Speed_CodesFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Fibre Channel Technology must be an object");
+
+        Fibre_Channel_Speed_Codes complianceCodes;
+
+        complianceCodes._1200_MBytes_sec_bit_7 = j.at("1200 MBytes/sec compliant (Bit 7)").template get<bool>();
+        complianceCodes._800_MBytes_sec_bit_6 = j.at("800 MBytes/sec compliant (Bit 6)").template get<bool>();
+        complianceCodes._1600_MBytes_sec_bit_5 = j.at("1600 MBytes/sec compliant (Bit 5)").template get<bool>();
+        complianceCodes._400_MBytes_sec_bit_4 = j.at("400 MBytes/sec compliant (Bit 4)").template get<bool>();
+        complianceCodes._3200_MBytes_sec_bit_3 = j.at("3200 MBytes/sec compliant (Bit 3)").template get<bool>();
+        complianceCodes._200_MBytes_sec_bit_2 = j.at("200 MBytes/sec compliant (Bit 2)").template get<bool>();
+        complianceCodes.see_byte_62_fibre_channel_speed_2_bit_1 = j.at("See byte 62 \"Fibre Channel Speed 2\" (Bit 1)").template get<bool>();
+        complianceCodes._100_MBytes_sec_bit_0 = j.at("100 MBytes/sec compliant (Bit 0)").template get<bool>();
+
+
+        return complianceCodes;
+    }
+//############
+
     void SFF8472_LowerA0hToJSON(nlohmann::ordered_json& j, const SFF8472_LowerA0h& programming, bool copperMode) {
 
         std::vector<unsigned char> binaryBuffer; binaryBuffer.resize(128, 0x00);
@@ -476,6 +512,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         j["SFP+ Cable Technology"] = SFP_plus_Cable_Technology_CodesToJSON(programming.byte_8_sfp_plus_cable_technology_codes);
 
         j["Fibre Channel Transmission Media"] = Fibre_Channel_Transmission_Media_CodesToJSON(programming.byte_9_fibre_channel_transmission_media_codes);
+
+        j["Fibre Channel Speed"] = Fibre_Channel_Speed_CodesToJSON(programming.byte_10_fibre_channel_speed_codes);
     }
 
 
@@ -505,5 +543,7 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_8_sfp_plus_cable_technology_codes = SFP_plus_Cable_Technology_CodesFromJSON(j.at("SFP+ Cable Technology"));
 
         programming.byte_9_fibre_channel_transmission_media_codes = Fibre_Channel_Transmission_Media_CodesFromJSON(j.at("Fibre Channel Transmission Media"));
+
+        programming.byte_10_fibre_channel_speed_codes = Fibre_Channel_Speed_CodesFromJSON(j.at("Fibre Channel Speed"));
     }   
 }
