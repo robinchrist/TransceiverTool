@@ -91,15 +91,19 @@ namespace TransceiverTool::Standards::SFF8472 {
         parsedStruct.byte_10_fibre_channel_speed_codes.see_byte_62_fibre_channel_speed_2_bit_1 = bytes[10] & (1 << 1);
         parsedStruct.byte_10_fibre_channel_speed_codes._100_MBytes_sec_bit_0 = bytes[10] & (1 << 0);
 
+        parsedStruct.byte_11_Encoding = bytes[11];
 
-        parsedStruct.byte_11_fibre_channel_2_speed_codes.reserved_bit_7 = bytes[11] & (1 << 7);
-        parsedStruct.byte_11_fibre_channel_2_speed_codes.reserved_bit_6 = bytes[11] & (1 << 6);
-        parsedStruct.byte_11_fibre_channel_2_speed_codes.reserved_bit_5 = bytes[11] & (1 << 5);
-        parsedStruct.byte_11_fibre_channel_2_speed_codes.reserved_bit_4 = bytes[11] & (1 << 4);
-        parsedStruct.byte_11_fibre_channel_2_speed_codes.reserved_bit_3 = bytes[11] & (1 << 3);
-        parsedStruct.byte_11_fibre_channel_2_speed_codes.reserved_bit_2 = bytes[11] & (1 << 2);
-        parsedStruct.byte_11_fibre_channel_2_speed_codes.reserved_bit_1 = bytes[11] & (1 << 1);
-        parsedStruct.byte_11_fibre_channel_2_speed_codes._64_GFC_bit_0 = bytes[11] & (1 << 0);
+
+        parsedStruct.byte_62_fibre_channel_2_speed_codes.reserved_bit_7 = bytes[62] & (1 << 7);
+        parsedStruct.byte_62_fibre_channel_2_speed_codes.reserved_bit_6 = bytes[62] & (1 << 6);
+        parsedStruct.byte_62_fibre_channel_2_speed_codes.reserved_bit_5 = bytes[62] & (1 << 5);
+        parsedStruct.byte_62_fibre_channel_2_speed_codes.reserved_bit_4 = bytes[62] & (1 << 4);
+        parsedStruct.byte_62_fibre_channel_2_speed_codes.reserved_bit_3 = bytes[62] & (1 << 3);
+        parsedStruct.byte_62_fibre_channel_2_speed_codes.reserved_bit_2 = bytes[62] & (1 << 2);
+        parsedStruct.byte_62_fibre_channel_2_speed_codes.reserved_bit_1 = bytes[62] & (1 << 1);
+        parsedStruct.byte_62_fibre_channel_2_speed_codes._64_GFC_bit_0 = bytes[62] & (1 << 0);
+
+        
         
 
         return parsedStruct;

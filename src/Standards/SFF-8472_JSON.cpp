@@ -1,4 +1,5 @@
 #include "TransceiverTool/Standards/SFF-8472_JSON.hpp"
+#include "TransceiverTool/Standards/SFF-8024_Encoding_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Transceiver_Connector_Type.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Compliance_Codes.hpp"
 #include "TransceiverTool/Standards/SFF-8472_LowerA0h.hpp"
@@ -485,6 +486,47 @@ namespace TransceiverTool::Standards::SFF8472 {
     }
 //############
 
+
+//############
+    nlohmann::ordered_json EncodingToJSON(unsigned char byte_value) {
+        nlohmann::ordered_json j;
+
+        auto it = std::find_if(
+            SFF8024::SFF8472TransceiverEncodingAssignedValues.begin(),
+            SFF8024::SFF8472TransceiverEncodingAssignedValues.end(),
+            [byte_value](const SFF8024::SFF8472TransceiverEncodingAssignedValue& entry) { return entry.byte_value == byte_value; }
+        );
+
+        if(it != SFF8024::SFF8472TransceiverEncodingAssignedValues.end()) {
+            j = it->name;
+        } else {
+            j = charToJSONByteStruct(byte_value);
+        }
+
+        return j;
+    }
+
+    unsigned char EncodingFromJSON(const nlohmann::json& j) {
+        if(j.is_string()) {
+            auto strValue = j.template get<std::string>();
+
+            auto it = std::find_if(
+                SFF8024::SFF8472TransceiverEncodingAssignedValues.begin(),
+                SFF8024::SFF8472TransceiverEncodingAssignedValues.end(),
+                [&strValue](const SFF8024::SFF8472TransceiverEncodingAssignedValue& entry) { return entry.name == strValue; }
+            );
+
+            if(it == SFF8024::SFF8472TransceiverEncodingAssignedValues.end()) throw std::invalid_argument("Encoding is not a known string value");
+
+            return it->byte_value;
+        } else if(j.is_object()) {
+            return charFromJSONByteStruct(j);
+        } else {
+            throw std::invalid_argument("Encoding has wrong type (neither string nor object)");
+        }
+    }
+//############
+
 //############
     nlohmann::ordered_json Fibre_Channel_Speed_2_CodesToJSON(const Fibre_Channel_Speed_2_Codes& value) {
         nlohmann::ordered_json j;
@@ -497,8 +539,6 @@ namespace TransceiverTool::Standards::SFF8472 {
         j["Reserved (Bit 2)"] = value.reserved_bit_2;
         j["Reserved (Bit 1)"] = value.reserved_bit_1;
         j["64 GFC compliant (Bit 0)"] = value._64_GFC_bit_0;
-
-
 
         return j;
     }
@@ -551,7 +591,10 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         j["Fibre Channel Speed"] = Fibre_Channel_Speed_CodesToJSON(programming.byte_10_fibre_channel_speed_codes);
 
-        j["Fibre Channel Speed 2"] = Fibre_Channel_Speed_2_CodesToJSON(programming.byte_11_fibre_channel_2_speed_codes);
+        j["Encoding"] = EncodingToJSON(programming.byte_11_Encoding);
+
+        j["Fibre Channel Speed 2"] = Fibre_Channel_Speed_2_CodesToJSON(programming.byte_62_fibre_channel_2_speed_codes);
+
     }
 
 
@@ -584,6 +627,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         programming.byte_10_fibre_channel_speed_codes = Fibre_Channel_Speed_CodesFromJSON(j.at("Fibre Channel Speed"));
 
-        programming.byte_11_fibre_channel_2_speed_codes = Fibre_Channel_Speed_2_CodesFromJSON(j.at("Fibre Channel Speed 2"));
+        programming.byte_11_Encoding = EncodingFromJSON(j.at("Encoding"));
+
+        programming.byte_62_fibre_channel_2_speed_codes = Fibre_Channel_Speed_2_CodesFromJSON(j.at("Fibre Channel Speed 2"));
     }   
 }

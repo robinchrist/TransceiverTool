@@ -294,7 +294,7 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
     str.append("\n");
 
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "Encoding [139]", SFF8024::byteToTransceiverEncodingString(programming.byte_139_Encoding)
+        "Encoding [139]", SFF8024::byteToSFF8636TransceiverEncodingString(programming.byte_139_Encoding)
     );
     str.append("\n");
 
