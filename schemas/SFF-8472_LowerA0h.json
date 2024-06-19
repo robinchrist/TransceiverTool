@@ -323,6 +323,26 @@
                 "100 MBytes/sec compliant (Bit 0)"
             ]
         },
+        "sff-8472_encoding": {
+            "$id": "/schemas/sff-8472_encoding",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                { "$ref": "/schemas/single_byte_value_obj" },
+                { 
+                    "enum": [
+                        "Unspecified",
+                        "8B/10B",
+                        "4B/5B",
+                        "NRZ",
+                        "Manchester",
+                        "SONET Scrambled",
+                        "64B/66B",
+                        "256B/257B (transcoded FEC-enabled data)",
+                        "PAM4"
+                    ]
+                }
+            ]
+        },
         "sff-8472_fibre_channel_speed_2_codes": {
             "$id": "/schemas/sff-8472_fibre_channel_speed_2_codes",
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -367,6 +387,7 @@
         "SFP+ Cable Technology": { "$ref": "/schemas/sff-8472_sfp_plus_cable_technology_compliance_codes" },
         "Fibre Channel Transmission Media": { "$ref": "/schemas/sff-8472_fibre_channel_transmission_media_codes" },
         "Fibre Channel Speed": { "$ref": "/schemas/sff-8472_fibre_channel_speed_codes" },
+        "Encoding": {"$ref": "/schemas/sff-8472_encoding"},
         "Fibre Channel Speed 2": { "$ref": "/schemas/sff-8472_fibre_channel_speed_2_codes" },
     },
 
@@ -385,6 +406,7 @@
         "SFP+ Cable Technology",
         "Fibre Channel Transmission Media",
         "Fibre Channel Speed",
+        "Encoding",
         "Fibre Channel Speed 2"
     ]
 }

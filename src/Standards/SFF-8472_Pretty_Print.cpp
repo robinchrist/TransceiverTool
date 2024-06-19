@@ -1,4 +1,5 @@
 #include "TransceiverTool/Standards/SFF-8472_Pretty_Print.hpp"
+#include "TransceiverTool/Standards/SFF-8024_Encoding_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Compliance_Codes.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Extended_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Identifier_Values.hpp"
@@ -266,29 +267,37 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
 
 
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "Specification Compliance, Fibre Channel Speed 2 [11, 7]", formatReservedBit(programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_7)
+        "Encoding [11]", SFF8024::byteToSFF8472TransceiverEncodingString(programming.byte_11_Encoding)
+    );
+    str.append("\n");
+
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Specification Compliance, Fibre Channel Speed 2 [62, 7]", formatReservedBit(programming.byte_62_fibre_channel_2_speed_codes.reserved_bit_7)
     );
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "Specification Compliance, Fibre Channel Speed 2 [11, 6]", formatReservedBit(programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_6)
+        "Specification Compliance, Fibre Channel Speed 2 [62, 6]", formatReservedBit(programming.byte_62_fibre_channel_2_speed_codes.reserved_bit_6)
     );
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "Specification Compliance, Fibre Channel Speed 2 [11, 5]", formatReservedBit(programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_5)
+        "Specification Compliance, Fibre Channel Speed 2 [62, 5]", formatReservedBit(programming.byte_62_fibre_channel_2_speed_codes.reserved_bit_5)
     );
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "Specification Compliance, Fibre Channel Speed 2 [11, 4]", formatReservedBit(programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_4)
+        "Specification Compliance, Fibre Channel Speed 2 [62, 4]", formatReservedBit(programming.byte_62_fibre_channel_2_speed_codes.reserved_bit_4)
     );
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "Specification Compliance, Fibre Channel Speed 2 [11, 3]", formatReservedBit(programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_3)
+        "Specification Compliance, Fibre Channel Speed 2 [62, 3]", formatReservedBit(programming.byte_62_fibre_channel_2_speed_codes.reserved_bit_3)
     );
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "Specification Compliance, Fibre Channel Speed 2 [11, 2]", formatReservedBit(programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_2)
+        "Specification Compliance, Fibre Channel Speed 2 [62, 2]", formatReservedBit(programming.byte_62_fibre_channel_2_speed_codes.reserved_bit_2)
     );
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "Specification Compliance, Fibre Channel Speed 2 [11, 1]", formatReservedBit(programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_1)
+        "Specification Compliance, Fibre Channel Speed 2 [62, 1]", formatReservedBit(programming.byte_62_fibre_channel_2_speed_codes.reserved_bit_1)
     );
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "Specification Compliance, Fibre Channel Speed 2 [11, 0]", programming.byte_11_fibre_channel_2_speed_codes._64_GFC_bit_0 ? "64 GFC compliant" : "Not 64 GFC compliant"
+        "Specification Compliance, Fibre Channel Speed 2 [62, 0]", programming.byte_62_fibre_channel_2_speed_codes._64_GFC_bit_0 ? "64 GFC compliant" : "Not 64 GFC compliant"
     );
+    str.append("\n");
 
     return str;
 

@@ -47,6 +47,10 @@ namespace TransceiverTool::Standards::SFF8472 {
         Fibre_Channel_Speed_Codes byte_10_fibre_channel_speed_codes;
 
         //Byte 11: Fibre Channel Speed 2
-        Fibre_Channel_Speed_2_Codes byte_11_fibre_channel_2_speed_codes;
+        Fibre_Channel_Speed_2_Codes byte_62_fibre_channel_2_speed_codes;
+
+        //Byte 12: Encoding
+        //Code for high speed serial encoding algorithm (see SFF-8024 SFF Module Management Reference Code Tables)
+        unsigned char byte_11_Encoding;
     };
 }

@@ -43,7 +43,7 @@ namespace TransceiverTool::Standards::SFF8024 {
         return fmt::format("{} ({:#04x})", name, byte);
     }
 
-    std::string byteToTransceiverEncodingString(unsigned char byte) {
+    std::string byteToSFF8636TransceiverEncodingString(unsigned char byte) {
         auto it = std::find_if(
             SFF8636TransceiverEncodingAssignedValues.begin(),
             SFF8636TransceiverEncodingAssignedValues.end(),
@@ -52,6 +52,23 @@ namespace TransceiverTool::Standards::SFF8024 {
 
         std::string name;
         if(it != SFF8636TransceiverEncodingAssignedValues.end()) {
+            name = it->name;
+        } else {
+            name = "Reserved";
+        }
+
+        return fmt::format("{} ({:#04x})", name, byte);
+    }
+
+    std::string byteToSFF8472TransceiverEncodingString(unsigned char byte) {
+        auto it = std::find_if(
+            SFF8472TransceiverEncodingAssignedValues.begin(),
+            SFF8472TransceiverEncodingAssignedValues.end(),
+            [byte](const SFF8472TransceiverEncodingAssignedValue& it_val) { return it_val.byte_value == byte; }
+        );
+
+        std::string name;
+        if(it != SFF8472TransceiverEncodingAssignedValues.end()) {
             name = it->name;
         } else {
             name = "Reserved";
