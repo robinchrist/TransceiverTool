@@ -485,6 +485,42 @@ namespace TransceiverTool::Standards::SFF8472 {
     }
 //############
 
+//############
+    nlohmann::ordered_json Fibre_Channel_Speed_2_CodesToJSON(const Fibre_Channel_Speed_2_Codes& value) {
+        nlohmann::ordered_json j;
+
+        j["Reserved (Bit 7)"] = value.reserved_bit_7;
+        j["Reserved (Bit 6)"] = value.reserved_bit_6;
+        j["Reserved (Bit 5)"] = value.reserved_bit_5;
+        j["Reserved (Bit 4)"] = value.reserved_bit_4;
+        j["Reserved (Bit 3)"] = value.reserved_bit_3;
+        j["Reserved (Bit 2)"] = value.reserved_bit_2;
+        j["Reserved (Bit 1)"] = value.reserved_bit_1;
+        j["64 GFC compliant (Bit 0)"] = value._64_GFC_bit_0;
+
+
+
+        return j;
+    }
+
+    Fibre_Channel_Speed_2_Codes Fibre_Channel_Speed_2_CodesFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Fibre Channel Technology must be an object");
+
+        Fibre_Channel_Speed_2_Codes complianceCodes;
+
+        complianceCodes.reserved_bit_7 = j.at("Reserved (Bit 7)").template get<bool>();
+        complianceCodes.reserved_bit_6 = j.at("Reserved (Bit 6)").template get<bool>();
+        complianceCodes.reserved_bit_5 = j.at("Reserved (Bit 5)").template get<bool>();
+        complianceCodes.reserved_bit_4 = j.at("Reserved (Bit 4)").template get<bool>();
+        complianceCodes.reserved_bit_3 = j.at("Reserved (Bit 3)").template get<bool>();
+        complianceCodes.reserved_bit_2 = j.at("Reserved (Bit 2)").template get<bool>();
+        complianceCodes.reserved_bit_1 = j.at("Reserved (Bit 1)").template get<bool>();
+        complianceCodes._64_GFC_bit_0 = j.at("64 GFC compliant (Bit 0)").template get<bool>();
+
+        return complianceCodes;
+    }
+//############
+
     void SFF8472_LowerA0hToJSON(nlohmann::ordered_json& j, const SFF8472_LowerA0h& programming, bool copperMode) {
 
         std::vector<unsigned char> binaryBuffer; binaryBuffer.resize(128, 0x00);
@@ -514,6 +550,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         j["Fibre Channel Transmission Media"] = Fibre_Channel_Transmission_Media_CodesToJSON(programming.byte_9_fibre_channel_transmission_media_codes);
 
         j["Fibre Channel Speed"] = Fibre_Channel_Speed_CodesToJSON(programming.byte_10_fibre_channel_speed_codes);
+
+        j["Fibre Channel Speed 2"] = Fibre_Channel_Speed_2_CodesToJSON(programming.byte_11_fibre_channel_2_speed_codes);
     }
 
 
@@ -545,5 +583,7 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_9_fibre_channel_transmission_media_codes = Fibre_Channel_Transmission_Media_CodesFromJSON(j.at("Fibre Channel Transmission Media"));
 
         programming.byte_10_fibre_channel_speed_codes = Fibre_Channel_Speed_CodesFromJSON(j.at("Fibre Channel Speed"));
+
+        programming.byte_11_fibre_channel_2_speed_codes = Fibre_Channel_Speed_2_CodesFromJSON(j.at("Fibre Channel Speed 2"));
     }   
 }

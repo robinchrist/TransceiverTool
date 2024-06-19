@@ -99,5 +99,16 @@ namespace TransceiverTool::Standards::SFF8472 {
             (unsigned char)(programming.byte_10_fibre_channel_speed_codes._200_MBytes_sec_bit_2) << 2 |
             (unsigned char)(programming.byte_10_fibre_channel_speed_codes.see_byte_62_fibre_channel_speed_2_bit_1) << 1 |
             (unsigned char)(programming.byte_10_fibre_channel_speed_codes._100_MBytes_sec_bit_0) << 0;
+
+
+        target[11] = 
+            (unsigned char)(programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_7) << 7 |
+            (unsigned char)(programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_6) << 6 |
+            (unsigned char)(programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_5) << 5 |
+            (unsigned char)(programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_4) << 4 |
+            (unsigned char)(programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_3) << 3 |
+            (unsigned char)(programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_2) << 2 |
+            (unsigned char)(programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_1) << 1 |
+            (unsigned char)(programming.byte_11_fibre_channel_2_speed_codes._64_GFC_bit_0) << 0;
     }
 }
