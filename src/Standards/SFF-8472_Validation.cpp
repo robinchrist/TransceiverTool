@@ -93,6 +93,26 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         }
     }   
 
+    void validateFibreChannelSpeed2ComplianceCodes(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
+
+        //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
+        if(programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_7 || programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_6 ||
+            programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_5 || programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_4 ||
+            programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_3 || programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_2 ||
+            programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_1
+        ) {
+            validationResult.errors.push_back(
+                fmt::format(
+                    "Byte 11 (\"Fibre Channel Speed 2\") value has at least one reserved bit set: Bit 7 {:d}, Bit 6 {:d}, Bit 5 {:d}, Bit 4 {:d}, Bit 3 {:d}, Bit 2 {:d}, Bit 1 {:d}",
+                    programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_7, programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_6, 
+                    programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_5, programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_4, 
+                    programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_3, programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_2, 
+                    programming.byte_11_fibre_channel_2_speed_codes.reserved_bit_1
+                )
+            );
+        }
+    }
+
     //TODO: Introduce options to not warn on values in "Vendor Specific" ranges (in case this tool is used by an actual vendor?)
     common::ValidationResult validateSFF8472_LowerA0h(const TransceiverTool::Standards::SFF8472::SFF8472_LowerA0h& programming) {
         common::ValidationResult validationResult;
@@ -114,6 +134,9 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
 
         //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
         validateFibreChannelTransmissionMediaCodes(programming, validationResult);
+
+        //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
+        validateFibreChannelSpeed2ComplianceCodes(programming, validationResult);
 
         return validationResult;
     }

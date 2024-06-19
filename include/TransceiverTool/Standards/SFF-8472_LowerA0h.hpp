@@ -45,5 +45,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         //Byte 10: Fibre Channel Speed
         Fibre_Channel_Speed_Codes byte_10_fibre_channel_speed_codes;
+
+        //Byte 11: Fibre Channel Speed 2
+        Fibre_Channel_Speed_2_Codes byte_11_fibre_channel_2_speed_codes;
     };
 }
