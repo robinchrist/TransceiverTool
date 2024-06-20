@@ -105,6 +105,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         target[12] = programming.byte_12_nominal_signaling_rate_in_100_mbaud;
 
+        target[13] = programming.byte_13_rate_identifier;
+
 
         target[36] = programming.byte_36_extended_specification_compliance_codes;
 

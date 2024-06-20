@@ -131,6 +131,20 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         }
     }
 
+    void validateRateIdentifier(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
+        //SFF-8472 Rev 12.4 Table 5-6 Rate Identifier
+        auto byte = programming.byte_13_rate_identifier;
+        if(byte == 0x03 || byte == 0x05 || byte == 0x07 || byte == 0x09 || byte == 0x0B || byte == 0x0D || byte == 0x0F || byte == 0x11) {
+            validationResult.warnings.push_back(
+                fmt::format("Byte 13 (\"Rate Identifier\") value corresponds to \"Unspecified\" legacy range (SFF-8472 Rev 12.4 Table 5-6 \"Rate Identifier\"), value is {:#04x}", programming.byte_11_Encoding)
+            );
+        }
+        if((byte >= 0x12 && byte <= 0x1F) || byte >= 0x21) {
+            validationResult.errors.push_back(
+                fmt::format("Byte 13 (\"Rate Identifier\") value corresponds to \"Reserved\" range (SFF-8472 Rev 12.4 Table 5-6 \"Rate Identifier\"), value is {:#04x}", programming.byte_11_Encoding)
+            );
+        }
+    }
 
     void validateExtendedSpecificationComplianceCodes(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
         //SFF-8024 Rev 4.11 Table 4-4 Extended Specification Compliance Codes
@@ -194,6 +208,9 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
 
         //SFF-8472 Rev 12.4 Section 5.6 Signaling rate, nominal [Address A0h, Byte 12] & Section 8.4 Signaling Rate, max [Address A0h, Byte 66]
         validateSignalingRate(programming, validationResult);
+
+        //SFF-8472 Rev 12.4 Table 5-6 Rate Identifier
+        validateRateIdentifier(programming, validationResult);
 
         //SFF-8024 Rev 4.11 Table 4-4 Extended Specification Compliance Codes
         validateExtendedIdentifierValues(programming, validationResult);

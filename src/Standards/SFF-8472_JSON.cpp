@@ -6,6 +6,7 @@
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Extended_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Extended_Compliance_Codes.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Rate_Identifiers.hpp"
 #include <fmt/core.h>
 
 
@@ -569,6 +570,46 @@ namespace TransceiverTool::Standards::SFF8472 {
 //############
 
 //############
+    nlohmann::ordered_json RateIdentifierToJSON(unsigned char byte_value) {
+        nlohmann::ordered_json j;
+
+        auto it = std::find_if(
+            SFF8472::RateIdentifierAssignedValues.begin(),
+            SFF8472::RateIdentifierAssignedValues.end(),
+            [byte_value](const SFF8472::RateIdentifierAssignedValue& entry) { return entry.byte_value == byte_value; }
+        );
+
+        if(it != SFF8472::RateIdentifierAssignedValues.end()) {
+            j = it->name;
+        } else {
+            j = charToJSONByteStruct(byte_value);
+        }
+
+        return j;
+    }
+
+    unsigned char RateIdentifierFromJSON(const nlohmann::json& j) {
+        if(j.is_string()) {
+            auto strValue = j.template get<std::string>();
+
+            auto it = std::find_if(
+                SFF8472::RateIdentifierAssignedValues.begin(),
+                SFF8472::RateIdentifierAssignedValues.end(),
+                [&strValue](const SFF8472::RateIdentifierAssignedValue& entry) { return entry.name == strValue; }
+            );
+
+            if(it == SFF8472::RateIdentifierAssignedValues.end()) throw std::invalid_argument("Rate Identifier is not a known string value");
+
+            return it->byte_value;
+        } else if(j.is_object()) {
+            return charFromJSONByteStruct(j);
+        } else {
+            throw std::invalid_argument("Rate Identifier has wrong type (neither string nor object)");
+        }
+    }
+//############
+
+//############
     nlohmann::ordered_json ExtendedComplianceCodesToJSON(unsigned char byte_value) {
         nlohmann::ordered_json j;
 
@@ -773,6 +814,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         j["Nominal Signaling Rate [MBaud] (Divisible by 100)"] = NominalSignalingRate100MBaudToJSON(programming.byte_12_nominal_signaling_rate_in_100_mbaud);
 
+        j["Rate Identifier"] = RateIdentifierToJSON(programming.byte_13_rate_identifier);
+
         j["Extended Specification Compliance Codes"] = ExtendedComplianceCodesToJSON(programming.byte_36_extended_specification_compliance_codes);
 
         j["Fibre Channel Speed 2"] = Fibre_Channel_Speed_2_CodesToJSON(programming.byte_62_fibre_channel_2_speed_codes);
@@ -818,6 +861,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_11_Encoding = EncodingFromJSON(j.at("Encoding"));
 
         programming.byte_12_nominal_signaling_rate_in_100_mbaud = NominalSignalingRate100MBaudFromJSON(j.at("Nominal Signaling Rate [MBaud] (Divisible by 100)"));
+
+        programming.byte_13_rate_identifier = RateIdentifierFromJSON(j.at("Rate Identifier"));
 
         programming.byte_36_extended_specification_compliance_codes = ExtendedComplianceCodesFromJSON(j.at("Extended Specification Compliance Codes"));
 
