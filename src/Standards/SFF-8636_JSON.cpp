@@ -500,8 +500,10 @@ namespace TransceiverTool::Standards::SFF8636 {
     nlohmann::ordered_json NominalSignalingRate100MBaudToJSON(unsigned char byte_value) {
         nlohmann::ordered_json j;
 
-        if(byte_value != 0xFF) {
+        if(byte_value != 0xFF && byte_value != 0x00) {
             j = (unsigned long)(byte_value) * 100ul;
+        } else if(byte_value == 0x00) {
+            j = "Not Specified";
         } else {
             j = "> 25.4 GBd";
         }
@@ -512,10 +514,14 @@ namespace TransceiverTool::Standards::SFF8636 {
     unsigned char NominalSignalingRate100MBaudFromJSON(const nlohmann::json& j) {
         if(j.is_string()) {
             auto strValue = j.template get<std::string>();
+            
+            if(strValue == "Not Specified") {
+                return 0x00;
+            } else if(strValue == "> 25.4 GBd") {
+                return 0xFF;
+            }
 
-            if(strValue != "> 25.4 GBd") throw std::invalid_argument("Nominal Signaling Rate can only have value > 25.4 GBd if string");
-
-            return 0xFF;
+            throw std::invalid_argument("Nominal Signaling Rate can only have value Not Specified or > 25.4 GBd if string");
         } else if(j.is_number_unsigned()) {
             auto numberValue = j.template get<std::uint64_t>();
 
@@ -1774,19 +1780,36 @@ namespace TransceiverTool::Standards::SFF8636 {
     nlohmann::ordered_json ExtendedBaudRate250MBaudToJSON(unsigned char byte_value) {
         nlohmann::ordered_json j;
 
-        j = (unsigned long)(byte_value) * 250ul;
+        if(byte_value == 0x00) {
+            j = "Unspecified";
+        } else {
+            j = (unsigned long)(byte_value) * 250ul;
+        }
 
         return j;
     }
 
     unsigned char ExtendedBaudRate250MBaudFromJSON(const nlohmann::json& j) {
-        auto numberValue = j.template get<std::uint64_t>();
 
-        if(numberValue % 250 != 0) throw std::invalid_argument("Extended Baud Rate must be divisble by 250");
+        if(j.is_string()) {
+            auto strValue = j.template get<std::string>();
+            
+            if(strValue == "Unspecified") {
+                return 0x00;
+            }
 
-        if(numberValue > 63750) throw std::invalid_argument("Extended Baud Rate must not be larger than 25400");
+            throw std::invalid_argument("Extended Baud Rate can only have value Unspecified if string");
+        } else if(j.is_number_unsigned()) {
+            auto numberValue = j.template get<std::uint64_t>();
 
-        return numberValue / 250;
+            if(numberValue % 250 != 0) throw std::invalid_argument("Extended Baud Rate must be divisble by 250");
+
+            if(numberValue > 63750) throw std::invalid_argument("Extended Baud Rate must not be larger than 63750");
+
+            return numberValue / 250;
+        } else {
+            throw std::invalid_argument("Extended Baud Rate has wrong type (neither string nor unsigned integer)");
+        }
     }
 //############
 

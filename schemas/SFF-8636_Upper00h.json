@@ -374,9 +374,12 @@
             "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
                 {
+                    "const": "Not Specified"
+                },
+                {
                     "type": "integer",
                     "multipleOf" : 100,
-                    "minimum": 0,
+                    "minimum": 250,
                     "maximum": 25400
                 },
                 {
@@ -1020,10 +1023,17 @@
         "sff-8636_extended_baud_rate_250": {
             "$id": "/schemas/sff-8636_extended_baud_rate_250",
             "$schema": "http://json-schema.org/draft-07/schema#",
-            "type": "integer",
-            "multipleOf" : 250,
-            "minimum": 0,
-            "maximum": 63750
+            "anyOf": [
+                {
+                    "const": "Unspecified"
+                },
+                {
+                    "type": "integer",
+                    "multipleOf" : 250,
+                    "minimum": 250,
+                    "maximum": 63750
+                }
+            ]
         },
         "sff-8636_cc_ext_checksum": {
             "$id": "/schemas/sff-8636_cc_ext_checksum",

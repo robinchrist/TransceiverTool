@@ -300,7 +300,13 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
 
 
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "Signaling rate, nominal [140]", programming.byte_140_nominal_signaling_rate_in_100_mbaud != 0xFF ? fmt::format("{} MBd", unsigned(programming.byte_140_nominal_signaling_rate_in_100_mbaud) * 100) : "> 25.4GBd (See Byte 222)"
+        "Signaling rate, nominal [140]", 
+            programming.byte_140_nominal_signaling_rate_in_100_mbaud != 0xFF ? 
+                (programming.byte_140_nominal_signaling_rate_in_100_mbaud != 0x00 ? 
+                    fmt::format("{} MBd", unsigned(programming.byte_140_nominal_signaling_rate_in_100_mbaud) * 100) : 
+                    "Not Specified"
+                ) :
+            "> 25.4GBd (See Byte 222)"
     );
     str.append("\n");
 
@@ -837,9 +843,10 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
     
 
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "Baud Rate, nominal [222]", fmt::format("{} MBd", unsigned(programming.byte_222_extended_baud_rate_in_250_mbaud) * 250)
+        "Baud Rate, nominal [222]", programming.byte_222_extended_baud_rate_in_250_mbaud != 0x00 ? fmt::format("{} MBd", unsigned(programming.byte_222_extended_baud_rate_in_250_mbaud) * 250) : "Unspecified"
     );
     str.append("\n");
+    
 
 
     if(programming.byte_223_CC_EXT == CC_EXT) {
