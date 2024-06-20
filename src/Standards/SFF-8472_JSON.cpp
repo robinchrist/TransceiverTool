@@ -529,6 +529,46 @@ namespace TransceiverTool::Standards::SFF8472 {
 //############
 
 //############
+    nlohmann::ordered_json NominalSignalingRate100MBaudToJSON(unsigned char byte_value) {
+        nlohmann::ordered_json j;
+
+        if(byte_value != 0xFF && byte_value != 0x00) {
+            j = (unsigned long)(byte_value) * 100ul;
+        } else if(byte_value == 0x00) {
+            j = "Not Specified";
+        } else {
+            j = "> 25.4 GBd";
+        }
+
+        return j;
+    }
+
+    unsigned char NominalSignalingRate100MBaudFromJSON(const nlohmann::json& j) {
+        if(j.is_string()) {
+            auto strValue = j.template get<std::string>();
+            
+            if(strValue == "Not Specified") {
+                return 0x00;
+            } else if(strValue == "> 25.4 GBd") {
+                return 0xFF;
+            }
+
+            throw std::invalid_argument("Nominal Signaling Rate can only have value Not Specified or > 25.4 GBd if string");
+        } else if(j.is_number_unsigned()) {
+            auto numberValue = j.template get<std::uint64_t>();
+
+            if(numberValue % 100 != 0) throw std::invalid_argument("Nominal Signaling Rate must be divisble by 100!");
+
+            if(numberValue > 25400) throw std::invalid_argument("Nominal Signaling Rate must not be larger than 25400");
+
+            return numberValue / 100;
+        } else {
+            throw std::invalid_argument("Nominal Signaling Rate has wrong type (neither string nor unsigned integer)");
+        }
+    }
+//############
+
+//############
     nlohmann::ordered_json ExtendedComplianceCodesToJSON(unsigned char byte_value) {
         nlohmann::ordered_json j;
 
@@ -603,6 +643,102 @@ namespace TransceiverTool::Standards::SFF8472 {
     }
 //############
 
+//############
+    nlohmann::ordered_json ExtendedSignalingRateInfoToJSON(
+        unsigned char byte_12_nominal_signaling_rate_in_100_mbaud,
+        unsigned char byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud,
+        unsigned char byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent
+    ) {
+        nlohmann::ordered_json j;
+        if(byte_12_nominal_signaling_rate_in_100_mbaud != 0xFF) {
+            j["Type"] = "Standard";
+
+            j["Upper signaling rate margin [%]"] = byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud;
+
+            j["Lower signaling rate margin [%]"] = byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent;
+        } else {
+            j["Type"] = "Extended";
+
+            if(byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud == 0x00) {
+                j["Extended Signaling Rate [MBaud] (Divisible by 250)"] = "Unspecified";
+            } else {
+                j["Extended Signaling Rate [MBaud] (Divisible by 250)"] = (unsigned long)(byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud) * 250ul;
+            }
+
+            j["Signaling rate margin [%]"] = byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent;
+        }
+
+
+        return j;
+    }
+
+    struct ExtendedSignalingRateInfoFromJSONReturn {
+        unsigned char byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud;
+        unsigned char byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent;
+    };
+
+    ExtendedSignalingRateInfoFromJSONReturn ExtendedSignalingRateFromJSON(const nlohmann::json& j) {
+
+        if(!j.is_object()) throw std::invalid_argument("Extended Signaling Rate must be an object");
+
+        ExtendedSignalingRateInfoFromJSONReturn parsedStruct;
+
+        auto typeStr = j.at("Type").template get<std::string>();
+
+        if(typeStr == "Standard") {
+            const auto& upperSignalingRateMarginPercentValue = j.at("Upper signaling rate margin [%]");
+            auto upperSignalingRateMarginPercentNumberValue = upperSignalingRateMarginPercentValue.template get<std::uint64_t>();
+
+            if(upperSignalingRateMarginPercentNumberValue > 255) throw std::invalid_argument("Upper signaling rate margin [%] must not be larger than 255");
+
+            parsedStruct.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud = upperSignalingRateMarginPercentNumberValue;
+            
+
+            const auto& lowerSignalingRateMarginPercentValue = j.at("Lower signaling rate margin [%]");
+            auto lowerSignalingRateMarginPercentNumberValue = upperSignalingRateMarginPercentValue.template get<std::uint64_t>();
+
+            if(lowerSignalingRateMarginPercentNumberValue > 255) throw std::invalid_argument("Lower signaling rate margin [%] must not be larger than 255");
+
+            parsedStruct.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent = lowerSignalingRateMarginPercentNumberValue;
+        } else if(typeStr == "Extended") {
+            
+            const auto& extendedSignalingRateValue = j.at("Extended Signaling Rate [MBaud] (Divisible by 250)");
+            if(extendedSignalingRateValue.is_string()) {
+                auto strValue = extendedSignalingRateValue.template get<std::string>();
+                
+                if(strValue != "Unspecified") throw std::invalid_argument("Extended Signaling Rate can only have value Unspecified if string");
+
+
+                parsedStruct.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud = 0x00;
+
+            } else if(extendedSignalingRateValue.is_number_unsigned()) {
+                auto numberValue = extendedSignalingRateValue.template get<std::uint64_t>();
+
+                if(numberValue % 250 != 0) throw std::invalid_argument("Extended Signaling Rate must be divisble by 250");
+
+                if(numberValue > 63750) throw std::invalid_argument("Extended Signaling Rate must not be larger than 63750");
+
+                parsedStruct.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud = numberValue / 250;
+            } else {
+                throw std::invalid_argument("Extended Signaling Rate has wrong type (neither string nor unsigned integer)");
+            }
+
+
+            const auto& signalingRateMarginPercentValue = j.at("Signaling rate margin [%]");
+            auto signalingRateMarginPercentNumberValue = signalingRateMarginPercentValue.template get<std::uint64_t>();
+
+            if(signalingRateMarginPercentNumberValue > 255) throw std::invalid_argument("Signaling rate margin [%] must not be larger than 255");
+
+            parsedStruct.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent = signalingRateMarginPercentNumberValue;
+
+        } else {
+            throw std::invalid_argument("Extended Signaling Rate has invalid Type string, must be Standard or Extended");
+        }
+
+        return parsedStruct;
+    }
+//############
+
     void SFF8472_LowerA0hToJSON(nlohmann::ordered_json& j, const SFF8472_LowerA0h& programming, bool copperMode) {
 
         std::vector<unsigned char> binaryBuffer; binaryBuffer.resize(128, 0x00);
@@ -635,9 +771,17 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         j["Encoding"] = EncodingToJSON(programming.byte_11_Encoding);
 
+        j["Nominal Signaling Rate [MBaud] (Divisible by 100)"] = NominalSignalingRate100MBaudToJSON(programming.byte_12_nominal_signaling_rate_in_100_mbaud);
+
         j["Extended Specification Compliance Codes"] = ExtendedComplianceCodesToJSON(programming.byte_36_extended_specification_compliance_codes);
 
         j["Fibre Channel Speed 2"] = Fibre_Channel_Speed_2_CodesToJSON(programming.byte_62_fibre_channel_2_speed_codes);
+
+        j["Extended Signaling Rate"] = ExtendedSignalingRateInfoToJSON(
+            programming.byte_12_nominal_signaling_rate_in_100_mbaud,
+            programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud,
+            programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent
+        );
 
     }
 
@@ -673,8 +817,16 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         programming.byte_11_Encoding = EncodingFromJSON(j.at("Encoding"));
 
+        programming.byte_12_nominal_signaling_rate_in_100_mbaud = NominalSignalingRate100MBaudFromJSON(j.at("Nominal Signaling Rate [MBaud] (Divisible by 100)"));
+
         programming.byte_36_extended_specification_compliance_codes = ExtendedComplianceCodesFromJSON(j.at("Extended Specification Compliance Codes"));
 
         programming.byte_62_fibre_channel_2_speed_codes = Fibre_Channel_Speed_2_CodesFromJSON(j.at("Fibre Channel Speed 2"));
+
+        auto extendedSignalingRateInfoFromJSONReturn = ExtendedSignalingRateFromJSON(j.at("Extended Signaling Rate"));
+        programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud = extendedSignalingRateInfoFromJSONReturn.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud;
+        programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent = extendedSignalingRateInfoFromJSONReturn.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent;
+
+
     }   
 }

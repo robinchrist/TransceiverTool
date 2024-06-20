@@ -273,6 +273,18 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
     str.append("\n");
 
 
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Signaling rate, nominal [12]", 
+            programming.byte_12_nominal_signaling_rate_in_100_mbaud != 0xFF ? 
+                (programming.byte_12_nominal_signaling_rate_in_100_mbaud != 0x00 ? 
+                    fmt::format("{} MBd", unsigned(programming.byte_12_nominal_signaling_rate_in_100_mbaud) * 100) : 
+                    "Not Specified"
+                ) :
+            "> 25.4GBd (See Bytes 66-67)"
+    );
+    str.append("\n");
+
+
 
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
         "Extended Specification Compliance [36]", SFF8024::byteToExtendedComplianceCodeString(programming.byte_36_extended_specification_compliance_codes)
@@ -305,6 +317,50 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
         "Specification Compliance, Fibre Channel Speed 2 [62, 0]", programming.byte_62_fibre_channel_2_speed_codes._64_GFC_bit_0 ? "64 GFC compliant" : "Not 64 GFC compliant"
     );
     str.append("\n");
+
+
+    if(programming.byte_12_nominal_signaling_rate_in_100_mbaud != 0xFF) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString,
+            "Signaling Rate, max [66]",
+            fmt::format(
+                "{}% Margin ({}% above {} MBd -> Max {} MBd)",
+                programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud,
+                programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud,
+                (int)(programming.byte_12_nominal_signaling_rate_in_100_mbaud) * 100,
+                (int)(programming.byte_12_nominal_signaling_rate_in_100_mbaud) * (100 + programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud)
+            )
+        );
+        str.append("\n");
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString,
+            "Signaling Rate, min [67]",
+            fmt::format(
+                "{}% Margin ({}% below {} MBd -> Min {} MBd)",
+                programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent,
+                programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent,
+                (int)(programming.byte_12_nominal_signaling_rate_in_100_mbaud) * 100,
+                (int)(programming.byte_12_nominal_signaling_rate_in_100_mbaud) * (100 - programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent)
+            )
+        );
+        str.append("\n");
+    } else {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Signaling Rate, nominal [66]", programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud != 0x00 ? fmt::format("{} MBd", int(programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud) * 250) : "Unspecified"
+        );
+        str.append("\n");
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString,
+            "Signaling Rate, Range [67]",
+            fmt::format(
+                "+/-{}% Margin (+/-{}% around {} MBd -> Min {} Mbd, Max {} Mbd)",
+                programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent,
+                programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent,
+                (int)(programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud) * 250,
+                (double)(programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud) * 250.0 * (1.0 - (double)(programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent) / 100.0),
+                (double)(programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud) * 250.0 * (1.0 + (double)(programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent) / 100.0)
+            )
+        );
+        str.append("\n");
+    }
+    
 
     return str;
 

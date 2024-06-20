@@ -343,6 +343,24 @@
                 }
             ]
         },
+        "sff-8472_nominal_baud_rate_100": {
+            "$id": "/schemas/sff-8472_nominal_baud_rate_100",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {
+                    "const": "Not Specified"
+                },
+                {
+                    "type": "integer",
+                    "multipleOf" : 100,
+                    "minimum": 250,
+                    "maximum": 25400
+                },
+                {
+                    "const": "> 25.4 GBd"
+                }
+            ]
+        },
         "sff-8472_extended_specification_compliance_codes": {
             "$id": "/schemas/sff-8472_extended_specification_compliance_codes",
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -453,6 +471,66 @@
                 "64 GFC compliant (Bit 0)"
             ]
         },
+        "sff-8472_extended_signaling_rate": {
+            "$id": "/schemas/sff-8472_extended_signaling_rate",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "Type": {
+                            "const": "Standard"
+                        },
+                        "Upper signaling rate margin [%]": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 255
+                        },
+                        "Lower signaling rate margin [%]": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 255
+                        }
+                    },
+                    "required": [
+                        "Type",
+                        "Upper signaling rate margin [%]",
+                        "Lower signaling rate margin [%]"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "Type": {
+                            "const": "Extended"
+                        },
+                        "Extended Signaling Rate [MBaud] (Divisible by 250)": {
+                            "anyOf": [
+                                {
+                                    "const": "Unspecified"
+                                },
+                                {
+                                    "type": "integer",
+                                    "multipleOf" : 250,
+                                    "minimum": 250,
+                                    "maximum": 63750
+                                }
+                            ]
+                        },
+                        "Signaling rate margin [%]": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 255
+                        }
+                    },
+                    "required": [
+                        "Type",
+                        "Extended Signaling Rate [MBaud] (Divisible by 250)",
+                        "Signaling rate margin [%]"
+                    ]
+                }
+            ]
+        },
     },
 
     "properties": {
@@ -473,8 +551,10 @@
         "Fibre Channel Transmission Media": { "$ref": "/schemas/sff-8472_fibre_channel_transmission_media_codes" },
         "Fibre Channel Speed": { "$ref": "/schemas/sff-8472_fibre_channel_speed_codes" },
         "Encoding": {"$ref": "/schemas/sff-8472_encoding"},
+        "Nominal Signaling Rate [MBaud] (Divisible by 100)": {"$ref": "/schemas/sff-8472_nominal_baud_rate_100"},
         "Extended Specification Compliance Codes": {"$ref": "/schemas/sff-8472_extended_specification_compliance_codes"},
         "Fibre Channel Speed 2": { "$ref": "/schemas/sff-8472_fibre_channel_speed_2_codes" },
+        "Extended Signaling Rate": { "$ref": "/schemas/sff-8472_extended_signaling_rate" },
     },
 
     "required": [
@@ -493,7 +573,9 @@
         "Fibre Channel Transmission Media",
         "Fibre Channel Speed",
         "Encoding",
+        "Nominal Signaling Rate [MBaud] (Divisible by 100)",
         "Extended Specification Compliance Codes",
-        "Fibre Channel Speed 2"
+        "Fibre Channel Speed 2",
+        "Extended Signaling Rate"
     ]
 }
