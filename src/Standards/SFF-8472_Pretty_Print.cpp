@@ -1,5 +1,6 @@
 #include "TransceiverTool/Standards/SFF-8472_Pretty_Print.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Encoding_Values.hpp"
+#include "TransceiverTool/Standards/SFF-8024_Extended_Compliance_Codes.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Compliance_Codes.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Extended_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Identifier_Values.hpp"
@@ -271,6 +272,12 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
     );
     str.append("\n");
 
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Extended Specification Compliance [36]", SFF8024::byteToExtendedComplianceCodeString(programming.byte_36_extended_specification_compliance_codes)
+    );
+    str.append("\n");
 
 
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 

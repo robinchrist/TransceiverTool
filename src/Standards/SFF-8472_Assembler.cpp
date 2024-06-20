@@ -103,6 +103,11 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         target[11] = programming.byte_11_Encoding;
 
+        target[12] = programming.byte_12_nominal_signaling_rate_in_100_mbaud;
+
+
+        target[36] = programming.byte_36_extended_specification_compliance_codes;
+
 
         target[62] = 
             (unsigned char)(programming.byte_62_fibre_channel_2_speed_codes.reserved_bit_7) << 7 |

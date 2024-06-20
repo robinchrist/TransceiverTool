@@ -103,6 +103,19 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
     }
 
 
+    void validateExtendedSpecificationComplianceCodes(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
+        //SFF-8024 Rev 4.11 Table 4-4 Extended Specification Compliance Codes
+        if(programming.byte_36_extended_specification_compliance_codes == 0x0A || programming.byte_36_extended_specification_compliance_codes == 0x0F ||
+            (programming.byte_36_extended_specification_compliance_codes >= 0x3B && programming.byte_36_extended_specification_compliance_codes <= 0x3E) ||
+            (programming.byte_36_extended_specification_compliance_codes >= 0x4D && programming.byte_36_extended_specification_compliance_codes <= 0x7E) ||
+            programming.byte_36_extended_specification_compliance_codes >= 0x82
+        ) {
+            validationResult.errors.push_back(
+                fmt::format("Byte 36 (\"Extended Specification Compliance Codes\") value corresponds to \"Reserved\" range / value (SFF-8024 Rev 4.11 Table 4-4 \"Extended Specification Compliance Codes\"), value is {:#04x}", programming.byte_36_extended_specification_compliance_codes)
+            );
+        }
+    }
+
     void validateFibreChannelSpeed2ComplianceCodes(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
 
         //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
