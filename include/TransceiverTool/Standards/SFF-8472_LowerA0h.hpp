@@ -61,5 +61,19 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         //Byte 62: Fibre Channel Speed 2
         Fibre_Channel_Speed_2_Codes byte_62_fibre_channel_2_speed_codes;
+
+        //Byte 66: Signaling Rate, max 
+        //Upper signaling rate margin, units of % (see details for rates >25.4 GBd)
+        //If address 12 is not set to FFh, the upper signaling rate limit at which the transceiver still meets its specifications
+        //(Signaling Rate, max) is specified in units of 1% above the nominal signaling rate.
+        //If address 12 is set to FFh, the nominal signaling rate (Signaling Rate, nominal) is given in this field in units of 250 MBd
+        unsigned char byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud;
+
+        //Byte 67: Signaling rate, min
+        //Lower signaling rate margin, units of % (see details for rates >25.4 GBd)
+        //If address 12 is not set to FFh, the lower signaling rate limit at which the transceiver still meets its specifications
+        //(Signaling Rate, min) is specified in units of 1% below the nominal bit rate.
+        //If address 12 is set to FFh, the limit range of signaling rates specified in units of +/- 1% around the nominal signaling rate.
+        unsigned char byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent;
     };
 }

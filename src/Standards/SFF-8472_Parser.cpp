@@ -110,6 +110,9 @@ namespace TransceiverTool::Standards::SFF8472 {
         parsedStruct.byte_62_fibre_channel_2_speed_codes._64_GFC_bit_0 = bytes[62] & (1 << 0);
 
         
+        parsedStruct.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud = bytes[66];
+
+        parsedStruct.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent = bytes[67];
         
 
         return parsedStruct;

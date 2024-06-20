@@ -102,6 +102,35 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         }
     }
 
+    void validateSignalingRate(const SFF8472_LowerA0h &programming, common::ValidationResult &validationResult) {
+        //SFF-8472 Rev 12.4 Section 5.6 Signaling rate, nominal [Address A0h, Byte 12] & Section 8.4 Signaling Rate, max [Address A0h, Byte 66]
+        if(programming.byte_12_nominal_signaling_rate_in_100_mbaud == 0) {
+            validationResult.warnings.push_back(
+                fmt::format("Byte 12 (\"Nominal Signaling Rate\") value is 0")
+            );
+        }
+        if(programming.byte_12_nominal_signaling_rate_in_100_mbaud == 0xFF) {
+            if(programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud == 0) {
+                validationResult.warnings.push_back(
+                    fmt::format("Byte 12 (\"Nominal Signaling Rate\") value is 0xFF indicating a nominal baud rate > 25.4 GBd, but Byte 66 (\"Extended Baud Rate: Nominal\") is zero")
+                );
+            } else {
+                unsigned long nominalBaudRateFromByte66 = (unsigned long)(programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud) * 250UL;
+
+                if(nominalBaudRateFromByte66 < 25400) {
+                    validationResult.warnings.push_back(
+                        fmt::format("Byte 12 (\"Nominal Signaling Rate\") value is 0xFF indicating a nominal baud rate > 25.4 GBd, but value from Byte 66 (\"Extended Baud Rate: Nominal\") is too small ({} MBd)", nominalBaudRateFromByte66)
+                    );
+                }
+            }
+        }
+        if(programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent > 100) {
+            validationResult.warnings.push_back(
+                fmt::format("Byte 66 (\"Signaling Rate, min\") exceeds 100% which would result in negative baud rates")
+            );
+        }
+    }
+
 
     void validateExtendedSpecificationComplianceCodes(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
         //SFF-8024 Rev 4.11 Table 4-4 Extended Specification Compliance Codes
@@ -162,6 +191,12 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
 
         //SFF-8024 Rev 4.11 Table 4-2 Encoding Values
         validateEncodingValues(programming, validationResult);
+
+        //SFF-8472 Rev 12.4 Section 5.6 Signaling rate, nominal [Address A0h, Byte 12] & Section 8.4 Signaling Rate, max [Address A0h, Byte 66]
+        validateSignalingRate(programming, validationResult);
+
+        //SFF-8024 Rev 4.11 Table 4-4 Extended Specification Compliance Codes
+        validateExtendedIdentifierValues(programming, validationResult);
 
         //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
         validateFibreChannelSpeed2ComplianceCodes(programming, validationResult);

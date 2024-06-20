@@ -118,6 +118,11 @@ namespace TransceiverTool::Standards::SFF8472 {
             (unsigned char)(programming.byte_62_fibre_channel_2_speed_codes.reserved_bit_2) << 2 |
             (unsigned char)(programming.byte_62_fibre_channel_2_speed_codes.reserved_bit_1) << 1 |
             (unsigned char)(programming.byte_62_fibre_channel_2_speed_codes._64_GFC_bit_0) << 0;
+
+
+        target[66] = programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud;
+
+        target[67] = programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent;
         
     }
 }
