@@ -46,11 +46,20 @@ namespace TransceiverTool::Standards::SFF8472 {
         //Byte 10: Fibre Channel Speed
         Fibre_Channel_Speed_Codes byte_10_fibre_channel_speed_codes;
 
-        //Byte 11: Fibre Channel Speed 2
-        Fibre_Channel_Speed_2_Codes byte_62_fibre_channel_2_speed_codes;
-
-        //Byte 12: Encoding
+        //Byte 11: Encoding
         //Code for high speed serial encoding algorithm (see SFF-8024 SFF Module Management Reference Code Tables)
         unsigned char byte_11_Encoding;
+
+        //Byte 12: Nominal Signaling Rate
+        //Nominal signaling rate, units of 100 MBd. (see details for rates > 25.4 GBd)
+        unsigned char byte_12_nominal_signaling_rate_in_100_mbaud;
+
+        //Byte 36: Extended Specification Compliance Codes
+        //Code for electronic or optical compatibility (see Table 5-3)
+        //See SFF-8024 Table 4-4 
+        unsigned char byte_36_extended_specification_compliance_codes;
+
+        //Byte 62: Fibre Channel Speed 2
+        Fibre_Channel_Speed_2_Codes byte_62_fibre_channel_2_speed_codes;
     };
 }
