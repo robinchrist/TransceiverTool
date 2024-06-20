@@ -95,6 +95,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         parsedStruct.byte_12_nominal_signaling_rate_in_100_mbaud = bytes[12];
 
+        parsedStruct.byte_13_rate_identifier = bytes[13];
+
 
 
         parsedStruct.byte_36_extended_specification_compliance_codes = bytes[36];

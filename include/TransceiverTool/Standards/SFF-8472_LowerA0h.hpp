@@ -54,6 +54,10 @@ namespace TransceiverTool::Standards::SFF8472 {
         //Nominal signaling rate, units of 100 MBd. (see details for rates > 25.4 GBd)
         unsigned char byte_12_nominal_signaling_rate_in_100_mbaud;
 
+        //Byte 13: Rate Identifier
+        //Type of rate select functionality (see Table 5-6)
+        unsigned char byte_13_rate_identifier;
+
         //Byte 36: Extended Specification Compliance Codes
         //Code for electronic or optical compatibility (see Table 5-3)
         //See SFF-8024 Table 4-4 

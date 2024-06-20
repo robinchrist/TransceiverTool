@@ -5,6 +5,7 @@
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Extended_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Transceiver_Connector_Type.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Rate_Identifiers.hpp"
 #include "fmt/format.h"
 #include "fmt/color.h"
 #include <algorithm>
@@ -281,6 +282,11 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
                     "Not Specified"
                 ) :
             "> 25.4GBd (See Bytes 66-67)"
+    );
+    str.append("\n");
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Rate Identifier [13]", byteToRateIdentifierString(programming.byte_13_rate_identifier)
     );
     str.append("\n");
 

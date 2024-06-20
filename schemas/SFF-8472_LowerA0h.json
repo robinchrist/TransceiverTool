@@ -361,6 +361,28 @@
                 }
             ]
         },
+        "sff-8472_rate_identifier": {
+            "$id": "/schemas/sff-8472_rate_identifier",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                { "$ref": "/schemas/single_byte_value_obj" },
+                { 
+                    "enum": [
+                        "Unspecified (00h)",
+                        "SFF-8079 (4/2/1G Rate_Select & AS0/AS1)",
+                        "SFF-8431 (8/4/2G Rx Rate_Select only)",
+                        "SFF-8431 (8/4/2G Tx Rate_Select only)",
+                        "SFF-8431 (8/4/2G Independent Rx & Tx Rate_select)",
+                        "FC-PI-5 (16/8/4G Rx Rate_select only) High=16G only, Low=8G/4G",
+                        "FC-PI-5 (16/8/4G Independent Rx, Tx Rate_select) High=16G only, Low=8G/4G",
+                        "FC-PI-6 (32/16/8G Independent Rx, Tx Rate_Select) High=32G only, Low = 16G/8G",
+                        "10/8G Rx and Tx Rate_Select controlling the operation or locking modes of the internal signal conditioner, retimer or CDR",
+                        "FC-PI-7 (64/32/16G Independent Rx, Tx Rate Select) High = 32GFC and 64GFC, Low = 16GFC",
+                        "Rate select based on PMDs as defined by A0h, byte 36 and A2h, byte 67 (Rx, Tx Rate Select)"
+                    ]
+                }
+            ]
+        },
         "sff-8472_extended_specification_compliance_codes": {
             "$id": "/schemas/sff-8472_extended_specification_compliance_codes",
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -552,6 +574,7 @@
         "Fibre Channel Speed": { "$ref": "/schemas/sff-8472_fibre_channel_speed_codes" },
         "Encoding": {"$ref": "/schemas/sff-8472_encoding"},
         "Nominal Signaling Rate [MBaud] (Divisible by 100)": {"$ref": "/schemas/sff-8472_nominal_baud_rate_100"},
+        "Rate Identifier": {"$ref": "/schemas/sff-8472_rate_identifier"},
         "Extended Specification Compliance Codes": {"$ref": "/schemas/sff-8472_extended_specification_compliance_codes"},
         "Fibre Channel Speed 2": { "$ref": "/schemas/sff-8472_fibre_channel_speed_2_codes" },
         "Extended Signaling Rate": { "$ref": "/schemas/sff-8472_extended_signaling_rate" },
@@ -574,6 +597,7 @@
         "Fibre Channel Speed",
         "Encoding",
         "Nominal Signaling Rate [MBaud] (Divisible by 100)",
+        "Rate Identifier",
         "Extended Specification Compliance Codes",
         "Fibre Channel Speed 2",
         "Extended Signaling Rate"
