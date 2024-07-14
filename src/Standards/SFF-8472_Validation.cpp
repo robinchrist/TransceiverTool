@@ -173,6 +173,24 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         }
     }
 
+    void validateVendorPartNumber(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
+        //SFF-8472 Rev 12.4 Section 7.3 Vendor PN [Address A0h, Bytes 40-55]
+        bool vendorPNAllZeros = std::all_of(programming.byte_40_55_vendor_pn.begin(), programming.byte_40_55_vendor_pn.end(), [](unsigned char val) { return val == 0; });
+        if(!vendorPNAllZeros) {
+            for(int index = 0; index < programming.byte_40_55_vendor_pn.size(); ++index) {
+                if(!std::isprint(programming.byte_40_55_vendor_pn[index])) {
+                    validationResult.errors.push_back(
+                        fmt::format(
+                            "Byte {} (\"Vendor PN\", Position {}) is an unprintable ASCII character (Byte Value {:#04x})",
+                            168 + index, index, programming.byte_40_55_vendor_pn[index]
+                        )
+                    );
+                }
+            }
+        }
+        //TODO: Warn if Vendor PN field is not left aligned, padded with spaces (0x20)?
+    }
+
     void validateFibreChannelSpeed2ComplianceCodes(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
 
         //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
@@ -234,6 +252,9 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
 
         //SFF-8024 Rev 4.11 Table 4-4 Extended Specification Compliance Codes
         validateExtendedIdentifierValues(programming, validationResult);
+
+        //SFF-8472 Rev 12.4 Section 7.3 Vendor PN [Address A0h, Bytes 40-55]
+        validateVendorPartNumber(programming, validationResult);
 
         //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
         validateFibreChannelSpeed2ComplianceCodes(programming, validationResult);

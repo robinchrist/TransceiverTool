@@ -1158,6 +1158,66 @@ namespace TransceiverTool::Standards::SFF8472 {
 //############
 
 //############
+    nlohmann::ordered_json VendorPNToJSON(const std::array<unsigned char, 16>& vendorPNRaw) {
+        bool vendorPNPrintable = std::all_of(
+            vendorPNRaw.begin(),
+            vendorPNRaw.end(),
+            [](char c) {return std::isprint(c); }
+        );
+
+        nlohmann::ordered_json j;
+
+    
+        if(vendorPNPrintable) {
+            std::string vendorPN = std::string(reinterpret_cast<char const *>(vendorPNRaw.data()), vendorPNRaw.size());
+            //rtrim
+            vendorPN.erase(std::find_if(vendorPN.rbegin(), vendorPN.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorPN.end());
+
+            j = vendorPN;
+        } else {
+            j["Type"] = "Base64";
+            j["Value"] = cppcodec::base64_rfc4648::encode(vendorPNRaw.data(), vendorPNRaw.size());
+        }
+
+        return j;
+    }
+
+    std::array<unsigned char, 16> VendorPNFromJSON(const nlohmann::json& j) {
+        std::array<unsigned char, 16> arr;
+
+
+        if(j.is_string()) {
+            auto strVal = j.template get<std::string>();
+            //We don't care whether it contains unprintable characters - when we serialise and check, it's only to prevent invalid JSON being generated
+            //However, as this is a parsed value, we know that the JSON must be valid. Let the user enter what they want...
+            if(strVal.size() > 16) throw std::invalid_argument("Vendor Part Number must not have more than 16 characters");
+
+            if(strVal.size() < 16) strVal.resize(16, 0x20);
+
+            std::memcpy(arr.data(), strVal.data(), strVal.size());
+        } else if(j.is_object()) {
+            if(j.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Vendor Part Number object must have Type Base64");
+
+            auto encodedVal = j.at("Value").template get<std::string>();
+
+            std::vector<uint8_t> decoded;
+            try {
+                decoded = cppcodec::base64_rfc4648::decode(encodedVal);
+            } catch(const cppcodec::parse_error& e) {
+                throw std::invalid_argument(fmt::format("Decoding base 64 failed: {}", e.what()));
+            }
+            if(decoded.size() != 16) throw std::invalid_argument("Vendor Part Number specified as base64 must have exactly 16 characters!");
+
+            std::memcpy(arr.data(), decoded.data(), decoded.size());
+        } else {
+            throw std::invalid_argument("Vendor Part Number has invalid type, must be either string or object");
+        }
+
+        return arr;
+    }
+//############
+
+//############
     nlohmann::ordered_json Fibre_Channel_Speed_2_CodesToJSON(const Fibre_Channel_Speed_2_Codes& value) {
         nlohmann::ordered_json j;
 
@@ -1339,6 +1399,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         j["Vendor OUI"] = VendorOUIToJSON(programming.byte_37_39_vendor_oui);
 
+        j["Vendor PN"] = VendorPNToJSON(programming.byte_40_55_vendor_pn);
+
         j["Fibre Channel Speed 2"] = Fibre_Channel_Speed_2_CodesToJSON(programming.byte_62_fibre_channel_2_speed_codes);
 
         j["Extended Signaling Rate"] = ExtendedSignalingRateInfoToJSON(
@@ -1398,6 +1460,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_36_extended_specification_compliance_codes = ExtendedComplianceCodesFromJSON(j.at("Extended Specification Compliance Codes"));
 
         programming.byte_37_39_vendor_oui = VendorOUIFromJSON(j.at("Vendor OUI"));
+
+        programming.byte_40_55_vendor_pn = VendorPNFromJSON(j.at("Vendor PN"));
 
         programming.byte_62_fibre_channel_2_speed_codes = Fibre_Channel_Speed_2_CodesFromJSON(j.at("Fibre Channel Speed 2"));
 
