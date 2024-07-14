@@ -122,8 +122,9 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         std::memcpy(target + 20, programming.byte_20_35_vendor_name.data(), 16);
 
-
         target[36] = programming.byte_36_extended_specification_compliance_codes;
+
+        std::memcpy(target + 37, programming.byte_37_39_vendor_oui.data(), 3);
 
 
         target[62] = 

@@ -10,6 +10,7 @@
 #include <fmt/core.h>
 #include <stdexcept>
 #include <cppcodec/base64_rfc4648.hpp>
+#include "TransceiverTool/Vendor_OUIs.hpp"
 
 
 namespace TransceiverTool::Standards::SFF8472 {
@@ -1090,6 +1091,73 @@ namespace TransceiverTool::Standards::SFF8472 {
 //############
 
 //############
+    nlohmann::ordered_json VendorOUIToJSON(const std::array<unsigned char, 3>& vendorOUI) {
+        nlohmann::ordered_json j;
+
+
+        auto VendorOUIsIt = std::find_if(
+            TransceiverTool::VendorOUIs.begin(),
+            TransceiverTool::VendorOUIs.end(),
+            [seek = vendorOUI](const VendorOUI elem) { return elem.byte_value == seek; }
+        );
+
+        if(VendorOUIsIt != TransceiverTool::VendorOUIs.end()) {
+            j["Vendor Name"] = VendorOUIsIt->name;
+        } else {
+            j = fmt::format("{:02x}:{:02x}:{:02x}", vendorOUI[0], vendorOUI[1], vendorOUI[2]);
+        }
+
+        return j;
+    }
+
+    std::array<unsigned char, 3> VendorOUIFromJSON(const nlohmann::json& j) {
+        std::array<unsigned char, 3> arr;
+
+
+        if(j.is_string()) {
+            auto strVal = j.template get<std::string>();
+
+            if(strVal.size() != 8) throw std::invalid_argument("Vendor OUI string must be exactly 8 characters long");
+
+            if(!std::isxdigit(strVal[0]) || !std::isxdigit(strVal[1]) || strVal[2] != ':' ||
+                !std::isxdigit(strVal[3]) || !std::isxdigit(strVal[4]) || strVal[5] != ':' ||
+                !std::isxdigit(strVal[6]) || !std::isxdigit(strVal[7])
+            ) {
+                throw std::invalid_argument("Vendor OUI string has invalid characters or format");
+            }
+
+            unsigned long longValue = strtoul(strVal.c_str(), nullptr, 16);
+            if(longValue > std::numeric_limits<unsigned char>::max()) throw std::invalid_argument("byteValue exceeds byte range?!");
+            arr[0] = longValue;
+
+            longValue = strtoul(strVal.c_str() + 3, nullptr, 16);
+            if(longValue > std::numeric_limits<unsigned char>::max()) throw std::invalid_argument("byteValue exceeds byte range?!");
+            arr[1] = longValue;
+
+            longValue = strtoul(strVal.c_str() + 6, nullptr, 16);
+            if(longValue > std::numeric_limits<unsigned char>::max()) throw std::invalid_argument("byteValue exceeds byte range?!");
+            arr[2] = longValue;
+        } else if(j.is_object()) {
+
+            auto vendorName = j.at("Vendor Name").template get<std::string>();
+
+            auto VendorOUIsIt = std::find_if(
+                TransceiverTool::VendorOUIs.begin(),
+                TransceiverTool::VendorOUIs.end(),
+                [&vendorName](const VendorOUI elem) { return elem.name == vendorName; }
+            );
+            if(VendorOUIsIt == TransceiverTool::VendorOUIs.end()) throw std::invalid_argument("Vendor OUI Vendor Name not known");
+
+            arr = VendorOUIsIt->byte_value;
+        } else {
+            throw std::invalid_argument("Vendor OUI has invalid type, must be either string or object");
+        }
+
+        return arr;
+    }
+//############
+
+//############
     nlohmann::ordered_json Fibre_Channel_Speed_2_CodesToJSON(const Fibre_Channel_Speed_2_Codes& value) {
         nlohmann::ordered_json j;
 
@@ -1269,6 +1337,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         j["Extended Specification Compliance Codes"] = ExtendedComplianceCodesToJSON(programming.byte_36_extended_specification_compliance_codes);
 
+        j["Vendor OUI"] = VendorOUIToJSON(programming.byte_37_39_vendor_oui);
+
         j["Fibre Channel Speed 2"] = Fibre_Channel_Speed_2_CodesToJSON(programming.byte_62_fibre_channel_2_speed_codes);
 
         j["Extended Signaling Rate"] = ExtendedSignalingRateInfoToJSON(
@@ -1326,6 +1396,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_20_35_vendor_name = VendorNameFromJSON(j.at("Vendor Name"));
 
         programming.byte_36_extended_specification_compliance_codes = ExtendedComplianceCodesFromJSON(j.at("Extended Specification Compliance Codes"));
+
+        programming.byte_37_39_vendor_oui = VendorOUIFromJSON(j.at("Vendor OUI"));
 
         programming.byte_62_fibre_channel_2_speed_codes = Fibre_Channel_Speed_2_CodesFromJSON(j.at("Fibre Channel Speed 2"));
 

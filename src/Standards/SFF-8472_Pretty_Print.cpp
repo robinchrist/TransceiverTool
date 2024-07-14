@@ -395,6 +395,18 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
     );
     str.append("\n");
 
+    auto VendorOUIsIt = std::find_if(TransceiverTool::VendorOUIs.begin(), TransceiverTool::VendorOUIs.end(), [seek = programming.byte_37_39_vendor_oui](const VendorOUI elem) { return elem.byte_value == seek; });
+    std::string VendorOUIStr;
+    if(VendorOUIsIt != TransceiverTool::VendorOUIs.end()) {
+        VendorOUIStr = fmt::format("Vendor name is {:?}", VendorOUIsIt->name);
+    } else {
+        VendorOUIStr = "Vendor name is unknown";
+    }
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Vendor OUI [37-39]", fmt::format("{:02x}:{:02x}:{:02x} ({})", programming.byte_37_39_vendor_oui[0], programming.byte_37_39_vendor_oui[1], programming.byte_37_39_vendor_oui[2], VendorOUIStr)
+    );
+    str.append("\n");
+
 
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
         "Specification Compliance, Fibre Channel Speed 2 [62, 7]", formatReservedBit(programming.byte_62_fibre_channel_2_speed_codes.reserved_bit_7)

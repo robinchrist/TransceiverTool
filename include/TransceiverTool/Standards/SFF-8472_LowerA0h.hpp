@@ -91,6 +91,10 @@ namespace TransceiverTool::Standards::SFF8472 {
         //See SFF-8024 Table 4-4 
         unsigned char byte_36_extended_specification_compliance_codes;
 
+        //Byte 37-39: Vendor OUI
+        //SFP vendor IEEE company ID
+        std::array<unsigned char, 3> byte_37_39_vendor_oui;
+
         //Byte 62: Fibre Channel Speed 2
         Fibre_Channel_Speed_2_Codes byte_62_fibre_channel_2_speed_codes;
 
