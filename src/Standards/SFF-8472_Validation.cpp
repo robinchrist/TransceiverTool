@@ -146,6 +146,20 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         }
     }
 
+    void validateVendorName(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
+        for(int index = 0; index < programming.byte_20_35_vendor_name.size(); ++index) {
+            if(!std::isprint(programming.byte_20_35_vendor_name[index])) {
+                validationResult.errors.push_back(
+                    fmt::format(
+                        "Byte {} (\"Vendor Name\", Position {}) is an unprintable ASCII character (Byte Value {:#04x})",
+                        148 + index, index, programming.byte_20_35_vendor_name[index]
+                    )
+                );
+            }
+        }
+        //TODO: Warn if Vendor Name field is not left aligned, padded with spaces (0x20)?
+    }
+
     void validateExtendedSpecificationComplianceCodes(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
         //SFF-8024 Rev 4.11 Table 4-4 Extended Specification Compliance Codes
         if(programming.byte_36_extended_specification_compliance_codes == 0x0A || programming.byte_36_extended_specification_compliance_codes == 0x0F ||
@@ -212,14 +226,17 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         //SFF-8472 Rev 12.4 Table 5-6 Rate Identifier
         validateRateIdentifier(programming, validationResult);
 
+        //Nope I'm definitely not implementing validation for the Link Length stuff in bytes [14-19]
+        //This section is so random and messed up that I'm not spending more time with it for the sake of my mental health
+
+        //SFF-8472 Rev 12.4 Section 7.1 Vendor name [Address A0h, Bytes 20-35]
+        validateVendorName(programming, validationResult);
+
         //SFF-8024 Rev 4.11 Table 4-4 Extended Specification Compliance Codes
         validateExtendedIdentifierValues(programming, validationResult);
 
         //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
         validateFibreChannelSpeed2ComplianceCodes(programming, validationResult);
-
-        //Nope I'm definitely not implementing validation for the Link Length stuff in bytes [14-19]
-        //This section is so random and messed up that I'm not spending more time with it for the sake of my mental health
 
         return validationResult;
     }

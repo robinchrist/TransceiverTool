@@ -364,6 +364,31 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
     }
     if(copperMode || fiberMode) str.append("\n");
 
+    bool vendorNamePrintable = std::all_of(
+        programming.byte_20_35_vendor_name.begin(),
+        programming.byte_20_35_vendor_name.end(),
+        [](char c) {return std::isprint(c); }
+    );
+    if(vendorNamePrintable) {
+        std::string vendorName = std::string(reinterpret_cast<char const *>(programming.byte_20_35_vendor_name.data()), programming.byte_20_35_vendor_name.size());
+        //rtrim
+        vendorName.erase(std::find_if(vendorName.rbegin(), vendorName.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorName.end());
+
+        fmt::format_to(std::back_inserter(str), "{: <85s}: {:?}\n", 
+            "Vendor Name (wrapping quotes added by TransceiverTool) [20-35]", vendorName
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), "{: <85s}:", 
+            "Vendor Name (contains unprintable characters, printed as hex bytes) [20-35]"
+        );
+
+        for(int index = 0; index < programming.byte_20_35_vendor_name.size(); ++index) {
+            fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_20_35_vendor_name[index]);
+        }
+        str.append("\n");
+    }
+    str.append("\n");
+
 
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
         "Extended Specification Compliance [36]", SFF8024::byteToExtendedComplianceCodeString(programming.byte_36_extended_specification_compliance_codes)

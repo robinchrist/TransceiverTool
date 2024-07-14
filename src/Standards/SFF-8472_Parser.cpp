@@ -109,6 +109,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         parsedStruct.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value = bytes[19];
 
+        std::memcpy(parsedStruct.byte_20_35_vendor_name.data(), bytes + 20, 16);
+
 
 
         parsedStruct.byte_36_extended_specification_compliance_codes = bytes[36];

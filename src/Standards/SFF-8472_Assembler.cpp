@@ -1,6 +1,7 @@
 #include "TransceiverTool/Standards/SFF-8472_Assembler.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Checksum.hpp"
 #include "TransceiverTool/Standards/SFF-8472_LowerA0h.hpp"
+#include <cstring>
 #include <stdexcept>
 
 namespace TransceiverTool::Standards::SFF8472 {
@@ -118,6 +119,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         target[18] = programming.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m;
 
         target[19] = programming.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value;
+
+        std::memcpy(target + 20, programming.byte_20_35_vendor_name.data(), 16);
 
 
         target[36] = programming.byte_36_extended_specification_compliance_codes;
