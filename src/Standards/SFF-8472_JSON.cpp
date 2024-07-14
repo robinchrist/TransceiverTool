@@ -1403,6 +1403,62 @@ namespace TransceiverTool::Standards::SFF8472 {
     }
 //############
 
+//############
+    nlohmann::ordered_json VendorSNToJSON(const std::array<unsigned char, 16>& vendorSNRaw) {
+        bool vendorSNPrintable = std::all_of(vendorSNRaw.begin(), vendorSNRaw.end(), [](char c) {return std::isprint(c); });
+
+        nlohmann::ordered_json j;
+
+    
+        if(vendorSNPrintable) {
+            std::string vendorSN = std::string(reinterpret_cast<char const *>(vendorSNRaw.data()), vendorSNRaw.size());
+            //rtrim
+            vendorSN.erase(std::find_if(vendorSN.rbegin(), vendorSN.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorSN.end());
+
+            j = vendorSN;
+        } else {
+            j["Type"] = "Base64";
+            j["Value"] = cppcodec::base64_rfc4648::encode(vendorSNRaw.data(), vendorSNRaw.size());
+        }
+
+        return j;
+    }
+
+    std::array<unsigned char, 16> VendorSNFromJSON(const nlohmann::json& j) {
+        std::array<unsigned char, 16> arr;
+
+
+        if(j.is_string()) {
+            auto strVal = j.template get<std::string>();
+            //We don't care whether it contains unprintable characters - when we serialise and check, it's only to prevent invalid JSON being generated
+            //However, as this is a parsed value, we know that the JSON must be valid. Let the user enter what they want...
+            if(strVal.size() > 16) throw std::invalid_argument("Vendor Serial Number must not have more than 16 characters");
+
+            if(strVal.size() < 16) strVal.resize(16, 0x20);
+
+            std::memcpy(arr.data(), strVal.data(), strVal.size());
+        } else if(j.is_object()) {
+            if(j.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Vendor Serial Number object must have Type Base64");
+
+            auto encodedVal = j.at("Value").template get<std::string>();
+
+            std::vector<uint8_t> decoded;
+            try {
+                decoded = cppcodec::base64_rfc4648::decode(encodedVal);
+            } catch(const cppcodec::parse_error& e) {
+                throw std::invalid_argument(fmt::format("Decoding base 64 failed: {}", e.what()));
+            }
+            if(decoded.size() != 16) throw std::invalid_argument("Vendor Serial Number specified as base64 must have exactly 16 characters!");
+
+            std::memcpy(arr.data(), decoded.data(), decoded.size());
+        } else {
+            throw std::invalid_argument("Vendor Serial Number has invalid type, must be either string or object");
+        }
+
+        return arr;
+    }
+//############
+
     void SFF8472_LowerA0hToJSON(nlohmann::ordered_json& j, const SFF8472_LowerA0h& programming, bool copperMode) {
 
         std::vector<unsigned char> binaryBuffer; binaryBuffer.resize(128, 0x00);
@@ -1467,6 +1523,7 @@ namespace TransceiverTool::Standards::SFF8472 {
             programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent
         );
 
+        j["Vendor Serial Number"] = VendorSNToJSON(programming.byte_68_83_vendor_sn);
     }
 
 
@@ -1529,6 +1586,6 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud = extendedSignalingRateInfoFromJSONReturn.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud;
         programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent = extendedSignalingRateInfoFromJSONReturn.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent;
 
-
+        programming.byte_68_83_vendor_sn = VendorSNFromJSON(j.at("Vendor Serial Number"));
     }   
 }

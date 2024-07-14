@@ -528,6 +528,30 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
         str.append("\n");
     }
     
+    bool vendorSerialNumberPrintable = std::all_of(
+        programming.byte_68_83_vendor_sn.begin(),
+        programming.byte_68_83_vendor_sn.end(),
+        [](char c) {return std::isprint(c); }
+    );
+    if(vendorSerialNumberPrintable) {
+        std::string vendorSerialNumber = std::string(reinterpret_cast<char const *>(programming.byte_68_83_vendor_sn.data()), 16);
+        //rtrim
+        vendorSerialNumber.erase(std::find_if(vendorSerialNumber.rbegin(), vendorSerialNumber.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorSerialNumber.end());
+
+        fmt::format_to(std::back_inserter(str), "{: <85s}: {:?}\n", 
+            "Vendor S/N (wrapping quotes added by TransceiverTool) [196-211]", vendorSerialNumber
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), "{: <85s}:", 
+            "Vendor S/N (contains unprintable characters, printed as hex bytes) [196-211]"
+        );
+
+        for(int index = 0; index < programming.byte_68_83_vendor_sn.size(); ++index) {
+            fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_68_83_vendor_sn[index]);
+        }
+        str.append("\n");
+    }
+    str.append("\n");
 
     return str;
 
