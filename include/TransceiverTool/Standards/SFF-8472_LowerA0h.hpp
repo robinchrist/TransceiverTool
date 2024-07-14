@@ -99,6 +99,10 @@ namespace TransceiverTool::Standards::SFF8472 {
         //Part number provided by SFP vendor (ASCII)
         std::array<unsigned char, 16> byte_40_55_vendor_pn;
 
+        //Byte 56-59: Vendor Rev
+        //Revision level for part number provided by vendor (ASCII)
+        std::array<unsigned char, 4> byte_56_59_vendor_rev;
+
         //Byte 62: Fibre Channel Speed 2
         Fibre_Channel_Speed_2_Codes byte_62_fibre_channel_2_speed_codes;
 

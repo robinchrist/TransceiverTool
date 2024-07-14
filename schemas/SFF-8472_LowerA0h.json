@@ -751,6 +751,17 @@
                 }
             ]
         },
+        "sff-8472_vendor_rev": {
+            "$id": "/schemas/sff-8472_vendor_rev",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {"$ref": "/schemas/base64_obj"},
+                { 
+                    "type": "string",
+                    "pattern": "^[ -~]{0,4}$"
+                }
+            ]
+        },
         "sff-8472_fibre_channel_speed_2_codes": {
             "$id": "/schemas/sff-8472_fibre_channel_speed_2_codes",
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -863,6 +874,7 @@
         "Extended Specification Compliance Codes": {"$ref": "/schemas/sff-8472_extended_specification_compliance_codes"},
         "Vendor OUI": {"$ref": "/schemas/sff-8472_vendor_oui"},
         "Vendor Part Number": {"$ref": "/schemas/sff-8472_vendor_part_number"},
+        "Vendor Rev": {"$ref": "/schemas/sff-8472_vendor_rev"},
         "Fibre Channel Speed 2": { "$ref": "/schemas/sff-8472_fibre_channel_speed_2_codes" },
         "Extended Signaling Rate": { "$ref": "/schemas/sff-8472_extended_signaling_rate" },
     },
@@ -890,6 +902,7 @@
         "Extended Specification Compliance Codes",
         "Vendor OUI",
         "Vendor Part Number",
+        "Vendor Rev",
         "Fibre Channel Speed 2",
         "Extended Signaling Rate"
     ]
