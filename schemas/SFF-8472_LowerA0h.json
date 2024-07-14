@@ -383,6 +383,226 @@
                 }
             ]
         },
+        "sff-8472_link_length": {
+            "$id": "/schemas/sff-8472_link_length",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "Type": {
+                            "const": "Copper or Direct Attach"
+                        },
+                        "Copper Cable Attenuation @ 12.9 GHz [dB]": {
+                            "anyOf": [
+                                {
+                                    "const": "N/A"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 255
+                                }
+                            ]
+                        },
+                        "Copper Cable Attenuation @ 25.78 GHz [dB]": {
+                            "anyOf": [
+                                {
+                                    "const": "N/A"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 255
+                                }
+                            ]
+                        },
+                        "Length (OM2 50 um) [m] (Divisible by 10)": {
+                            "anyOf": [
+                                {
+                                    "const": "N/A"
+                                },
+                                {
+                                    "type": "integer",
+                                    "multipleOf": 10,
+                                    "minimum": 10,
+                                    "maximum": 2540
+                                },
+                                {
+                                    "const": "> 2.54 km"
+                                }
+                            ]
+                        },
+                        "Length (OM1 62.5 um) [m] (Divisible by 10)": {
+                            "anyOf": [
+                                {
+                                    "const": "N/A"
+                                },
+                                {
+                                    "type": "integer",
+                                    "multipleOf": 10,
+                                    "minimum": 10,
+                                    "maximum": 2540
+                                },
+                                {
+                                    "const": "> 2.54 km"
+                                }
+                            ]
+                        },
+                        "Length (Copper) or Actual Length (DAC) [m]": {
+                            "anyOf": [
+                                {
+                                    "const": "N/A"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 254
+                                },
+                                {
+                                    "const": "> 2.54 km"
+                                }
+                            ]
+                        },
+                        "Length (Copper) or Actual Length (DAC), Additional, Multiplier": {
+                            "enum": [
+                                "0.1",
+                                "1",
+                                "10",
+                                "100"
+                            ]
+                        },
+                        "Length (Copper) or Actual Length (DAC), Additional, Base Value [m]": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 63
+                        }
+                    },
+                    "required": [
+                        "Type",
+                        "Copper Cable Attenuation @ 12.9 GHz [dB]",
+                        "Copper Cable Attenuation @ 25.78 GHz [dB]",
+                        "Length (OM2 50 um) [m] (Divisible by 10)",
+                        "Length (OM1 62.5 um) [m] (Divisible by 10)",
+                        "Length (Copper) or Actual Length (DAC) [m]",
+                        "Length (Copper) or Actual Length (DAC), Additional, Multiplier",
+                        "Length (Copper) or Actual Length (DAC), Additional, Base Value [m]"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "Type": {
+                            "const": "Fibre"
+                        },
+                        "Length (SMF) [km]": {
+                            "anyOf": [
+                                {
+                                    "const": "N/A"
+                                },
+                                {
+                                    "type": "integer",
+                                    "minimum": 1,
+                                    "maximum": 254
+                                },
+                                {
+                                    "const": "> 254 km"
+                                }
+                            ]
+                        },
+                        "Length (SMF) [m] (Divisible by 100)": {
+                            "anyOf": [
+                                {
+                                    "const": "N/A"
+                                },
+                                {
+                                    "type": "integer",
+                                    "multipleOf": 100,
+                                    "minimum": 100,
+                                    "maximum": 25400
+                                },
+                                {
+                                    "const": "> 25.4 km"
+                                }
+                            ]
+                        },
+                        "Length (OM2 50 um) [m] (Divisible by 10)": {
+                            "anyOf": [
+                                {
+                                    "const": "N/A"
+                                },
+                                {
+                                    "type": "integer",
+                                    "multipleOf": 10,
+                                    "minimum": 10,
+                                    "maximum": 2540
+                                },
+                                {
+                                    "const": "> 2.54 km"
+                                }
+                            ]
+                        },
+                        "Length (OM1 62.5 um) [m] (Divisible by 10)": {
+                            "anyOf": [
+                                {
+                                    "const": "N/A"
+                                },
+                                {
+                                    "type": "integer",
+                                    "multipleOf": 10,
+                                    "minimum": 10,
+                                    "maximum": 2540
+                                },
+                                {
+                                    "const": "> 2.54 km"
+                                }
+                            ]
+                        },
+                        "Length (OM4 50 um) [m] (Divisible by 10)": {
+                            "anyOf": [
+                                {
+                                    "const": "N/A"
+                                },
+                                {
+                                    "type": "integer",
+                                    "multipleOf": 10,
+                                    "minimum": 10,
+                                    "maximum": 2540
+                                },
+                                {
+                                    "const": "> 2.54 km"
+                                }
+                            ]
+                        },
+                        "Length (OM3 50 um) [m] (Divisible by 10)": {
+                            "anyOf": [
+                                {
+                                    "const": "N/A"
+                                },
+                                {
+                                    "type": "integer",
+                                    "multipleOf": 10,
+                                    "minimum": 10,
+                                    "maximum": 2540
+                                },
+                                {
+                                    "const": "> 2.54 km"
+                                }
+                            ]
+                        },
+                    },
+                    "required": [
+                        "Type",
+                        "Length (SMF) [km]",
+                        "Length (SMF) [m] (Divisible by 100)",
+                        "Length (OM2 50 um) [m] (Divisible by 10)",
+                        "Length (OM1 62.5 um) [m] (Divisible by 10)",
+                        "Length (OM4 50 um) [m] (Divisible by 10)",
+                        "Length (OM3 50 um) [m] (Divisible by 10)",
+                    ]
+                }
+            ]
+        },
         "sff-8472_extended_specification_compliance_codes": {
             "$id": "/schemas/sff-8472_extended_specification_compliance_codes",
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -575,6 +795,7 @@
         "Encoding": {"$ref": "/schemas/sff-8472_encoding"},
         "Nominal Signaling Rate [MBaud] (Divisible by 100)": {"$ref": "/schemas/sff-8472_nominal_baud_rate_100"},
         "Rate Identifier": {"$ref": "/schemas/sff-8472_rate_identifier"},
+        "Link Length": {"$ref": "/schemas/sff-8472_link_length"},
         "Extended Specification Compliance Codes": {"$ref": "/schemas/sff-8472_extended_specification_compliance_codes"},
         "Fibre Channel Speed 2": { "$ref": "/schemas/sff-8472_fibre_channel_speed_2_codes" },
         "Extended Signaling Rate": { "$ref": "/schemas/sff-8472_extended_signaling_rate" },
@@ -598,6 +819,7 @@
         "Encoding",
         "Nominal Signaling Rate [MBaud] (Divisible by 100)",
         "Rate Identifier",
+        "Link Length",
         "Extended Specification Compliance Codes",
         "Fibre Channel Speed 2",
         "Extended Signaling Rate"

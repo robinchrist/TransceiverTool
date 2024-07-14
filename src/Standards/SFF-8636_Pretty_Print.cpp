@@ -343,7 +343,7 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
 
 
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "Length (OM3 50 um) [143]", programming.byte_143_length_om3_in_2m > 1 ? fmt::format("{} m", programming.byte_143_length_om3_in_2m * 2) : "Not Applicable (e.g. AOC) / OM3 fiber type not supported / must be determined from the free side device"
+        "Length (OM3 50 um) [143]", programming.byte_143_length_om3_in_2m > 1 ? fmt::format("{} m", unsigned(programming.byte_143_length_om3_in_2m) * 2u) : "Not Applicable (e.g. AOC) / OM3 fiber type not supported / must be determined from the free side device"
     );
     str.append("\n");
 
@@ -377,7 +377,7 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
     }
     if(fiberMode) {
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-            "Length (OM4 50 um) [146]", programming.byte_146_length_copper_in_1m_or_om4_in_2m == 0xFF ? " > 508 m" : (programming.byte_146_length_copper_in_1m_or_om4_in_2m > 1 ? fmt::format("{} m", programming.byte_146_length_copper_in_1m_or_om4_in_2m * 2) : "Not Applicable (e.g. AOC) / OM4 fiber type not supported / must be determined from the free side device")
+            "Length (OM4 50 um) [146]", programming.byte_146_length_copper_in_1m_or_om4_in_2m == 0xFF ? " > 508 m" : (programming.byte_146_length_copper_in_1m_or_om4_in_2m > 1 ? fmt::format("{} m", unsigned(programming.byte_146_length_copper_in_1m_or_om4_in_2m) * 2u) : "Not Applicable (e.g. AOC) / OM4 fiber type not supported / must be determined from the free side device")
         );
     }
     if(fiberMode || copperMode) str.append("\n");
@@ -843,7 +843,7 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
     
 
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "Baud Rate, nominal [222]", programming.byte_222_extended_baud_rate_in_250_mbaud != 0x00 ? fmt::format("{} MBd", unsigned(programming.byte_222_extended_baud_rate_in_250_mbaud) * 250) : "Unspecified"
+        "Baud Rate, nominal [222]", programming.byte_222_extended_baud_rate_in_250_mbaud != 0x00 ? fmt::format("{} MBd", unsigned(programming.byte_222_extended_baud_rate_in_250_mbaud) * 250u) : "Unspecified"
     );
     str.append("\n");
     

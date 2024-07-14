@@ -58,6 +58,30 @@ namespace TransceiverTool::Standards::SFF8472 {
         //Type of rate select functionality (see Table 5-6)
         unsigned char byte_13_rate_identifier;
 
+        //Byte 14: Length (SMF,km) or Copper Cable Attenuation
+        //Link length supported for single-mode fiber, units of km, or copper cable attenuation in dB at 12.9 GHz
+        unsigned char byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz;
+
+        //Byte 15: Length (SMF) or Copper Cable Attenuation
+        //Link length supported for single-mode fiber, units of 100 m, or copper cable attenuation in dB at 25.78 GHz
+        unsigned char byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz;
+
+        //Byte 16: Length (50 um, OM2)
+        //Link length supported for 50 um OM2 fiber, units of 10 m
+        unsigned char byte_16_length_om2_in_10_m;
+
+        //Byte 17: Length (62.5 um, OM1) 
+        //Link length supported for 62.5 um OM1 fiber, units of 10 m
+        unsigned char byte_17_length_om1_in_10_m;
+
+        //Byte 18: Length (OM4 or copper cable)
+        //Link length supported for 50um OM4 fiber, units of 10 m. Alternatively, copper or direct attach cable, units of m
+        unsigned char byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m;
+
+        //Byte 19: Length (OM3) or Cable length, additional
+        //Link length supported for 50 um OM3 fiber, units of 10 m. Alternatively, copper or direct attach cable multiplier and base value
+        unsigned char byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value;
+
         //Byte 36: Extended Specification Compliance Codes
         //Code for electronic or optical compatibility (see Table 5-3)
         //See SFF-8024 Table 4-4 

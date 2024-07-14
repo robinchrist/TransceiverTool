@@ -790,17 +790,17 @@ namespace TransceiverTool::Standards::SFF8636 {
             const auto& copper_cable_attenuation_25ghz_val = j.at("Copper Cable Attenuation @ 25.78 GHz [dB]");
             if(copper_cable_attenuation_25ghz_val.is_string()) {
                 if(copper_cable_attenuation_25ghz_val.template get<std::string>() != "N/A") {
-                    throw std::invalid_argument("Copper Cable Attenuation @ 25.78GHz [dB] has string value, must be N/A");
+                    throw std::invalid_argument("Copper Cable Attenuation @ 25.78 GHz [dB] has string value, must be N/A");
                 }
                 parsedStruct.byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB = 0;
             } else if(copper_cable_attenuation_25ghz_val.is_number_unsigned()) {
                 auto numberValue = copper_cable_attenuation_25ghz_val.template get<std::uint64_t>();
 
-                if(numberValue > 255) throw std::invalid_argument("Copper Cable Attenuation @ 25.78GHz [dB] must not be greater than 255");
+                if(numberValue > 255) throw std::invalid_argument("Copper Cable Attenuation @ 25.78 GHz [dB] must not be greater than 255");
 
                 parsedStruct.byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB = numberValue;
             } else {
-                throw std::invalid_argument("Copper Cable Attenuation @ 25.78GHz [dB] has wrong type (neither string nor unsigned integer)");
+                throw std::invalid_argument("Copper Cable Attenuation @ 25.78 GHz [dB] has wrong type (neither string nor unsigned integer)");
             }
 
             const auto& cable_length_val = j.at("Length (passive copper or active cable) [m]");
