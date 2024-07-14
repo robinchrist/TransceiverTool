@@ -95,6 +95,10 @@ namespace TransceiverTool::Standards::SFF8472 {
         //SFP vendor IEEE company ID
         std::array<unsigned char, 3> byte_37_39_vendor_oui;
 
+        //Byte 40-55: Vendor PN
+        //Part number provided by SFP vendor (ASCII)
+        std::array<unsigned char, 16> byte_40_55_vendor_pn;
+
         //Byte 62: Fibre Channel Speed 2
         Fibre_Channel_Speed_2_Codes byte_62_fibre_channel_2_speed_codes;
 

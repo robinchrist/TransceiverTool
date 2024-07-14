@@ -408,6 +408,32 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
     str.append("\n");
 
 
+    bool vendorPNPrintable = std::all_of(
+        programming.byte_40_55_vendor_pn.begin(),
+        programming.byte_40_55_vendor_pn.end(),
+        [](char c) {return std::isprint(c); }
+    );
+    if(vendorPNPrintable) {
+        std::string vendorPN = std::string(reinterpret_cast<char const *>(programming.byte_40_55_vendor_pn.data()), 16);
+        //rtrim
+        vendorPN.erase(std::find_if(vendorPN.rbegin(), vendorPN.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorPN.end());
+
+        fmt::format_to(std::back_inserter(str), "{: <85s}: {:?}\n", 
+            "Vendor PN (wrapping quotes added by TransceiverTool) [40-55]", vendorPN
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), "{: <85s}:", 
+            "Vendor PN (contains unprintable characters, printed as hex bytes) [40-55]"
+        );
+
+        for(int index = 0; index < programming.byte_40_55_vendor_pn.size(); ++index) {
+            fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_40_55_vendor_pn[index]);
+        }
+        str.append("\n");
+    }
+    str.append("\n");
+
+
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
         "Specification Compliance, Fibre Channel Speed 2 [62, 7]", formatReservedBit(programming.byte_62_fibre_channel_2_speed_codes.reserved_bit_7)
     );
