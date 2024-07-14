@@ -9,6 +9,7 @@
 #include "TransceiverTool/Standards/SFF-8472_Rate_Identifiers.hpp"
 #include <fmt/core.h>
 #include <stdexcept>
+#include <cppcodec/base64_rfc4648.hpp>
 
 
 namespace TransceiverTool::Standards::SFF8472 {
@@ -988,6 +989,66 @@ namespace TransceiverTool::Standards::SFF8472 {
 //############
 
 //############
+    nlohmann::ordered_json VendorNameToJSON(const std::array<unsigned char, 16>& vendorNameRaw) {
+        bool vendorNamePrintable = std::all_of(
+            vendorNameRaw.begin(),
+            vendorNameRaw.end(),
+            [](char c) {return std::isprint(c); }
+        );
+
+        nlohmann::ordered_json j;
+
+    
+        if(vendorNamePrintable) {
+            std::string vendorName = std::string(reinterpret_cast<char const *>(vendorNameRaw.data()), vendorNameRaw.size());
+            //rtrim
+            vendorName.erase(std::find_if(vendorName.rbegin(), vendorName.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorName.end());
+
+            j = vendorName;
+        } else {
+            j["Type"] = "Base64";
+            j["Value"] = cppcodec::base64_rfc4648::encode(vendorNameRaw.data(), vendorNameRaw.size());
+        }
+
+        return j;
+    }
+
+    std::array<unsigned char, 16> VendorNameFromJSON(const nlohmann::json& j) {
+        std::array<unsigned char, 16> arr;
+
+
+        if(j.is_string()) {
+            auto strVal = j.template get<std::string>();
+            //We don't care whether it contains unprintable characters - when we serialise and check, it's only to prevent invalid JSON being generated
+            //However, as this is a parsed value, we know that the JSON must be valid. Let the user enter what they want...
+            if(strVal.size() > 16) throw std::invalid_argument("Vendor Name must not have more than 16 characters");
+
+            if(strVal.size() < 16) strVal.resize(16, 0x20);
+
+            std::memcpy(arr.data(), strVal.data(), strVal.size());
+        } else if(j.is_object()) {
+            if(j.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Vendor Name object must have Type Base64");
+
+            auto encodedVal = j.at("Value").template get<std::string>();
+
+            std::vector<uint8_t> decoded;
+            try {
+                decoded = cppcodec::base64_rfc4648::decode(encodedVal);
+            } catch(const cppcodec::parse_error& e) {
+                throw std::invalid_argument(fmt::format("Decoding base 64 failed: {}", e.what()));
+            }
+            if(decoded.size() != 16) throw std::invalid_argument("Vendor Name specified as base64 must have exactly 16 characters!");
+
+            std::memcpy(arr.data(), decoded.data(), decoded.size());
+        } else {
+            throw std::invalid_argument("Vendor Name has invalid type, must be either string or object");
+        }
+
+        return arr;
+    }
+//############
+
+//############
     nlohmann::ordered_json ExtendedComplianceCodesToJSON(unsigned char byte_value) {
         nlohmann::ordered_json j;
 
@@ -1204,6 +1265,8 @@ namespace TransceiverTool::Standards::SFF8472 {
             programming.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value
         );
 
+        j["Vendor Name"] = VendorNameToJSON(programming.byte_20_35_vendor_name);
+
         j["Extended Specification Compliance Codes"] = ExtendedComplianceCodesToJSON(programming.byte_36_extended_specification_compliance_codes);
 
         j["Fibre Channel Speed 2"] = Fibre_Channel_Speed_2_CodesToJSON(programming.byte_62_fibre_channel_2_speed_codes);
@@ -1259,6 +1322,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_17_length_om1_in_10_m = linkLengthReturn.byte_17_length_om1_in_10_m;
         programming.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m = linkLengthReturn.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m;
         programming.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value = linkLengthReturn.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value;
+
+        programming.byte_20_35_vendor_name = VendorNameFromJSON(j.at("Vendor Name"));
 
         programming.byte_36_extended_specification_compliance_codes = ExtendedComplianceCodesFromJSON(j.at("Extended Specification Compliance Codes"));
 

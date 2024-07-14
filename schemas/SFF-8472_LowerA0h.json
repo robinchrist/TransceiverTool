@@ -603,6 +603,17 @@
                 }
             ]
         },
+        "sff-8472_vendor_name": {
+            "$id": "/schemas/sff-8472_vendor_name",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {"$ref": "/schemas/base64_obj"},
+                { 
+                    "type": "string",
+                    "pattern": "^[ -~]{0,16}$"
+                }
+            ]
+        },
         "sff-8472_extended_specification_compliance_codes": {
             "$id": "/schemas/sff-8472_extended_specification_compliance_codes",
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -796,6 +807,7 @@
         "Nominal Signaling Rate [MBaud] (Divisible by 100)": {"$ref": "/schemas/sff-8472_nominal_baud_rate_100"},
         "Rate Identifier": {"$ref": "/schemas/sff-8472_rate_identifier"},
         "Link Length": {"$ref": "/schemas/sff-8472_link_length"},
+        "Vendor Name": {"$ref": "/schemas/sff-8472_vendor_name"},
         "Extended Specification Compliance Codes": {"$ref": "/schemas/sff-8472_extended_specification_compliance_codes"},
         "Fibre Channel Speed 2": { "$ref": "/schemas/sff-8472_fibre_channel_speed_2_codes" },
         "Extended Signaling Rate": { "$ref": "/schemas/sff-8472_extended_signaling_rate" },
@@ -820,6 +832,7 @@
         "Nominal Signaling Rate [MBaud] (Divisible by 100)",
         "Rate Identifier",
         "Link Length",
+        "Vendor Name",
         "Extended Specification Compliance Codes",
         "Fibre Channel Speed 2",
         "Extended Signaling Rate"

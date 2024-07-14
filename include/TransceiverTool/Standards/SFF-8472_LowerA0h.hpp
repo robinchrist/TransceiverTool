@@ -82,6 +82,10 @@ namespace TransceiverTool::Standards::SFF8472 {
         //Link length supported for 50 um OM3 fiber, units of 10 m. Alternatively, copper or direct attach cable multiplier and base value
         unsigned char byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value;
 
+        //Byte 20-35: Vendor name
+        //SFP vendor name (ASCII)
+        std::array<unsigned char, 16> byte_20_35_vendor_name;
+
         //Byte 36: Extended Specification Compliance Codes
         //Code for electronic or optical compatibility (see Table 5-3)
         //See SFF-8024 Table 4-4 
