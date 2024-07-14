@@ -128,6 +128,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         std::memcpy(target + 40, programming.byte_40_55_vendor_pn.data(), 16);
 
+        std::memcpy(target + 56, programming.byte_56_59_vendor_rev.data(), 4);
+
 
         target[62] = 
             (unsigned char)(programming.byte_62_fibre_channel_2_speed_codes.reserved_bit_7) << 7 |

@@ -191,6 +191,25 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         //TODO: Warn if Vendor PN field is not left aligned, padded with spaces (0x20)?
     }
 
+    void validateVendorRevisionNumber(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
+        //SFF-8472 Rev 12.4 Section 7.4 Vendor Rev [Address A0h, Bytes 56-59
+        bool vendorRevAllZeros = std::all_of(programming.byte_56_59_vendor_rev.begin(), programming.byte_56_59_vendor_rev.end(), [](unsigned char val) { return val == 0; });
+        if(!vendorRevAllZeros) {
+            for(int index = 0; index < programming.byte_56_59_vendor_rev.size(); ++index) {
+                if(!std::isprint(programming.byte_56_59_vendor_rev[index])) {
+                    validationResult.errors.push_back(
+                        fmt::format(
+                            "Byte {} (\"Vendor Rev\", Position {}) is an unprintable ASCII character (Byte Value {:#04x})",
+                            184 + index, index, programming.byte_56_59_vendor_rev[index]
+                        )
+                    );
+                }
+            }
+        }
+        //TODO: Warn if Vendor Rev field is not left aligned, padded with spaces (0x20)?
+    }
+
+
     void validateFibreChannelSpeed2ComplianceCodes(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
 
         //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
@@ -255,6 +274,9 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
 
         //SFF-8472 Rev 12.4 Section 7.3 Vendor PN [Address A0h, Bytes 40-55]
         validateVendorPartNumber(programming, validationResult);
+
+        //SFF-8472 Rev 12.4 Section 7.4 Vendor Rev [Address A0h, Bytes 56-59]
+        validateVendorRevisionNumber(programming, validationResult);
 
         //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
         validateFibreChannelSpeed2ComplianceCodes(programming, validationResult);
