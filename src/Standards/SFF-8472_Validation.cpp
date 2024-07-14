@@ -218,6 +218,9 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
         validateFibreChannelSpeed2ComplianceCodes(programming, validationResult);
 
+        //Nope I'm definitely not implementing validation for the Link Length stuff in bytes [14-19]
+        //This section is so random and messed up that I'm not spending more time with it for the sake of my mental health
+
         return validationResult;
     }
 }

@@ -97,6 +97,18 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         parsedStruct.byte_13_rate_identifier = bytes[13];
 
+        parsedStruct.byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz = bytes[14];
+
+        parsedStruct.byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz = bytes[15];
+
+        parsedStruct.byte_16_length_om2_in_10_m = bytes[16];
+
+        parsedStruct.byte_17_length_om1_in_10_m = bytes[17];
+
+        parsedStruct.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m = bytes[18];
+
+        parsedStruct.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value = bytes[19];
+
 
 
         parsedStruct.byte_36_extended_specification_compliance_codes = bytes[36];

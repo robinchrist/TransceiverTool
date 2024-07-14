@@ -8,6 +8,7 @@
 #include "TransceiverTool/Standards/SFF-8024_Extended_Compliance_Codes.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Rate_Identifiers.hpp"
 #include <fmt/core.h>
+#include <stdexcept>
 
 
 namespace TransceiverTool::Standards::SFF8472 {
@@ -610,6 +611,383 @@ namespace TransceiverTool::Standards::SFF8472 {
 //############
 
 //############
+    nlohmann::ordered_json LinkLengthInfoToJSON(
+        bool copperMode,
+        unsigned char byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz,
+        unsigned char byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz,
+        unsigned char byte_16_length_om2_in_10_m,
+        unsigned char byte_17_length_om1_in_10_m,
+        unsigned char byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m,
+        unsigned char byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value
+    ) {
+        nlohmann::ordered_json j;
+
+        if(copperMode) {
+            j["Type"] = "Copper or Direct Attach";
+
+            if(byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz == 0) {
+                j["Copper Cable Attenuation @ 12.9 GHz [dB]"] = "N/A";
+            } else {
+                j["Copper Cable Attenuation @ 12.9 GHz [dB]"] = (unsigned long)(byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz);
+            }
+
+            if(byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz == 0) {
+                j["Copper Cable Attenuation @ 25.78 GHz [dB]"] = "N/A";
+            } else {
+                j["Copper Cable Attenuation @ 25.78 GHz [dB]"] = (unsigned long)(byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz);
+            }
+
+            //Duplicated to preserve order
+            if(byte_16_length_om2_in_10_m == 0xFF) {
+                j["Length (OM2 50 um) [m] (Divisible by 10)"] = "> 2.54 km";
+            } else if(byte_16_length_om2_in_10_m == 0) {
+                j["Length (OM2 50 um) [m] (Divisible by 10)"] = "N/A";
+            } else {
+                j["Length (OM2 50 um) [m] (Divisible by 10)"] = (unsigned long)(byte_16_length_om2_in_10_m) * 10ul;
+            }
+
+            if(byte_17_length_om1_in_10_m == 0xFF) {
+                j["Length (OM1 62.5 um) [m] (Divisible by 10)"] = "> 2.54 km";
+            } else if(byte_17_length_om1_in_10_m == 0) {
+                j["Length (OM1 62.5 um) [m] (Divisible by 10)"] = "N/A";
+            } else {
+                j["Length (OM1 62.5 um) [m] (Divisible by 10)"] = (unsigned long)(byte_17_length_om1_in_10_m) * 10ul;
+            }
+
+            if(byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m == 0xFF) {
+                j["Length (Copper) or Actual Length (DAC) [m]"] = "> 254 m";
+            } else if(byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m == 0) {
+                j["Length (Copper) or Actual Length (DAC) [m]"] = "N/A";
+            } else {
+                j["Length (Copper) or Actual Length (DAC) [m]"] = (unsigned long)(byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m);
+            }
+
+            unsigned char multiplierBits = (byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value & 0b11000000) >> 6;
+
+            if(multiplierBits == 0) { j["Length (Copper) or Actual Length (DAC), Additional, Multiplier"] = "0.1"; }
+            else if(multiplierBits == 1) { j["Length (Copper) or Actual Length (DAC), Additional, Multiplier"] = "1"; }
+            else if(multiplierBits == 2) { j["Length (Copper) or Actual Length (DAC), Additional, Multiplier"] = "10"; }
+            else {j["Length (Copper) or Actual Length (DAC), Additional, Multiplier"] = "100";}
+
+            unsigned char baseValue = byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value & 0b00111111;
+
+            j["Length (Copper) or Actual Length (DAC), Additional, Base Value [m]"] = (unsigned long)(baseValue);
+        } else {
+            j["Type"] = "Fibre";
+
+            if(byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz == 0xFF) {
+                j["Length (SMF) [km]"] = "> 254 km";
+            } else if(byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz == 0) {
+                j["Length (SMF) [km]"] = "N/A";
+            } else {
+                j["Length (SMF) [km]"] = (unsigned long)(byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz);
+            }
+
+            if(byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz == 0xFF) {
+                j["Length (SMF) [m] (Divisible by 100)"] = "> 25.4 km";
+            } else if(byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz == 0) {
+                j["Length (SMF) [m] (Divisible by 100)"] = "N/A";
+            } else {
+                j["Length (SMF) [m] (Divisible by 100)"] = (unsigned long)(byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz) * 100ul;
+            }
+
+            //Duplicated to preserve order
+            if(byte_16_length_om2_in_10_m == 0xFF) {
+                j["Length (OM2 50 um) [m] (Divisible by 10)"] = "> 2.54 km";
+            } else if(byte_16_length_om2_in_10_m == 0) {
+                j["Length (OM2 50 um) [m] (Divisible by 10)"] = "N/A";
+            } else {
+                j["Length (OM2 50 um) [m] (Divisible by 10)"] = (unsigned long)(byte_16_length_om2_in_10_m) * 10ul;
+            }
+
+            if(byte_17_length_om1_in_10_m == 0xFF) {
+                j["Length (OM1 62.5 um) [m] (Divisible by 10)"] = "> 2.54 km";
+            } else if(byte_17_length_om1_in_10_m == 0) {
+                j["Length (OM1 62.5 um) [m] (Divisible by 10)"] = "N/A";
+            } else {
+                j["Length (OM1 62.5 um) [m] (Divisible by 10)"] = (unsigned long)(byte_17_length_om1_in_10_m) * 10ul;
+            }
+
+            if(byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m == 0xFF) {
+                j["Length (OM4 50 um) [m] (Divisible by 10)"] = "> 2.54 km";
+            } else if(byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m == 0) {
+                j["Length (OM4 50 um) [m] (Divisible by 10)"] = "N/A";
+            } else {
+                j["Length (OM4 50 um) [m] (Divisible by 10)"] = (unsigned long)(byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m) * 10ul;
+            }
+
+            if(byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value == 0xFF) {
+                j["Length (OM3 50 um) [m] (Divisible by 10)"] = "> 2.54 km";
+            } else if(byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value == 0) {
+                j["Length (OM3 50 um) [m] (Divisible by 10)"] = "N/A";
+            } else {
+                j["Length (OM3 50 um) [m] (Divisible by 10)"] = (unsigned long)(byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value) * 10ul;
+            }
+        }
+
+
+        return j;
+    }
+
+    struct LinkLengthInfoFromJSONReturn {
+        unsigned char byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz;
+        unsigned char byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz;
+        unsigned char byte_16_length_om2_in_10_m;
+        unsigned char byte_17_length_om1_in_10_m;
+        unsigned char byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m;
+        unsigned char byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value;
+    };
+
+    LinkLengthInfoFromJSONReturn LinkLengthInfoFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Link Length must be an object");
+
+        LinkLengthInfoFromJSONReturn parsedStruct;
+        parsedStruct.byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz = 123;
+
+        auto typeStr = j.at("Type").template get<std::string>();
+
+        if(typeStr == "Copper or Direct Attach") {
+            const auto& copper_cable_attenuation_12ghz_val = j.at("Copper Cable Attenuation @ 12.9 GHz [dB]");
+            if(copper_cable_attenuation_12ghz_val.is_string()) {
+                if(copper_cable_attenuation_12ghz_val.template get<std::string>() != "N/A") {
+                    throw std::invalid_argument("Copper Cable Attenuation @ 12.9 GHz [dB] has string value, must be N/A");
+                }
+                parsedStruct.byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz = 0;
+            } else if(copper_cable_attenuation_12ghz_val.is_number_unsigned()) {
+                auto numberValue = copper_cable_attenuation_12ghz_val.template get<std::uint64_t>();
+
+                if(numberValue > 255) throw std::invalid_argument("Copper Cable Attenuation @ 12.9 GHz [dB] must not be greater than 255");
+
+                parsedStruct.byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz = numberValue;
+            } else {
+                throw std::invalid_argument("Copper Cable Attenuation @ 12.9 GHz [dB] has wrong type (neither string nor unsigned integer)");
+            }
+
+            const auto& copper_cable_attenuation_25ghz_val = j.at("Copper Cable Attenuation @ 25.78 GHz [dB]");
+            if(copper_cable_attenuation_25ghz_val.is_string()) {
+                if(copper_cable_attenuation_25ghz_val.template get<std::string>() != "N/A") {
+                    throw std::invalid_argument("Copper Cable Attenuation @ 25.78GHz [dB] has string value, must be N/A");
+                }
+                parsedStruct.byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz = 0;
+            } else if(copper_cable_attenuation_25ghz_val.is_number_unsigned()) {
+                auto numberValue = copper_cable_attenuation_25ghz_val.template get<std::uint64_t>();
+
+                if(numberValue > 255) throw std::invalid_argument("Copper Cable Attenuation @ 25.78GHz [dB] must not be greater than 255");
+
+                parsedStruct.byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz = numberValue;
+            } else {
+                throw std::invalid_argument("Copper Cable Attenuation @ 25.78GHz [dB] has wrong type (neither string nor unsigned integer)");
+            }
+
+            const auto& length_om2_val = j.at("Length (OM2 50 um) [m] (Divisible by 10)");
+            if(length_om2_val.is_string()) {
+                if(length_om2_val.template get<std::string>() == "N/A") {
+                    parsedStruct.byte_16_length_om2_in_10_m = 0;
+                } else if(length_om2_val.template get<std::string>() == "> 2.54 km") {
+                    parsedStruct.byte_16_length_om2_in_10_m = 0xFF;
+                } else {
+                    throw std::invalid_argument("Length (OM2 50 um) [m] (Divisible by 10) has string value, must be N/A or > 2.54 km");
+                }
+            } else if(length_om2_val.is_number_unsigned()) {
+                auto numberValue = length_om2_val.template get<std::uint64_t>();
+
+                if(numberValue % 10 != 0) throw std::invalid_argument("Length (OM2 50 um) [m] (Divisible by 10) must be divisible by 10");
+                if(numberValue > 2540) throw std::invalid_argument("Length (OM2 50 um) [m] (Divisible by 10) must not be greater than 2540");
+
+                parsedStruct.byte_16_length_om2_in_10_m = numberValue / 10;
+            } else {
+                throw std::invalid_argument("Length (OM2 50 um) [m] (Divisible by 10) has wrong type (neither string nor unsigned integer)");
+            }
+
+            const auto& length_om1_val = j.at("Length (OM1 62.5 um) [m] (Divisible by 10)");
+            if(length_om1_val.is_string()) {
+                if(length_om1_val.template get<std::string>() == "N/A") {
+                    parsedStruct.byte_17_length_om1_in_10_m = 0;
+                } else if(length_om1_val.template get<std::string>() == "> 2.54 km") {
+                    parsedStruct.byte_17_length_om1_in_10_m = 0xFF;
+                } else {
+                    throw std::invalid_argument("Length (OM1 62.5 um) [m] (Divisible by 10) has string value, must be N/A or > 2.54 km");
+                }
+            } else if(length_om1_val.is_number_unsigned()) {
+                auto numberValue = length_om1_val.template get<std::uint64_t>();
+
+                if(numberValue % 10 != 0) throw std::invalid_argument("Length (OM1 62.5 um) [m] (Divisible by 10) must be divisible by 10");
+                if(numberValue > 2540) throw std::invalid_argument("Length (OM1 62.5 um) [m] (Divisible by 10) must not be greater than 2540");
+
+                parsedStruct.byte_17_length_om1_in_10_m = numberValue / 10;
+            } else {
+                throw std::invalid_argument("Length (OM1 62.5 um) [m] (Divisible by 10) has wrong type (neither string nor unsigned integer)");
+            }
+
+
+            const auto& length_copper_val = j.at("Length (Copper) or Actual Length (DAC) [m]");
+            if(length_copper_val.is_string()) {
+                if(length_copper_val.template get<std::string>() == "N/A") {
+                    parsedStruct.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m = 0;
+                } else if(length_copper_val.template get<std::string>() == "> 254 m") {
+                    parsedStruct.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m = 0xFF;
+                } else {
+                    throw std::invalid_argument("Length (Copper) or Actual Length (DAC) [m] has string value, must be N/A or > 254 m");
+                }
+            } else if(length_copper_val.is_number_unsigned()) {
+                auto numberValue = length_copper_val.template get<std::uint64_t>();
+
+                if(numberValue > 254) throw std::invalid_argument("Length (Copper) or Actual Length (DAC) [m] must not be greater than 254");
+
+                parsedStruct.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m = numberValue / 10;
+            } else {
+                throw std::invalid_argument("Length (Copper) or Actual Length (DAC) [m] has wrong type (neither string nor unsigned integer)");
+            }
+
+            const auto& length_additional_multiplier_val = j.at("Length (Copper) or Actual Length (DAC), Additional, Multiplier");
+            if(!length_additional_multiplier_val.is_string()) throw std::invalid_argument("Length (Copper) or Actual Length (DAC), Additional, Multiplier must be a string!");
+
+            unsigned char multiplierBits;
+            if(length_additional_multiplier_val.template get<std::string>() == "0.1") { multiplierBits = 0b00; }
+            else if(length_additional_multiplier_val.template get<std::string>() == "1") { multiplierBits = 0b01; }
+            else if(length_additional_multiplier_val.template get<std::string>() == "10") { multiplierBits = 0b10; }
+            else if(length_additional_multiplier_val.template get<std::string>() == "100") { multiplierBits = 0b11; }
+            else {
+                throw std::invalid_argument("Length (Copper) or Actual Length (DAC), Additional, Multiplier must be either 0.1, 1, 10 or 100");
+            }
+
+            const auto& length_additional_base_val = j.at("Length (Copper) or Actual Length (DAC), Additional, Base Value [m]");
+            if(!length_additional_base_val.is_number_unsigned()) throw std::invalid_argument("Length (Copper) or Actual Length (DAC), Additional, Base Value [m] must be an unsigned integer!");
+
+            auto length_additional_base_number_value = length_additional_base_val.template get<std::uint64_t>();
+            if(length_additional_base_number_value > 63) throw std::invalid_argument("Length (Copper) or Actual Length (DAC), Additional, Base Value [m] must not be greater than 63");
+
+            parsedStruct.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value = (multiplierBits << 6) | (unsigned char)(length_additional_base_number_value);
+
+        } else if(typeStr == "Fibre") {
+
+            const auto& length_smf_km_val = j.at("Length (SMF) [km]");
+            if(length_smf_km_val.is_string()) {
+                if(length_smf_km_val.template get<std::string>() == "N/A") {
+                    parsedStruct.byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz = 0;
+                } else if(length_smf_km_val.template get<std::string>() == "> 254 km") {
+                    parsedStruct.byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz = 0xFF;
+                } else {
+                    throw std::invalid_argument("Length (SMF) [km] has string value, must be N/A or > 254 km");
+                }
+            } else if(length_smf_km_val.is_number_unsigned()) {
+                auto numberValue = length_smf_km_val.template get<std::uint64_t>();
+
+                if(numberValue > 254) throw std::invalid_argument("Length (SMF) [km] must not be greater than 254");
+
+                parsedStruct.byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz = numberValue;
+            } else {
+                throw std::invalid_argument("Length (SMF) [km] has wrong type (neither string nor unsigned integer)");
+            }
+
+            const auto& length_smf_m_val = j.at("Length (SMF) [m] (Divisible by 100)");
+            if(length_smf_m_val.is_string()) {
+                if(length_smf_m_val.template get<std::string>() == "N/A") {
+                    parsedStruct.byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz = 0;
+                } else if(length_smf_m_val.template get<std::string>() == "> 25.4 km") {
+                    parsedStruct.byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz = 0xFF;
+                } else {
+                    throw std::invalid_argument("Length (SMF) [m] (Divisible by 100) has string value, must be N/A or > 25.4 km");
+                }
+            } else if(length_smf_m_val.is_number_unsigned()) {
+                auto numberValue = length_smf_m_val.template get<std::uint64_t>();
+
+                if(numberValue % 100 != 0) throw std::invalid_argument("Length (SMF) [m] (Divisible by 100) must be divisible by 10");
+                if(numberValue > 25400) throw std::invalid_argument("Length (SMF) [m] (Divisible by 100) must not be greater than 25400");
+
+                parsedStruct.byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz = numberValue / 100;
+            } else {
+                throw std::invalid_argument("Length (SMF) [m] (Divisible by 100) has wrong type (neither string nor unsigned integer)");
+            }
+
+            const auto& length_om2_val = j.at("Length (OM2 50 um) [m] (Divisible by 10)");
+            if(length_om2_val.is_string()) {
+                if(length_om2_val.template get<std::string>() == "N/A") {
+                    parsedStruct.byte_16_length_om2_in_10_m = 0;
+                } else if(length_om2_val.template get<std::string>() == "> 2.54 km") {
+                    parsedStruct.byte_16_length_om2_in_10_m = 0xFF;
+                } else {
+                    throw std::invalid_argument("Length (OM2 50 um) [m] (Divisible by 10) has string value, must be N/A or > 2.54 km");
+                }
+            } else if(length_om2_val.is_number_unsigned()) {
+                auto numberValue = length_om2_val.template get<std::uint64_t>();
+
+                if(numberValue % 10 != 0) throw std::invalid_argument("Length (OM2 50 um) [m] (Divisible by 10) must be divisible by 10");
+                if(numberValue > 2540) throw std::invalid_argument("Length (OM2 50 um) [m] (Divisible by 10) must not be greater than 2540");
+
+                parsedStruct.byte_16_length_om2_in_10_m = numberValue / 10;
+            } else {
+                throw std::invalid_argument("Length (OM2 50 um) [m] (Divisible by 10) has wrong type (neither string nor unsigned integer)");
+            }
+
+            const auto& length_om1_val = j.at("Length (OM1 62.5 um) [m] (Divisible by 10)");
+            if(length_om1_val.is_string()) {
+                if(length_om1_val.template get<std::string>() == "N/A") {
+                    parsedStruct.byte_17_length_om1_in_10_m = 0;
+                } else if(length_om1_val.template get<std::string>() == "> 2.54 km") {
+                    parsedStruct.byte_17_length_om1_in_10_m = 0xFF;
+                } else {
+                    throw std::invalid_argument("Length (OM1 62.5 um) [m] (Divisible by 10) has string value, must be N/A or > 2.54 km");
+                }
+            } else if(length_om1_val.is_number_unsigned()) {
+                auto numberValue = length_om1_val.template get<std::uint64_t>();
+
+                if(numberValue % 10 != 0) throw std::invalid_argument("Length (OM1 62.5 um) [m] (Divisible by 10) must be divisible by 10");
+                if(numberValue > 2540) throw std::invalid_argument("Length (OM1 62.5 um) [m] (Divisible by 10) must not be greater than 2540");
+
+                parsedStruct.byte_17_length_om1_in_10_m = numberValue / 10;
+            } else {
+                throw std::invalid_argument("Length (OM1 62.5 um) [m] (Divisible by 10) has wrong type (neither string nor unsigned integer)");
+            }
+
+            const auto& length_om4_val = j.at("Length (OM4 50 um) [m] (Divisible by 10)");
+            if(length_om4_val.is_string()) {
+                if(length_om4_val.template get<std::string>() == "N/A") {
+                    parsedStruct.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m = 0;
+                } else if(length_om4_val.template get<std::string>() == "> 2.54 km") {
+                    parsedStruct.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m = 0xFF;
+                } else {
+                    throw std::invalid_argument("Length (OM4 50 um) [m] (Divisible by 10) has string value, must be N/A or > 2.54 km");
+                }
+            } else if(length_om4_val.is_number_unsigned()) {
+                auto numberValue = length_om4_val.template get<std::uint64_t>();
+
+                if(numberValue % 10 != 0) throw std::invalid_argument("Length (OM4 50 um) [m] (Divisible by 10) must be divisible by 10");
+                if(numberValue > 2540) throw std::invalid_argument("Length (OM4 50 um) [m] (Divisible by 10) must not be greater than 2540");
+
+                parsedStruct.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m = numberValue / 10;
+            } else {
+                throw std::invalid_argument("Length (OM4 50 um) [m] (Divisible by 10) has wrong type (neither string nor unsigned integer)");
+            }
+
+            const auto& length_om3_val = j.at("Length (OM3 50 um) [m] (Divisible by 10)");
+            if(length_om3_val.is_string()) {
+                if(length_om3_val.template get<std::string>() == "N/A") {
+                    parsedStruct.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value = 0;
+                } else if(length_om3_val.template get<std::string>() == "> 2.54 km") {
+                    parsedStruct.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value = 0xFF;
+                } else {
+                    throw std::invalid_argument("Length (OM3 50 um) [m] (Divisible by 10) has string value, must be N/A or > 2.54 km");
+                }
+            } else if(length_om3_val.is_number_unsigned()) {
+                auto numberValue = length_om3_val.template get<std::uint64_t>();
+
+                if(numberValue % 10 != 0) throw std::invalid_argument("Length (OM3 50 um) [m] (Divisible by 10) must be divisible by 10");
+                if(numberValue > 2540) throw std::invalid_argument("Length (OM3 50 um) [m] (Divisible by 10) must not be greater than 2540");
+
+                parsedStruct.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value = numberValue / 10;
+            } else {
+                throw std::invalid_argument("Length (OM3 50 um) [m] (Divisible by 10) has wrong type (neither string nor unsigned integer)");
+            }
+        } else {
+            throw std::invalid_argument("Link Length has invalid Type string, must be 'Copper or Direct Attach' or Fibre");
+        }
+
+        return parsedStruct;
+    }
+//############
+
+//############
     nlohmann::ordered_json ExtendedComplianceCodesToJSON(unsigned char byte_value) {
         nlohmann::ordered_json j;
 
@@ -816,6 +1194,16 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         j["Rate Identifier"] = RateIdentifierToJSON(programming.byte_13_rate_identifier);
 
+        j["Link Length"] = LinkLengthInfoToJSON(
+            copperMode,
+            programming.byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz,
+            programming.byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz,
+            programming.byte_16_length_om2_in_10_m,
+            programming.byte_17_length_om1_in_10_m,
+            programming.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m,
+            programming.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value
+        );
+
         j["Extended Specification Compliance Codes"] = ExtendedComplianceCodesToJSON(programming.byte_36_extended_specification_compliance_codes);
 
         j["Fibre Channel Speed 2"] = Fibre_Channel_Speed_2_CodesToJSON(programming.byte_62_fibre_channel_2_speed_codes);
@@ -863,6 +1251,14 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_12_nominal_signaling_rate_in_100_mbaud = NominalSignalingRate100MBaudFromJSON(j.at("Nominal Signaling Rate [MBaud] (Divisible by 100)"));
 
         programming.byte_13_rate_identifier = RateIdentifierFromJSON(j.at("Rate Identifier"));
+
+        auto linkLengthReturn = LinkLengthInfoFromJSON(j.at("Link Length"));
+        programming.byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz = linkLengthReturn.byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz;
+        programming.byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz = linkLengthReturn.byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz;
+        programming.byte_16_length_om2_in_10_m = linkLengthReturn.byte_16_length_om2_in_10_m;
+        programming.byte_17_length_om1_in_10_m = linkLengthReturn.byte_17_length_om1_in_10_m;
+        programming.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m = linkLengthReturn.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m;
+        programming.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value = linkLengthReturn.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value;
 
         programming.byte_36_extended_specification_compliance_codes = ExtendedComplianceCodesFromJSON(j.at("Extended Specification Compliance Codes"));
 

@@ -107,6 +107,18 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         target[13] = programming.byte_13_rate_identifier;
 
+        target[14] = programming.byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz;
+
+        target[15] = programming.byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz;
+
+        target[16] = programming.byte_16_length_om2_in_10_m;
+
+        target[17] = programming.byte_17_length_om1_in_10_m;
+
+        target[18] = programming.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m;
+
+        target[19] = programming.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value;
+
 
         target[36] = programming.byte_36_extended_specification_compliance_codes;
 
