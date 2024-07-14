@@ -1,6 +1,7 @@
 #include "TransceiverTool/Standards/SFF-8472_Validation.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Assembler.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Checksum.hpp"
+#include "TransceiverTool/Standards/SFF-8472_LowerA0h.hpp"
 #include <cctype>
 #include <fmt/core.h>
 #include <algorithm>
@@ -231,6 +232,23 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
     }
 
     
+    void validateVendorSerialNumber(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
+        //SFF-8472 Rev 12.4 Section 8.6 Vendor SN [Address A0h, Bytes 68-83]
+        bool vendorSNAllZeros = std::all_of(programming.byte_68_83_vendor_sn.begin(), programming.byte_68_83_vendor_sn.end(), [](unsigned char val) { return val == 0; });
+        if(!vendorSNAllZeros) {
+            for(int index = 0; index < programming.byte_68_83_vendor_sn.size(); ++index) {
+                if(!std::isprint(programming.byte_68_83_vendor_sn[index])) {
+                    validationResult.errors.push_back(
+                        fmt::format(
+                            "Byte {} (\"Vendor SN\", Position {}) is an unprintable ASCII character (Byte Value {:#04x})",
+                            196 + index, index, programming.byte_68_83_vendor_sn[index]
+                        )
+                    );
+                }
+            }
+        }
+        //TODO: Warn if Vendor SN field is not left aligned, padded with spaces (0x20)?
+    }
 
     //TODO: Introduce options to not warn on values in "Vendor Specific" ranges (in case this tool is used by an actual vendor?)
     common::ValidationResult validateSFF8472_LowerA0h(const TransceiverTool::Standards::SFF8472::SFF8472_LowerA0h& programming) {
@@ -280,6 +298,9 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
 
         //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
         validateFibreChannelSpeed2ComplianceCodes(programming, validationResult);
+
+        //SFF-8472 Rev 12.4 Section 8.6 Vendor SN [Address A0h, Bytes 68-83]
+        validateVendorSerialNumber(programming, validationResult);
 
         return validationResult;
     }

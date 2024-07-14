@@ -119,5 +119,9 @@ namespace TransceiverTool::Standards::SFF8472 {
         //(Signaling Rate, min) is specified in units of 1% below the nominal bit rate.
         //If address 12 is set to FFh, the limit range of signaling rates specified in units of +/- 1% around the nominal signaling rate.
         unsigned char byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent;
+
+        //Byte 68-83: Vendor SN
+        //Serial number provided by vendor (ASCII)
+        std::array<unsigned char, 16> byte_68_83_vendor_sn;
     };
 }

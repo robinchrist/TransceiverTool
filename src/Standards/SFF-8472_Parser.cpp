@@ -133,6 +133,7 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         parsedStruct.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent = bytes[67];
         
+        std::memcpy(parsedStruct.byte_68_83_vendor_sn.data(), bytes + 68, 16);
 
         return parsedStruct;
     }
