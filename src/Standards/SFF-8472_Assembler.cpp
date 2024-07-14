@@ -147,5 +147,10 @@ namespace TransceiverTool::Standards::SFF8472 {
         target[67] = programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent;
         
         std::memcpy(target + 68, programming.byte_68_83_vendor_sn.data(), 16);
+
+        std::memcpy(target + 84, programming.byte_84_91_date_code.year_low_order_digits.data(), 2);
+        std::memcpy(target + 86, programming.byte_84_91_date_code.month_digits.data(), 2);
+        std::memcpy(target + 88, programming.byte_84_91_date_code.day_digits.data(), 2);
+        std::memcpy(target + 90, programming.byte_84_91_date_code.lot_code.data(), 2);
     }
 }

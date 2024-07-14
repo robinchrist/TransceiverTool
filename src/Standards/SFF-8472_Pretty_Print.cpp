@@ -539,15 +539,92 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
         vendorSerialNumber.erase(std::find_if(vendorSerialNumber.rbegin(), vendorSerialNumber.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorSerialNumber.end());
 
         fmt::format_to(std::back_inserter(str), "{: <85s}: {:?}\n", 
-            "Vendor S/N (wrapping quotes added by TransceiverTool) [196-211]", vendorSerialNumber
+            "Vendor S/N (wrapping quotes added by TransceiverTool) [68-83]", vendorSerialNumber
         );
     } else {
         fmt::format_to(std::back_inserter(str), "{: <85s}:", 
-            "Vendor S/N (contains unprintable characters, printed as hex bytes) [196-211]"
+            "Vendor S/N (contains unprintable characters, printed as hex bytes) [68-83]"
         );
 
         for(int index = 0; index < programming.byte_68_83_vendor_sn.size(); ++index) {
             fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_68_83_vendor_sn[index]);
+        }
+        str.append("\n");
+    }
+    str.append("\n");
+
+    bool dateCodeYearPrintable = std::all_of(
+        programming.byte_84_91_date_code.year_low_order_digits.begin(),
+        programming.byte_84_91_date_code.year_low_order_digits.end(),
+        [](char c) {return std::isdigit(c); }
+    );
+    if(dateCodeYearPrintable) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Date Code, low order digits of year [84-85]", std::string(reinterpret_cast<char const *>(programming.byte_84_91_date_code.year_low_order_digits.data()), 2)
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), "{: <85s}:", 
+            "Date Code, low order digits of year (invalid format, printed as hex bytes) [84-85]"
+        );
+
+        for(int index = 0; index < programming.byte_84_91_date_code.year_low_order_digits.size(); ++index) {
+            fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_84_91_date_code.year_low_order_digits[index]);
+        }
+        str.append("\n");
+    }
+
+    bool dateCodeMonthPrintable = std::all_of(
+        programming.byte_84_91_date_code.month_digits.begin(),
+        programming.byte_84_91_date_code.month_digits.end(), 
+        [](char c) {return std::isdigit(c); }
+    );
+    if(dateCodeMonthPrintable) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Date Code, digits of month [86-87]", std::string(reinterpret_cast<char const *>(programming.byte_84_91_date_code.month_digits.data()), 2)
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), "{: <85s}:", 
+            "Date Code, digits of month (invalid format, printed as hex bytes) [86-87]"
+        );
+
+        for(int index = 0; index < programming.byte_84_91_date_code.month_digits.size(); ++index) {
+            fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_84_91_date_code.month_digits[index]);
+        }
+        str.append("\n");
+    }
+
+    bool dateCodeDayPrintable = std::all_of(
+        programming.byte_84_91_date_code.day_digits.begin(),
+        programming.byte_84_91_date_code.day_digits.end(),
+        [](char c) {return std::isdigit(c); }
+    );
+    if(dateCodeDayPrintable) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Date Code, digits of day [88-89]", std::string(reinterpret_cast<char const *>(programming.byte_84_91_date_code.day_digits.data()), 2)
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), "{: <85s}:", 
+            "Date Code, digits of day (invalid format, printed as hex bytes) [88-89]"
+        );
+
+        for(int index = 0; index < programming.byte_84_91_date_code.day_digits.size(); ++index) {
+            fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_84_91_date_code.day_digits[index]);
+        }
+        str.append("\n");
+    }
+
+    bool lotCodePrintable = std::all_of(programming.byte_84_91_date_code.lot_code.begin(), programming.byte_84_91_date_code.lot_code.end(), [](char c) {return std::isprint(c); });
+    if(dateCodeDayPrintable) {
+        fmt::format_to(std::back_inserter(str), "{: <85s}: {:?}\n", 
+            "Date Code, lot code (wrapping quotes added by TransceiverTool) [90-91]", std::string(reinterpret_cast<char const *>(programming.byte_84_91_date_code.lot_code.data()), 2)
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), "{: <85s}:", 
+            "Date Code, lot code (invalid format, printed as hex bytes) [90-91]"
+        );
+
+        for(int index = 0; index < programming.byte_84_91_date_code.lot_code.size(); ++index) {
+            fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_84_91_date_code.lot_code[index]);
         }
         str.append("\n");
     }

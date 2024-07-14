@@ -135,6 +135,11 @@ namespace TransceiverTool::Standards::SFF8472 {
         
         std::memcpy(parsedStruct.byte_68_83_vendor_sn.data(), bytes + 68, 16);
 
+        std::memcpy(parsedStruct.byte_84_91_date_code.year_low_order_digits.data(), bytes + 84, 2);
+        std::memcpy(parsedStruct.byte_84_91_date_code.month_digits.data(), bytes + 86, 2);
+        std::memcpy(parsedStruct.byte_84_91_date_code.day_digits.data(), bytes + 88, 2);
+        std::memcpy(parsedStruct.byte_84_91_date_code.lot_code.data(), bytes + 90, 2);
+
         return parsedStruct;
     }
 
