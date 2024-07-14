@@ -111,9 +111,9 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         std::memcpy(parsedStruct.byte_20_35_vendor_name.data(), bytes + 20, 16);
 
-
-
         parsedStruct.byte_36_extended_specification_compliance_codes = bytes[36];
+
+        std::memcpy(parsedStruct.byte_37_39_vendor_oui.data(), bytes + 37, 3);
 
 
         parsedStruct.byte_62_fibre_channel_2_speed_codes.reserved_bit_7 = bytes[62] & (1 << 7);

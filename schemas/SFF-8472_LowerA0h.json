@@ -699,6 +699,47 @@
                 }
             ]
         },
+        "sff-8472_included_vendor_ouis": {
+            "$id": "/schemas/sff-8472_included_vendor_ouis",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "enum": [
+                "FS COM INC",
+                "Brocade Communications Systems LLC",
+                "FINISAR CORPORATION",
+                "Intel Corporate",
+                "Mellanox Technologies, Inc.",
+                "Avago Technologies",
+                "Sumitomo Electric Industries, Ltd",
+                "CommScope Inc",
+                "Molex CMS",
+                "IBM (IEEE is H. Stoll GmbH & Co. KG)",
+                "Arista Networks",
+                "Extreme (IEEE is Siemon)",
+                "Skylane Optics",
+                "Amphenol",
+                "Oraclel",
+                "Innolight Technology Corporation"
+            ]
+        },
+        "sff-8472_vendor_oui": {
+            "$id": "/schemas/sff-8472_vendor_oui",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                { 
+                    "type": "object",
+                    "properties": {
+                        "Vendor Name": {
+                            "$ref": "/schemas/sff-8472_included_vendor_ouis"
+                        }
+                    },
+                    "required": ["Vendor Name"]
+                },
+                {
+                    "type": "string",
+                    "pattern": "^[0-9a-fA-F]{2}:[0-9a-fA-F]{2}:[0-9a-fA-F]{2}$"
+                }
+            ]
+        },
         "sff-8472_fibre_channel_speed_2_codes": {
             "$id": "/schemas/sff-8472_fibre_channel_speed_2_codes",
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -809,6 +850,7 @@
         "Link Length": {"$ref": "/schemas/sff-8472_link_length"},
         "Vendor Name": {"$ref": "/schemas/sff-8472_vendor_name"},
         "Extended Specification Compliance Codes": {"$ref": "/schemas/sff-8472_extended_specification_compliance_codes"},
+        "Vendor OUI": {"$ref": "/schemas/sff-8472_vendor_oui"},
         "Fibre Channel Speed 2": { "$ref": "/schemas/sff-8472_fibre_channel_speed_2_codes" },
         "Extended Signaling Rate": { "$ref": "/schemas/sff-8472_extended_signaling_rate" },
     },
@@ -834,6 +876,7 @@
         "Link Length",
         "Vendor Name",
         "Extended Specification Compliance Codes",
+        "Vendor OUI",
         "Fibre Channel Speed 2",
         "Extended Signaling Rate"
     ]
