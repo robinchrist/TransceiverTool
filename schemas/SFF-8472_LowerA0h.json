@@ -858,6 +858,59 @@
                 }
             ]
         },
+        "sff-8472_date_code": {
+            "$id": "/schemas/sff-8472_date_code",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Year low order digits (Byte 84-85)": {
+                    "anyOf": [
+                        {"$ref": "/schemas/base64_obj"},
+                        {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 99
+                        }
+                    ]
+                },
+                "Month digits (Byte 86-87)": {
+                    "anyOf": [
+                        {"$ref": "/schemas/base64_obj"},
+                        {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 12
+                        }
+                    ]
+                },
+                "Day (Byte 88-89)": {
+                    "anyOf": [
+                        {"$ref": "/schemas/base64_obj"},
+                        {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 31
+                        }
+                    ]
+                },
+                "Vendor Lot Code (Byte 90-91)": {
+                    "anyOf": [
+                        {"$ref": "/schemas/base64_obj"},
+                        {
+                            "type": "string",
+                            "minLength": 0,
+                            "maxLength": 2
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "Year low order digits (Byte 84-85)",
+                "Month digits (Byte 86-87)",
+                "Day (Byte 88-89)",
+                "Vendor Lot Code (Byte 90-91)"
+            ]
+        },
     },
 
     "properties": {
@@ -889,6 +942,7 @@
         "Fibre Channel Speed 2": { "$ref": "/schemas/sff-8472_fibre_channel_speed_2_codes" },
         "Extended Signaling Rate": { "$ref": "/schemas/sff-8472_extended_signaling_rate" },
         "Vendor Serial Number": {"$ref": "/schemas/sff-8472_vendor_serial_number"},
+        "Date Code": {"$ref": "/schemas/sff-8472_date_code"},
     },
 
     "required": [
@@ -917,6 +971,7 @@
         "Vendor Rev",
         "Fibre Channel Speed 2",
         "Extended Signaling Rate",
-        "Vendor Serial Number"
+        "Vendor Serial Number",
+        "Date Code"
     ]
 }

@@ -153,7 +153,7 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
                 validationResult.errors.push_back(
                     fmt::format(
                         "Byte {} (\"Vendor Name\", Position {}) is an unprintable ASCII character (Byte Value {:#04x})",
-                        148 + index, index, programming.byte_20_35_vendor_name[index]
+                        20 + index, index, programming.byte_20_35_vendor_name[index]
                     )
                 );
             }
@@ -183,7 +183,7 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
                     validationResult.errors.push_back(
                         fmt::format(
                             "Byte {} (\"Vendor PN\", Position {}) is an unprintable ASCII character (Byte Value {:#04x})",
-                            168 + index, index, programming.byte_40_55_vendor_pn[index]
+                            40 + index, index, programming.byte_40_55_vendor_pn[index]
                         )
                     );
                 }
@@ -201,7 +201,7 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
                     validationResult.errors.push_back(
                         fmt::format(
                             "Byte {} (\"Vendor Rev\", Position {}) is an unprintable ASCII character (Byte Value {:#04x})",
-                            184 + index, index, programming.byte_56_59_vendor_rev[index]
+                            56 + index, index, programming.byte_56_59_vendor_rev[index]
                         )
                     );
                 }
@@ -241,13 +241,97 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
                     validationResult.errors.push_back(
                         fmt::format(
                             "Byte {} (\"Vendor SN\", Position {}) is an unprintable ASCII character (Byte Value {:#04x})",
-                            196 + index, index, programming.byte_68_83_vendor_sn[index]
+                            68 + index, index, programming.byte_68_83_vendor_sn[index]
                         )
                     );
                 }
             }
         }
         //TODO: Warn if Vendor SN field is not left aligned, padded with spaces (0x20)?
+    }
+
+    void validateDateCode(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
+        //SFF-8472 Rev 12.4 Section 8.7 Date Code [Address A0h, Bytes 84-91]
+        if(
+            !std::isdigit(programming.byte_84_91_date_code.year_low_order_digits[0]) || 
+            !std::isdigit(programming.byte_84_91_date_code.year_low_order_digits[1])
+        ) {
+            validationResult.errors.push_back(
+                fmt::format(
+                    "Byte 84 / 85 (\"Date Code\", low order digits of the year) is not a number"
+                )
+            );
+        }
+        //No need to parse: We checked that both characters are numbers [0-9] and all values are valid (year 2000 - 2099)
+
+        if(
+            programming.byte_84_91_date_code.month_digits[0] <= 0x2F || programming.byte_84_91_date_code.month_digits[0] >= 0x3A ||
+            programming.byte_84_91_date_code.month_digits[1] <= 0x2F || programming.byte_84_91_date_code.month_digits[1] >= 0x3A
+        ) {
+            validationResult.errors.push_back(
+                fmt::format(
+                    "Byte 86 / 87 (\"Date Code\", digits of the month) is not a number"
+                )
+            );
+        } else {
+            try {
+                int digits_of_month  = std::stoi(std::string(reinterpret_cast<char const *>(programming.byte_84_91_date_code.month_digits.data()), 2));
+                if(digits_of_month < 1 || digits_of_month > 12) {
+                    validationResult.errors.push_back(
+                        fmt::format(
+                            "Byte 86 / 87 (\"Date Code\", digits of the month) must be within [0;12] but is {}",
+                            digits_of_month
+                        )
+                    );
+                }
+            } catch(const std::exception& e) {
+                validationResult.errors.push_back(
+                    fmt::format(
+                        "Byte 86 / 87 (\"Date Code\", digits of the month) is not a valid number (could not parse?)"
+                    )
+                );
+            }
+        }
+
+        if(
+            programming.byte_84_91_date_code.day_digits[0] <= 0x2F || programming.byte_84_91_date_code.day_digits[0] >= 0x3A ||
+            programming.byte_84_91_date_code.day_digits[1] <= 0x2F || programming.byte_84_91_date_code.day_digits[1] >= 0x3A
+        ) {
+            validationResult.errors.push_back(
+                fmt::format(
+                    "Byte 88 / 89 (\"Date Code\", day of the month) is not a number"
+                )
+            );
+        } else {
+            try {
+                int digits_of_month  = std::stoi(std::string(reinterpret_cast<char const *>(programming.byte_84_91_date_code.day_digits.data()), 2));
+                if(digits_of_month < 1 || digits_of_month > 31) {
+                    validationResult.errors.push_back(
+                        fmt::format(
+                            "Byte 88 / 89 (\"Date Code\", day of the month) must be within [0;31] but is {}",
+                            digits_of_month
+                        )
+                    );
+                }
+            } catch(const std::exception& e) {
+                validationResult.errors.push_back(
+                    fmt::format(
+                        "Byte 88 / 89 (\"Date Code\", day of the month) is not a valid number (could not parse?)"
+                    )
+                );
+            }
+        }
+
+        for(int index = 0; index < programming.byte_84_91_date_code.lot_code.size(); ++index) {
+            if(!std::isprint(programming.byte_84_91_date_code.lot_code[index])) {
+                validationResult.errors.push_back(
+                    fmt::format(
+                        "Byte {} (\"Vendor Lot Code\", Position {}) is an unprintable ASCII character (Byte Value {:#04x})",
+                        90 + index, index, programming.byte_84_91_date_code.lot_code[index]
+                    )
+                );
+            }
+        }
     }
 
     //TODO: Introduce options to not warn on values in "Vendor Specific" ranges (in case this tool is used by an actual vendor?)
@@ -301,6 +385,9 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
 
         //SFF-8472 Rev 12.4 Section 8.6 Vendor SN [Address A0h, Bytes 68-83]
         validateVendorSerialNumber(programming, validationResult);
+
+        //SFF-8472 Rev 12.4 Section 8.7 Date Code [Address A0h, Bytes 84-91]
+        validateDateCode(programming, validationResult);
 
         return validationResult;
     }

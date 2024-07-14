@@ -2,6 +2,7 @@
 #include <string>
 #include <array>
 #include "TransceiverTool/Standards/SFF-8472_Compliance_Codes.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Date_Code.hpp"
 
 namespace TransceiverTool::Standards::SFF8472 {
     struct SFF8472_LowerA0h {
@@ -123,5 +124,9 @@ namespace TransceiverTool::Standards::SFF8472 {
         //Byte 68-83: Vendor SN
         //Serial number provided by vendor (ASCII)
         std::array<unsigned char, 16> byte_68_83_vendor_sn;
+
+        //Byte 84-91: Date Code
+        //Vendor's manufacturing date code (see Table 8-4)
+        DateCode byte_84_91_date_code;
     };
 }

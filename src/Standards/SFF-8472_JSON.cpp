@@ -2,6 +2,7 @@
 #include "TransceiverTool/Standards/SFF-8024_Encoding_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Transceiver_Connector_Type.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Compliance_Codes.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Date_Code.hpp"
 #include "TransceiverTool/Standards/SFF-8472_LowerA0h.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Extended_Identifier_Values.hpp"
@@ -1459,6 +1460,185 @@ namespace TransceiverTool::Standards::SFF8472 {
     }
 //############
 
+//############
+    nlohmann::ordered_json DateCodeToJSON(const DateCode& dateCode) {
+        nlohmann::ordered_json j;
+
+        bool dateCodeYearIsNumber = std::isdigit(dateCode.year_low_order_digits[0]) && std::isdigit(dateCode.year_low_order_digits[1]);
+        
+        if(dateCodeYearIsNumber) {
+            int digits_of_year = std::stoi(std::string(reinterpret_cast<char const *>(dateCode.year_low_order_digits.data()), dateCode.year_low_order_digits.size()));
+
+            j["Year low order digits (Byte 84-85)"] = (unsigned)(digits_of_year);
+        } else {
+            j["Year low order digits (Byte 84-85)"]["Type"] = "Base64";
+            j["Year low order digits (Byte 84-85)"]["Value"] = cppcodec::base64_rfc4648::encode(dateCode.year_low_order_digits.data(), dateCode.year_low_order_digits.size());
+        }
+        
+
+        bool dateCodeMonthIsNumber = std::isdigit(dateCode.month_digits[0]) && std::isdigit(dateCode.month_digits[1]);
+
+        if(dateCodeMonthIsNumber) {
+            int digits_of_month  = std::stoi(std::string(reinterpret_cast<char const *>(dateCode.month_digits.data()), dateCode.month_digits.size()));
+
+            if(digits_of_month < 1 || digits_of_month > 12) {
+                j["Month digits (Byte 86-87)"]["Type"] = "Base64";
+                j["Month digits (Byte 86-87)"]["Value"] = cppcodec::base64_rfc4648::encode(dateCode.month_digits.data(), dateCode.month_digits.size());
+            } else {
+                j["Month digits (Byte 86-87)"] = (unsigned)(digits_of_month);
+            }
+        } else {
+            j["Month digits (Byte 86-87)"]["Type"] = "Base64";
+            j["Month digits (Byte 86-87)"]["Value"] = cppcodec::base64_rfc4648::encode(dateCode.month_digits.data(), dateCode.month_digits.size());
+        }
+
+        bool dateCodeDayIsNumber = std::isdigit(dateCode.day_digits[0]) && std::isdigit(dateCode.day_digits[1]);
+
+        if(dateCodeDayIsNumber) {
+            int day  = std::stoi(std::string(reinterpret_cast<char const *>(dateCode.day_digits.data()), dateCode.day_digits.size()));
+
+            if(day < 1 || day > 31) {
+                j["Day (Byte 88-89)"]["Type"] = "Base64";
+                j["Day (Byte 88-89)"]["Value"] = cppcodec::base64_rfc4648::encode(dateCode.day_digits.data(), dateCode.day_digits.size());
+            } else {
+                j["Day (Byte 88-89)"] = (unsigned)(day);
+            }
+        } else {
+            j["Day (Byte 88-89)"]["Type"] = "Base64";
+            j["Day (Byte 88-89)"]["Value"] = cppcodec::base64_rfc4648::encode(dateCode.day_digits.data(), dateCode.day_digits.size());
+        }
+
+        bool vendorLotCodePrintable = std::isprint(dateCode.lot_code[0]) && std::isprint(dateCode.lot_code[1]);
+        if(vendorLotCodePrintable) {
+            
+            std::string vendorLotCode = std::string(reinterpret_cast<char const *>(dateCode.lot_code.data()), dateCode.lot_code.size());
+            vendorLotCode.erase(std::find_if(vendorLotCode.rbegin(), vendorLotCode.rend(), [](unsigned char ch) { return !(ch == 0x20); }).base(), vendorLotCode.end());
+
+            j["Vendor Lot Code (Byte 90-91)"] = vendorLotCode;
+        } else {
+            j["Vendor Lot Code (Byte 90-91)"]["Type"] = "Base64";
+            j["Vendor Lot Code (Byte 90-91)"]["Value"] = cppcodec::base64_rfc4648::encode(dateCode.lot_code.data(), dateCode.lot_code.size());
+        }
+        
+        return j;
+    }
+
+    DateCode DateCodeFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Date Code must be an object");
+
+        DateCode dateCode;
+
+        auto dateCodeYearVal = j.at("Year low order digits (Byte 84-85)");
+        if(dateCodeYearVal.is_number_unsigned()) {
+            auto dateCodeNumVal = dateCodeYearVal.template get<std::uint64_t>();
+            if(dateCodeNumVal > 99) throw std::invalid_argument("Year low order digits (Byte 84-85) must not be greater than 99");
+
+            auto dateCodeStrVal = fmt::format("{:02}", dateCodeNumVal);
+            
+            //We don't care if the value is not in range... Could as well have been specified as base64
+            std::memcpy(dateCode.year_low_order_digits.data(), dateCodeStrVal.data(), 2);
+        } else if(dateCodeYearVal.is_object()) {
+            if(dateCodeYearVal.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Year low order digits (Byte 84-85) object must have Type Base64");
+
+            auto encodedVal = dateCodeYearVal.at("Value").template get<std::string>();
+
+            std::vector<uint8_t> decoded;
+            try {
+                decoded = cppcodec::base64_rfc4648::decode(encodedVal);
+            } catch(const cppcodec::parse_error& e) {
+                throw std::invalid_argument(fmt::format("Decoding base 64 failed: {}", e.what()));
+            }
+            if(decoded.size() != 2) throw std::invalid_argument("Year low order digits (Byte 84-85) specified as base64 must have exactly 2 characters!");
+
+            std::memcpy(dateCode.year_low_order_digits.data(), decoded.data(), decoded.size());
+        } else {
+            throw std::invalid_argument("Year low order digits (Byte 84-85) must either be a number or object");
+        }
+
+        auto dateCodeMonthVal = j.at("Month digits (Byte 86-87)");
+        if(dateCodeMonthVal.is_number_unsigned()) {
+            auto dateCodeNumVal = dateCodeMonthVal.template get<std::uint64_t>();
+            if(dateCodeNumVal > 99) throw std::invalid_argument("Month digits (Byte 86-87) must not be greater than 99");
+
+            auto dateCodeStrVal = fmt::format("{:02}", dateCodeNumVal);
+            
+            //We don't care if the value is not in range... Could as well have been specified as base64
+            std::memcpy(dateCode.month_digits.data(), dateCodeStrVal.data(), 2);
+        } else if(dateCodeMonthVal.is_object()) {
+            if(dateCodeMonthVal.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Month digits (Byte 86-87) object must have Type Base64");
+
+            auto encodedVal = dateCodeMonthVal.at("Value").template get<std::string>();
+
+            std::vector<uint8_t> decoded;
+            try {
+                decoded = cppcodec::base64_rfc4648::decode(encodedVal);
+            } catch(const cppcodec::parse_error& e) {
+                throw std::invalid_argument(fmt::format("Decoding base 64 failed: {}", e.what()));
+            }
+            if(decoded.size() != 2) throw std::invalid_argument("Month digits (Byte 86-87) specified as base64 must have exactly 2 characters!");
+
+            std::memcpy(dateCode.month_digits.data(), decoded.data(), decoded.size());
+        } else {
+            throw std::invalid_argument("Month digits (Byte 86-87) must either be a number or object");
+        }
+
+        auto dateCodeDayVal = j.at("Day (Byte 88-89)");
+        if(dateCodeDayVal.is_number_unsigned()) {
+            auto dateCodeNumVal = dateCodeDayVal.template get<std::uint64_t>();
+            if(dateCodeNumVal > 99) throw std::invalid_argument("Day (Byte 88-89) must not be greater than 99");
+
+            auto dateCodeStrVal = fmt::format("{:02}", dateCodeNumVal);
+            
+            //We don't care if the value is not in range... Could as well have been specified as base64
+            std::memcpy(dateCode.day_digits.data(), dateCodeStrVal.data(), 2);
+        } else if(dateCodeDayVal.is_object()) {
+            if(dateCodeDayVal.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Day (Byte 88-89) object must have Type Base64");
+
+            auto encodedVal = dateCodeDayVal.at("Value").template get<std::string>();
+
+            std::vector<uint8_t> decoded;
+            try {
+                decoded = cppcodec::base64_rfc4648::decode(encodedVal);
+            } catch(const cppcodec::parse_error& e) {
+                throw std::invalid_argument(fmt::format("Decoding base 64 failed: {}", e.what()));
+            }
+            if(decoded.size() != 2) throw std::invalid_argument("Day (Byte 88-89) specified as base64 must have exactly 2 characters!");
+
+            std::memcpy(dateCode.day_digits.data(), decoded.data(), decoded.size());
+        } else {
+            throw std::invalid_argument("Day (Byte 88-89) must either be a number or object");
+        }
+
+        auto dateCodeLotVal = j.at("Vendor Lot Code (Byte 90-91)");
+        if(dateCodeLotVal.is_string()) {
+            auto dateCodeStrVal = dateCodeLotVal.template get<std::string>();
+            if(dateCodeStrVal.size() > 2) throw std::invalid_argument("Vendor Lot Code (Byte 90-91) string must not be longer than 2 characters");
+            if(dateCodeStrVal.size() < 2) dateCodeStrVal.resize(2, 0x20);
+            
+            //We don't care if it's not a valid number... Could as well have been specified as base64
+            std::memcpy(dateCode.lot_code.data(), dateCodeStrVal.data(), 2);
+        } else if(dateCodeLotVal.is_object()) {
+            if(dateCodeLotVal.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Vendor Lot Code (Byte 90-91) object must have Type Base64");
+
+            auto encodedVal = dateCodeLotVal.at("Value").template get<std::string>();
+
+            std::vector<uint8_t> decoded;
+            try {
+                decoded = cppcodec::base64_rfc4648::decode(encodedVal);
+            } catch(const cppcodec::parse_error& e) {
+                throw std::invalid_argument(fmt::format("Decoding base 64 failed: {}", e.what()));
+            }
+            if(decoded.size() != 2) throw std::invalid_argument("Vendor Lot Code (Byte 90-91) specified as base64 must have exactly 2 characters!");
+
+            std::memcpy(dateCode.lot_code.data(), decoded.data(), decoded.size());
+        } else {
+            throw std::invalid_argument("Vendor Lot Code (Byte 90-91) must either be a string or object");
+        }
+
+        return dateCode;
+    }
+//############
+
     void SFF8472_LowerA0hToJSON(nlohmann::ordered_json& j, const SFF8472_LowerA0h& programming, bool copperMode) {
 
         std::vector<unsigned char> binaryBuffer; binaryBuffer.resize(128, 0x00);
@@ -1524,6 +1704,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         );
 
         j["Vendor Serial Number"] = VendorSNToJSON(programming.byte_68_83_vendor_sn);
+
+        j["Date Code"] = DateCodeToJSON(programming.byte_84_91_date_code);
     }
 
 
@@ -1587,5 +1769,7 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent = extendedSignalingRateInfoFromJSONReturn.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent;
 
         programming.byte_68_83_vendor_sn = VendorSNFromJSON(j.at("Vendor Serial Number"));
+
+        programming.byte_84_91_date_code = DateCodeFromJSON(j.at("Date Code"));
     }   
 }
