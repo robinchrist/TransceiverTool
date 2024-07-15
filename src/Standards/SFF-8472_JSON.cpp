@@ -2014,6 +2014,40 @@ namespace TransceiverTool::Standards::SFF8472 {
     }
 //############
 
+//############
+    nlohmann::ordered_json VendorSpecificToJSON(const std::array<unsigned char, 32>& vendorSpecificRaw) {
+        nlohmann::ordered_json j;
+
+        j["Type"] = "Base64";
+        j["Value"] = cppcodec::base64_rfc4648::encode(vendorSpecificRaw.data(), vendorSpecificRaw.size());
+
+        return j;
+    }
+
+    std::array<unsigned char, 32> VendorSpecificFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Vendor Specific must be a base64 object");
+
+        std::array<unsigned char, 32> arr;
+
+        if(j.at("Type").template get<std::string>() != "Base64") throw std::invalid_argument("Vendor Specific object must have Type Base64");
+
+        auto encodedVal = j.at("Value").template get<std::string>();
+
+        std::vector<uint8_t> decoded;
+        try {
+            decoded = cppcodec::base64_rfc4648::decode(encodedVal);
+        } catch(const cppcodec::parse_error& e) {
+            throw std::invalid_argument(fmt::format("Decoding base 64 failed: {}", e.what()));
+        }
+        if(decoded.size() != 32) throw std::invalid_argument("Vendor Specific specified as base64 must have exactly 32 characters!");
+
+        std::memcpy(arr.data(), decoded.data(), decoded.size());
+
+
+        return arr;
+    }
+//############
+
     void SFF8472_LowerA0hToJSON(nlohmann::ordered_json& j, const SFF8472_LowerA0h& programming, bool copperMode) {
 
         //Calculate the correct checksums
@@ -2109,6 +2143,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         j["SFF-8472 Compliance"] = SFF_8472_ComplianceToJSON(programming.byte_94_sff_8472_compliance);
 
         j["CC_EXT"] = CC_EXTChecksumToJSON(programming.byte_95_CC_EXT, correctCC_EXTChecksum);
+
+        j["Vendor Specific"] = VendorSpecificToJSON(programming.byte_96_127_vendor_specific);
     }
 
 
@@ -2190,6 +2226,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_94_sff_8472_compliance = SFF_8472_ComplianceFromJSON(j.at("SFF-8472 Compliance"));
 
         //CC_EXT is done later
+
+        programming.byte_96_127_vendor_specific = VendorSpecificFromJSON(j.at("Vendor Specific"));
 
 
         //Calculate the correct checksums

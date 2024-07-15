@@ -1148,6 +1148,13 @@
                 { "$ref": "/schemas/single_byte_value_obj" }
             ]
         },
+        "sff-8472_vendor_specific": {
+            "$id": "/schemas/sff-8472_vendor_specific",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {"$ref": "/schemas/base64_obj"}
+            ]
+        }
     },
 
     "properties": {
@@ -1187,6 +1194,7 @@
         "Enhanced Options": {"$ref": "/schemas/sff-8472_enhanced_options"},
         "SFF-8472 Compliance": {"$ref": "/schemas/sff-8472_compliance"},
         "CC_EXT": {"$ref": "/schemas/sff-8472_cc_ext_checksum"},
+        "Vendor Specific": {"$ref": "/schemas/sff-8472_vendor_specific"}
     },
 
     "required": [
@@ -1223,6 +1231,7 @@
         "Diagnostic Monitoring Type",
         "Enhanced Options",
         "SFF-8472 Compliance",
-        "CC_EXT"
+        "CC_EXT",
+        "Vendor Specific"
     ]
 }

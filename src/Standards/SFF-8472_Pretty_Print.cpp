@@ -893,6 +893,28 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
     }
     str.append("\n");
 
+
+    bool vendorExtensionPrintable = std::all_of(
+        programming.byte_96_127_vendor_specific.begin(),
+        programming.byte_96_127_vendor_specific.end(),
+        [](char c) {return std::isprint(c); }
+    );
+    if(vendorExtensionPrintable) {
+        fmt::format_to(std::back_inserter(str), "{: <85s}: {:?}\n", 
+            "Vendor Specific (wrapping quotes added by TransceiverTool) [96-127]", std::string(reinterpret_cast<char const *>(programming.byte_96_127_vendor_specific.data()), 32)
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), "{: <85s}:", 
+            "Vendor Specific (nonprintable, printed as hex bytes) [96-127]"
+        );
+
+        for(int index = 0; index < programming.byte_96_127_vendor_specific.size(); ++index) {
+            fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_96_127_vendor_specific[index]);
+        }
+        str.append("\n");
+    }
+    str.append("\n");
+
     return str;
 
 }

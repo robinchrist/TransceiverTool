@@ -185,6 +185,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         parsedStruct.byte_95_CC_EXT = bytes[95];
 
+        std::memcpy(parsedStruct.byte_96_127_vendor_specific.data(), bytes + 96, 32);
+
         return parsedStruct;
     }
 

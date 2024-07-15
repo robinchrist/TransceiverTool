@@ -163,5 +163,9 @@ namespace TransceiverTool::Standards::SFF8472 {
         //Byte 95: CC_EXT
         //Check code for the Extended ID Fields (addresses 64 to 94)
         unsigned char byte_95_CC_EXT;
+
+        //Byte 96-127: Vendor Specific
+        //Vendor Specific EEPROM
+        std::array<unsigned char, 32> byte_96_127_vendor_specific;
     };
 }
