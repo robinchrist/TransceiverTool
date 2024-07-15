@@ -212,5 +212,7 @@ namespace TransceiverTool::Standards::SFF8472 {
         } else {
             throw std::runtime_error("Unhandled enum case!");
         }
+
+        std::memcpy(target + 96, programming.byte_96_127_vendor_specific.data(), 32);
     }
 }
