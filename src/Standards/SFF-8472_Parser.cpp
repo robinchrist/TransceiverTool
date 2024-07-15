@@ -119,6 +119,9 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         std::memcpy(parsedStruct.byte_56_59_vendor_rev.data(), bytes + 56, 4);
 
+        parsedStruct.byte_60_wavelength_high_order_byte_or_cable_specification_compliance = bytes[60];
+        parsedStruct.byte_61_wavelength_low_order_byte_or_cable_specification_compliance = bytes[61];
+
         parsedStruct.byte_62_fibre_channel_2_speed_codes.reserved_bit_7 = bytes[62] & (1 << 7);
         parsedStruct.byte_62_fibre_channel_2_speed_codes.reserved_bit_6 = bytes[62] & (1 << 6);
         parsedStruct.byte_62_fibre_channel_2_speed_codes.reserved_bit_5 = bytes[62] & (1 << 5);

@@ -458,6 +458,122 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
     }
     str.append("\n");
 
+    if(!programming.byte_8_sfp_plus_cable_technology_codes.Passive_Cable_bit_2 && !programming.byte_8_sfp_plus_cable_technology_codes.Active_Cable_bit_3) {
+        static_assert(sizeof(unsigned int) >= 2);
+        unsigned int wavelengthRaw = 0;
+        wavelengthRaw |= (unsigned(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance) << 8);
+        wavelengthRaw |= (unsigned(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance) << 0);
+
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Wavelength [60-61]", fmt::format("{} nm", wavelengthRaw)
+        );
+    } else if(programming.byte_8_sfp_plus_cable_technology_codes.Passive_Cable_bit_2 && !programming.byte_8_sfp_plus_cable_technology_codes.Active_Cable_bit_3) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Passive Cable Specification Compliance [60, 7]", formatReservedBit(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 7))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Passive Cable Specification Compliance [60, 6]", formatReservedBit(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 6))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Passive Cable Specification Compliance [60, 5]", formatReservedBit(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 5))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Passive Cable Specification Compliance [60, 4]", formatReservedBit(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 4))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Passive Cable Specification Compliance [60, 3]", formatReservedBit(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 3))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Passive Cable Specification Compliance [60, 2]", formatReservedBit(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 2))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Passive Cable Specification Compliance [60, 1]", (programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 1)) ? "FC-PI-4 Appendix H compliant" : "Not FC-PI-4 Appendix H compliant"
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Passive Cable Specification Compliance [60, 0]", (programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 0)) ? "SFF-8431 Appendix E compliant" : "Not SFF-8431 Appendix E compliant"
+        );
+
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Passive Cable Specification Compliance [61, 7]", formatReservedBit(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 7))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Passive Cable Specification Compliance [61, 6]", formatReservedBit(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 6))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Passive Cable Specification Compliance [61, 5]", formatReservedBit(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 5))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Passive Cable Specification Compliance [61, 4]", formatReservedBit(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 4))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Passive Cable Specification Compliance [61, 3]", formatReservedBit(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 3))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Passive Cable Specification Compliance [61, 2]", formatReservedBit(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 2))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Passive Cable Specification Compliance [61, 1]", formatReservedBit(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 1))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Passive Cable Specification Compliance [61, 0]", formatReservedBit(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 0))
+        );
+    } else if(!programming.byte_8_sfp_plus_cable_technology_codes.Passive_Cable_bit_2 && programming.byte_8_sfp_plus_cable_technology_codes.Active_Cable_bit_3){
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Active Cable Specification Compliance [60, 7]", formatReservedBit(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 7))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Active Cable Specification Compliance [60, 6]", formatReservedBit(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 6))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Active Cable Specification Compliance [60, 5]", formatReservedBit(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 5))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Active Cable Specification Compliance [60, 4]", formatReservedBit(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 4))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Active Cable Specification Compliance [60, 3]", (programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 3)) ? "FC-PI-4 Limiting compliant" : "Not FC-PI-4 Limiting compliant"
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Active Cable Specification Compliance [60, 2]", (programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 2)) ? "SFF-8431 Limiting compliant" : "Not SFF-8431 Limiting compliant"
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Active Cable Specification Compliance [60, 1]", (programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 1)) ? "FC-PI-4 Appendix H compliant" : "Not FC-PI-4 Appendix H compliant"
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Active Cable Specification Compliance [60, 0]", (programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 0)) ? "SFF-8431 Appendix E compliant" : "Not SFF-8431 Appendix E compliant"
+        );
+
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Active Cable Specification Compliance [61, 7]", formatReservedBit(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 7))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Active Cable Specification Compliance [61, 6]", formatReservedBit(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 6))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Active Cable Specification Compliance [61, 5]", formatReservedBit(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 5))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Active Cable Specification Compliance [61, 4]", formatReservedBit(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 4))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Active Cable Specification Compliance [61, 3]", formatReservedBit(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 3))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Active Cable Specification Compliance [61, 2]", formatReservedBit(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 2))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Active Cable Specification Compliance [61, 1]", formatReservedBit(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 1))
+        );
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Active Cable Specification Compliance [61, 0]", formatReservedBit(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 0))
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Wavelength / Passive / Active Cable Specification Compliance [60-61]", "Cannot print, both Active and Passive cable bits are set"
+        );
+    }
+    str.append("\n");
+
 
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
         "Specification Compliance, Fibre Channel Speed 2 [62, 7]", formatReservedBit(programming.byte_62_fibre_channel_2_speed_codes.reserved_bit_7)

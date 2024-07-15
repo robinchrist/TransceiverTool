@@ -210,6 +210,65 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         //TODO: Warn if Vendor Rev field is not left aligned, padded with spaces (0x20)?
     }
 
+    void validateWavelengthOrCableSpecificationCompliance(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
+        if(programming.byte_8_sfp_plus_cable_technology_codes.Passive_Cable_bit_2 && programming.byte_8_sfp_plus_cable_technology_codes.Active_Cable_bit_3) {
+            validationResult.errors.push_back(
+                "Both Passive Cable Compliance Bit (Byte 8, Bit 2) and Active Cable Compliance Bit (Byte 8, Bit 3) are set!"
+            );
+            return;
+        }
+
+        if(!programming.byte_8_sfp_plus_cable_technology_codes.Passive_Cable_bit_2 && !programming.byte_8_sfp_plus_cable_technology_codes.Active_Cable_bit_3) {
+            //Bytes are wavelength -> Nothing to validate
+        }
+        if(programming.byte_8_sfp_plus_cable_technology_codes.Passive_Cable_bit_2 && !programming.byte_8_sfp_plus_cable_technology_codes.Active_Cable_bit_3) {
+            //Passive cable
+            if(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & 0b11111100) {
+                validationResult.errors.push_back(
+                    fmt::format(
+                        "Byte 60 (\"Passive Cable Specification Compliance\") value has at least one reserved bit set: Bit 7 {:d}, Bit 6 {:d}, Bit 5 {:d}, Bit 4 {:d}, Bit 3 {:d}, Bit 2 {:d}",
+                        bool(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 7)), bool(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 6)), 
+                        bool(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 5)), bool(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 4)),
+                        bool(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 3)), bool(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 2)) 
+                    )
+                );
+            }
+            if(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance) {
+                validationResult.errors.push_back(
+                    fmt::format(
+                        "Byte 61 (\"Passive Cable Specification Compliance\") value has at least one reserved bit set: Bit 7 {:d}, Bit 6 {:d}, Bit 5 {:d}, Bit 4 {:d}, Bit 3 {:d}, Bit 2 {:d}, Bit 1 {:d}, Bit 0 {:d}",
+                        bool(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 7)), bool(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 6)), 
+                        bool(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 5)), bool(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 4)),
+                        bool(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 3)), bool(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 2)),
+                        bool(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 1)), bool(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 0)) 
+                    )
+                );
+            }
+        }
+        if(!programming.byte_8_sfp_plus_cable_technology_codes.Passive_Cable_bit_2 && programming.byte_8_sfp_plus_cable_technology_codes.Active_Cable_bit_3) {
+            //Passive cable
+            if(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & 0b11110000) {
+                validationResult.errors.push_back(
+                    fmt::format(
+                        "Byte 60 (\"Active Cable Specification Compliance\") value has at least one reserved bit set: Bit 7 {:d}, Bit 6 {:d}, Bit 5 {:d}, Bit 4 {:d}",
+                        bool(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 7)), bool(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 6)), 
+                        bool(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 5)), bool(programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 4))
+                    )
+                );
+            }
+            if(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance) {
+                validationResult.errors.push_back(
+                    fmt::format(
+                        "Byte 61 (\"Active Cable Specification Compliance\") value has at least one reserved bit set: Bit 7 {:d}, Bit 6 {:d}, Bit 5 {:d}, Bit 4 {:d}, Bit 3 {:d}, Bit 2 {:d}, Bit 1 {:d}, Bit 0 {:d}",
+                        bool(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 7)), bool(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 6)), 
+                        bool(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 5)), bool(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 4)),
+                        bool(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 3)), bool(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 2)),
+                        bool(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 1)), bool(programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 0)) 
+                    )
+                );
+            }
+        }
+    }
 
     void validateFibreChannelSpeed2ComplianceCodes(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
 
@@ -379,6 +438,9 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
 
         //SFF-8472 Rev 12.4 Section 7.4 Vendor Rev [Address A0h, Bytes 56-59]
         validateVendorRevisionNumber(programming, validationResult);
+
+        //SFF-8472 Rev 12.4 Section 8.1 Optical and Cable Variants Specification Compliance [Address A0h, Bytes 60-61]
+        validateWavelengthOrCableSpecificationCompliance(programming, validationResult);
 
         //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
         validateFibreChannelSpeed2ComplianceCodes(programming, validationResult);

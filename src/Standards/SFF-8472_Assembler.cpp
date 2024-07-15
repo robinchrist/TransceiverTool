@@ -130,6 +130,9 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         std::memcpy(target + 56, programming.byte_56_59_vendor_rev.data(), 4);
 
+        target[60] = programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance;
+        target[61] = programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance;
+
 
         target[62] = 
             (unsigned char)(programming.byte_62_fibre_channel_2_speed_codes.reserved_bit_7) << 7 |

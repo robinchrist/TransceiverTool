@@ -104,6 +104,11 @@ namespace TransceiverTool::Standards::SFF8472 {
         //Revision level for part number provided by vendor (ASCII)
         std::array<unsigned char, 4> byte_56_59_vendor_rev;
 
+        //Byte 60-61: Wavelength
+        //Laser wavelength (Passive/Active Cable Specification Compliance)
+        unsigned char byte_60_wavelength_high_order_byte_or_cable_specification_compliance;
+        unsigned char byte_61_wavelength_low_order_byte_or_cable_specification_compliance;
+
         //Byte 62: Fibre Channel Speed 2
         Fibre_Channel_Speed_2_Codes byte_62_fibre_channel_2_speed_codes;
 
