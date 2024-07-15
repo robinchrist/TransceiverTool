@@ -3,6 +3,7 @@
 #include <array>
 #include "TransceiverTool/Standards/SFF-8472_Compliance_Codes.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Date_Code.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Option_Values.hpp"
 
 namespace TransceiverTool::Standards::SFF8472 {
     struct SFF8472_LowerA0h {
@@ -115,6 +116,10 @@ namespace TransceiverTool::Standards::SFF8472 {
         //Byte 63: CC_BASE
         //Check code for Base ID Fields (addresses 0 to 62)
         unsigned char byte_63_CC_BASE;
+
+        Option_Values_Byte_64 byte_64_option_values;
+
+        Option_Values_Byte_65 byte_65_option_values;
 
         //Byte 66: Signaling Rate, max 
         //Upper signaling rate margin, units of % (see details for rates >25.4 GBd)

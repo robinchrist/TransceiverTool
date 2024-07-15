@@ -6,6 +6,7 @@
 #include "TransceiverTool/Standards/SFF-8472_Compliance_Codes.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Date_Code.hpp"
 #include "TransceiverTool/Standards/SFF-8472_LowerA0h.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Option_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Extended_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Extended_Compliance_Codes.hpp"
@@ -1482,6 +1483,60 @@ namespace TransceiverTool::Standards::SFF8472 {
 //############
 
 //############
+    nlohmann::ordered_json OptionValuesToJSON(const Option_Values_Byte_64& byte_64_option_values, const Option_Values_Byte_65& byte_65_option_values) {
+        nlohmann::ordered_json j;
+
+        j["Reserved (Byte 64, Bit 7)"] = byte_64_option_values.reserved_bit_7;
+        j["High Power Level (Level 4) requirement (Byte 64, Bit 6)"] = byte_64_option_values.high_level_power_level_4_bit_6;
+        j["High Power Level (Level 3 or Level 4) requirement (Byte 64, Bit 5)"] = byte_64_option_values.high_level_power_level_4_3_bit_5;
+        j["Paging implemented (Byte 64, Bit 4)"] = byte_64_option_values.paging_implemented_indicator_bit_4;
+        j["Internal retimer or data recovery (CDR) circuit present (Byte 64, Bit 3)"] = byte_64_option_values.retimer_or_cdr_indicator_bit_3;
+        j["Cooled Laser (Byte 64, Bit 2)"] = byte_64_option_values.cooled_transceiver_bit_2;
+        j["Power Level 2 requirement (Byte 64, Bit 1)"] = byte_64_option_values.power_level_2_bit_1;
+        j["Linear Receiver Output implemented (Byte 64, Bit 0)"] = byte_64_option_values.linear_receiver_output_implemented_bit_0;
+
+        j["Receiver decision threshold implemented (Byte 65, Bit 7)"] = byte_65_option_values.receiver_rdt_implemented_bit_7;
+        j["Transmitter tunable (Byte 65, Bit 6)"] = byte_65_option_values.receiver_tunable_bit_6;
+        j["RATE_SELECT functionality implemented (Byte 65, Bit 5)"] = byte_65_option_values.rate_select_implemented_bit_5;
+        j["TX_DISABLE implemented (Byte 65, Bit 4)"] = byte_65_option_values.tx_disable_implemented_bit_4;
+        j["TX_FAULT signal implemented (Byte 65, Bit 3)"] = byte_65_option_values.tx_fault_implemented_bit_3;
+        j["Loss of Signal with inverted signal implemented (Byte 65, Bit 2)"] = byte_65_option_values.loss_of_signal_inverted_bit_2;
+        j["Loss of Signal implemented (Byte 65, Bit 1)"] = byte_65_option_values.loss_of_signal_implemented_bit_1;
+        j["Reserved (Byte 65, Bit 0)"] = byte_65_option_values.reserved_bit_0;
+
+
+        return j;
+    }
+
+    std::tuple<Option_Values_Byte_64, Option_Values_Byte_65> OptionValuesFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Fibre Channel Technology must be an object");
+
+        Option_Values_Byte_64 byte_64_option_values;
+        Option_Values_Byte_65 byte_65_option_values;
+
+        byte_64_option_values.reserved_bit_7 = j.at("Reserved (Byte 64, Bit 7)").template get<bool>();
+        byte_64_option_values.high_level_power_level_4_bit_6 = j.at("High Power Level (Level 4) requirement (Byte 64, Bit 6)").template get<bool>();
+        byte_64_option_values.high_level_power_level_4_3_bit_5 = j.at("High Power Level (Level 3 or Level 4) requirement (Byte 64, Bit 5)").template get<bool>();
+        byte_64_option_values.paging_implemented_indicator_bit_4 = j.at("Paging implemented (Byte 64, Bit 4)").template get<bool>();
+        byte_64_option_values.retimer_or_cdr_indicator_bit_3 = j.at("Internal retimer or data recovery (CDR) circuit present (Byte 64, Bit 3)").template get<bool>();
+        byte_64_option_values.cooled_transceiver_bit_2 = j.at("Cooled Laser (Byte 64, Bit 2)").template get<bool>();
+        byte_64_option_values.power_level_2_bit_1 = j.at("Power Level 2 requirement (Byte 64, Bit 1)").template get<bool>();
+        byte_64_option_values.linear_receiver_output_implemented_bit_0 = j.at("Linear Receiver Output implemented (Byte 64, Bit 0)").template get<bool>();
+
+        byte_65_option_values.receiver_rdt_implemented_bit_7 = j.at("Receiver decision threshold implemented (Byte 65, Bit 7)").template get<bool>();
+        byte_65_option_values.receiver_tunable_bit_6 = j.at("Transmitter tunable (Byte 65, Bit 6)").template get<bool>();
+        byte_65_option_values.rate_select_implemented_bit_5 = j.at("RATE_SELECT functionality implemented (Byte 65, Bit 5)").template get<bool>();
+        byte_65_option_values.tx_disable_implemented_bit_4 = j.at("TX_DISABLE implemented (Byte 65, Bit 4)").template get<bool>();
+        byte_65_option_values.tx_fault_implemented_bit_3 = j.at("TX_FAULT signal implemented (Byte 65, Bit 3)").template get<bool>();
+        byte_65_option_values.loss_of_signal_inverted_bit_2 = j.at("Loss of Signal with inverted signal implemented (Byte 65, Bit 2)").template get<bool>();
+        byte_65_option_values.loss_of_signal_implemented_bit_1 = j.at("Loss of Signal implemented (Byte 65, Bit 1)").template get<bool>();
+        byte_65_option_values.reserved_bit_0 = j.at("Reserved (Byte 65, Bit 0)").template get<bool>();
+
+        return std::make_tuple(byte_64_option_values, byte_65_option_values);
+    }
+//############
+
+//############
     nlohmann::ordered_json ExtendedSignalingRateInfoToJSON(
         unsigned char byte_12_nominal_signaling_rate_in_100_mbaud,
         unsigned char byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud,
@@ -1916,6 +1971,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         j["CC_BASE"] = CC_BASEChecksumToJSON(programming.byte_63_CC_BASE, correctCC_BASEChecksum);
 
+        j["Option Values"] = OptionValuesToJSON(programming.byte_64_option_values, programming.byte_65_option_values);
+
         j["Extended Signaling Rate"] = ExtendedSignalingRateInfoToJSON(
             programming.byte_12_nominal_signaling_rate_in_100_mbaud,
             programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud,
@@ -1990,6 +2047,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_62_fibre_channel_2_speed_codes = Fibre_Channel_Speed_2_CodesFromJSON(j.at("Fibre Channel Speed 2"));
 
         //CC_BASE is done later
+
+        std::tie(programming.byte_64_option_values, programming.byte_65_option_values) = OptionValuesFromJSON(j.at("Option Values"));
 
         auto extendedSignalingRateInfoFromJSONReturn = ExtendedSignalingRateFromJSON(j.at("Extended Signaling Rate"));
         programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud = extendedSignalingRateInfoFromJSONReturn.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud;

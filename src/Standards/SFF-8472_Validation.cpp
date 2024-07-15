@@ -302,6 +302,24 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
             );
         }
     }
+
+    void validateOptionValues(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
+        if(programming.byte_64_option_values.reserved_bit_7) {
+            validationResult.errors.push_back(
+                "Byte 64 (\"Option Values\") value has reserved bit 7 set"
+            );
+        }
+        if(programming.byte_65_option_values.loss_of_signal_inverted_bit_2 && programming.byte_65_option_values.loss_of_signal_implemented_bit_1) {
+            validationResult.errors.push_back(
+                "Byte 65 (\"Option Values\") value has both Loss of Signal implemented, signal inverted (Bit 2) and Loss of Signal implemented, behavior as defined in SFF-8419 (Bit 1) set"
+            );
+        }
+        if(programming.byte_65_option_values.reserved_bit_0) {
+            validationResult.errors.push_back(
+                "Byte 65 (\"Option Values\") value has reserved bit 0 set"
+            );
+        }
+    }
     
     void validateVendorSerialNumber(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
         //SFF-8472 Rev 12.4 Section 8.6 Vendor SN [Address A0h, Bytes 68-83]
@@ -472,6 +490,9 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
 
         //SFF-8472 Rev 12.4 Section 8.2 CC_BASE [Address A0h, Byte 63]
         validateCC_BASEChecksum(programming, validationResult);
+
+        //SFF-8472 Rev 12.4 Section 8.3 Option Values [Address A0h, Bytes 64-65]
+        validateOptionValues(programming, validationResult);
 
         //SFF-8472 Rev 12.4 Section 8.6 Vendor SN [Address A0h, Bytes 68-83]
         validateVendorSerialNumber(programming, validationResult);

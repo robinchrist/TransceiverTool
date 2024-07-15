@@ -622,6 +622,58 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
     }
     str.append("\n");
 
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [64, 7]", formatReservedBit(programming.byte_64_option_values.reserved_bit_7)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [64, 6]", programming.byte_64_option_values.high_level_power_level_4_bit_6 ? "High Power Level (Level 4) requirement" : "No High Power Level (Level 4) requirement"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [64, 5]", programming.byte_64_option_values.high_level_power_level_4_3_bit_5 ? "High Power Level (Level 3 or Level 4) requirement" : "No High Power Level (Level 3 or Level 4) requirement"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [64, 4]", programming.byte_64_option_values.paging_implemented_indicator_bit_4 ? "Paging implemented" : "Paging NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [64, 3]", programming.byte_64_option_values.retimer_or_cdr_indicator_bit_3 ? "Internal retimer or data recovery (CDR) circuit present" : "No internal retimer or data recovery (CDR) circuit present"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [64, 2]", programming.byte_64_option_values.cooled_transceiver_bit_2 ? "Cooled Laser" : "Conventional Uncooled / Unspecified Laser"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [64, 1]", programming.byte_64_option_values.power_level_2_bit_1 ? "Power Level 2 requirement" : "Power Level 1 (or unspecified) requirement"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [64, 0]", programming.byte_64_option_values.linear_receiver_output_implemented_bit_0 ? "Linear Receiver Output implemented" : "Conventional limiting, PAM4 or unspecified transceiver receiver output"
+    );
+    str.append("\n");
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [65, 7]", programming.byte_65_option_values.receiver_rdt_implemented_bit_7 ? "Receiver decision threshold implemented" : "Receiver decision threshold NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [65, 6]", programming.byte_65_option_values.receiver_tunable_bit_6 ? "Transmitter tunable according to SFF-8690" : "Transmitter NOT tunable"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [65, 5]", programming.byte_65_option_values.rate_select_implemented_bit_5 ? "RATE_SELECT functionality implemented" : "RATE_SELECT functionality NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [65, 4]", programming.byte_65_option_values.tx_disable_implemented_bit_4 ? "TX_DISABLE implemented" : "TX_DISABLE NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [65, 3]", programming.byte_65_option_values.tx_fault_implemented_bit_3 ? "TX_FAULT signal implemented" : "TX_FAULT signal NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [65, 2]", programming.byte_65_option_values.loss_of_signal_inverted_bit_2 ? "Loss of Signal with inverted signal implemented" : "Loss of Signal with inverted signal NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [65, 1]", programming.byte_65_option_values.loss_of_signal_implemented_bit_1 ? "Loss of Signal implemented" : "Loss of Signal NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [65, 0]", formatReservedBit(programming.byte_65_option_values.reserved_bit_0)
+    );
+    str.append("\n");
+
 
     if(programming.byte_12_nominal_signaling_rate_in_100_mbaud != 0xFF) {
         fmt::format_to(std::back_inserter(str), optionTitleFormatString,

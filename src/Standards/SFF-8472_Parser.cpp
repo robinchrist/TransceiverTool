@@ -133,6 +133,24 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         parsedStruct.byte_63_CC_BASE = bytes[63];
 
+        parsedStruct.byte_64_option_values.reserved_bit_7 = bytes[64] & (1 << 7);
+        parsedStruct.byte_64_option_values.high_level_power_level_4_bit_6 = bytes[64] & (1 << 6);
+        parsedStruct.byte_64_option_values.high_level_power_level_4_3_bit_5 = bytes[64] & (1 << 5);
+        parsedStruct.byte_64_option_values.paging_implemented_indicator_bit_4 = bytes[64] & (1 << 4);
+        parsedStruct.byte_64_option_values.retimer_or_cdr_indicator_bit_3 = bytes[64] & (1 << 3);
+        parsedStruct.byte_64_option_values.cooled_transceiver_bit_2 = bytes[64] & (1 << 2);
+        parsedStruct.byte_64_option_values.power_level_2_bit_1 = bytes[64] & (1 << 1);
+        parsedStruct.byte_64_option_values.linear_receiver_output_implemented_bit_0 = bytes[64] & (1 << 0);
+
+        parsedStruct.byte_65_option_values.receiver_rdt_implemented_bit_7 = bytes[65] & (1 << 7);
+        parsedStruct.byte_65_option_values.receiver_tunable_bit_6 = bytes[65] & (1 << 6);
+        parsedStruct.byte_65_option_values.rate_select_implemented_bit_5 = bytes[65] & (1 << 5);
+        parsedStruct.byte_65_option_values.tx_disable_implemented_bit_4 = bytes[65] & (1 << 4);
+        parsedStruct.byte_65_option_values.tx_fault_implemented_bit_3 = bytes[65] & (1 << 3);
+        parsedStruct.byte_65_option_values.loss_of_signal_inverted_bit_2 = bytes[65] & (1 << 2);
+        parsedStruct.byte_65_option_values.loss_of_signal_implemented_bit_1 = bytes[65] & (1 << 1);
+        parsedStruct.byte_65_option_values.reserved_bit_0 = bytes[65] & (1 << 0);
+
         
         parsedStruct.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud = bytes[66];
 
