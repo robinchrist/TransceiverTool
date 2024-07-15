@@ -163,6 +163,15 @@ namespace TransceiverTool::Standards::SFF8472 {
         std::memcpy(parsedStruct.byte_84_91_date_code.day_digits.data(), bytes + 88, 2);
         std::memcpy(parsedStruct.byte_84_91_date_code.lot_code.data(), bytes + 90, 2);
 
+        parsedStruct.byte_92_diagnostic_monitoring_type.reserved_bit_7 = bytes[92] & (1 << 7);
+        parsedStruct.byte_92_diagnostic_monitoring_type.digital_diagnostic_monitoring_implemented_bit_6 = bytes[92] & (1 << 6);
+        parsedStruct.byte_92_diagnostic_monitoring_type.internally_calibrated_bit_5 = bytes[92] & (1 << 5);
+        parsedStruct.byte_92_diagnostic_monitoring_type.externally_calibrated_bit_4 = bytes[92] & (1 << 4);
+        parsedStruct.byte_92_diagnostic_monitoring_type.received_power_measurement_is_average_bit_3 = bytes[92] & (1 << 3);
+        parsedStruct.byte_92_diagnostic_monitoring_type.address_change_required_bit_2 = bytes[92] & (1 << 2);
+        parsedStruct.byte_92_diagnostic_monitoring_type.reserved_bit_1 = bytes[92] & (1 << 1);
+        parsedStruct.byte_92_diagnostic_monitoring_type.reserved_bit_0 = bytes[92] & (1 << 0);
+
         parsedStruct.byte_95_CC_EXT = bytes[95];
 
         return parsedStruct;

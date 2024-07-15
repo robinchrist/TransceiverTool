@@ -183,6 +183,16 @@ namespace TransceiverTool::Standards::SFF8472 {
         std::memcpy(target + 88, programming.byte_84_91_date_code.day_digits.data(), 2);
         std::memcpy(target + 90, programming.byte_84_91_date_code.lot_code.data(), 2);
 
+
+        target[92] = (unsigned char)(programming.byte_92_diagnostic_monitoring_type.reserved_bit_7) << 7 |
+            (unsigned char)(programming.byte_92_diagnostic_monitoring_type.digital_diagnostic_monitoring_implemented_bit_6) << 6 |
+            (unsigned char)(programming.byte_92_diagnostic_monitoring_type.internally_calibrated_bit_5) << 5 |
+            (unsigned char)(programming.byte_92_diagnostic_monitoring_type.externally_calibrated_bit_4) << 4 |
+            (unsigned char)(programming.byte_92_diagnostic_monitoring_type.received_power_measurement_is_average_bit_3) << 3 |
+            (unsigned char)(programming.byte_92_diagnostic_monitoring_type.address_change_required_bit_2) << 2 |
+            (unsigned char)(programming.byte_92_diagnostic_monitoring_type.reserved_bit_1) << 1 |
+            (unsigned char)(programming.byte_92_diagnostic_monitoring_type.reserved_bit_0) << 0;
+
         if(CC_EXTDirective == common::ChecksumDirective::AUTO_CALCULATE_FROM_CONTENT) {
             target[95] = calculateCC_EXTChecksum(target);
         } else if(CC_EXTDirective == common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING) {

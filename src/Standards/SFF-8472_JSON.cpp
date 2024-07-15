@@ -5,6 +5,7 @@
 #include "TransceiverTool/Standards/SFF-8472_Checksum.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Compliance_Codes.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Date_Code.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Diagnostic_Monitoring_Type.hpp"
 #include "TransceiverTool/Standards/SFF-8472_LowerA0h.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Option_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Identifier_Values.hpp"
@@ -1868,6 +1869,49 @@ namespace TransceiverTool::Standards::SFF8472 {
 //############
 
 //############
+    nlohmann::ordered_json Diagnostic_Monitoring_TypeToJSON(const Diagnostic_Monitoring_Type& value) {
+        nlohmann::ordered_json j;
+
+        j["Reserved (Bit 7)"] = value.reserved_bit_7;
+        j["Digital diagnostic monitoring implemented (Bit 6)"] = value.digital_diagnostic_monitoring_implemented_bit_6;
+        j["Internally calibrated (Bit 5)"] = value.internally_calibrated_bit_5;
+        j["Externally calibrated (Bit 4)"] = value.externally_calibrated_bit_4;
+        j["Received power measurement type (Bit 3)"] = value.received_power_measurement_is_average_bit_3 ? "Average": "OMA";
+        j["Address change required (Bit 2)"] = value.address_change_required_bit_2;
+        j["Reserved (Bit 1)"] = value.reserved_bit_1;
+        j["Reserved (Bit 0)"] = value.reserved_bit_0;
+
+        return j;
+    }
+
+    Diagnostic_Monitoring_Type Diagnostic_Monitoring_TypeFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Fibre Channel Technology must be an object");
+
+        Diagnostic_Monitoring_Type value;
+
+        value.reserved_bit_7 = j.at("Reserved (Bit 7)").template get<bool>();
+        value.digital_diagnostic_monitoring_implemented_bit_6 = j.at("Digital diagnostic monitoring implemented (Bit 6)").template get<bool>();
+        value.internally_calibrated_bit_5 = j.at("Internally calibrated (Bit 5)").template get<bool>();
+        value.externally_calibrated_bit_4 = j.at("Externally calibrated (Bit 4)").template get<bool>();
+
+        auto powerMeasurementStr = j.at("Received power measurement type (Bit 3)").template get<std::string>();
+        if(powerMeasurementStr == "Average") {
+            value.received_power_measurement_is_average_bit_3 = true;
+        } else if(powerMeasurementStr == "OMA") {
+            value.received_power_measurement_is_average_bit_3 = false;
+        } else {
+            throw std::invalid_argument("Received power measurement type (Bit 3) string has invalid value, must be either Average or OMA");
+        }
+
+        value.address_change_required_bit_2 = j.at("Address change required (Bit 2)").template get<bool>();
+        value.reserved_bit_1 = j.at("Reserved (Bit 1)").template get<bool>();
+        value.reserved_bit_0 = j.at("Reserved (Bit 0)").template get<bool>();
+
+        return value;
+    }
+//############
+
+//############
     nlohmann::ordered_json CC_EXTChecksumToJSON(unsigned char checkSumInProgramming, unsigned char correctChecksum) {
         nlohmann::ordered_json j;
 
@@ -1983,6 +2027,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         j["Date Code"] = DateCodeToJSON(programming.byte_84_91_date_code);
 
+        j["Diagnostic Monitoring Type"] = Diagnostic_Monitoring_TypeToJSON(programming.byte_92_diagnostic_monitoring_type);
+
         j["CC_EXT"] = CC_EXTChecksumToJSON(programming.byte_95_CC_EXT, correctCC_EXTChecksum);
     }
 
@@ -2057,6 +2103,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_68_83_vendor_sn = VendorSNFromJSON(j.at("Vendor Serial Number"));
 
         programming.byte_84_91_date_code = DateCodeFromJSON(j.at("Date Code"));
+
+        programming.byte_92_diagnostic_monitoring_type = Diagnostic_Monitoring_TypeFromJSON(j.at("Diagnostic Monitoring Type"));
 
         //CC_EXT is done later
 
