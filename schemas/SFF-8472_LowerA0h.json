@@ -895,6 +895,14 @@
                 "64 GFC compliant (Bit 0)"
             ]
         },
+        "sff-8472_cc_base_checksum": {
+            "$id": "/schemas/sff-8472_cc_base_checksum",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {  "const": "auto" },
+                { "$ref": "/schemas/single_byte_value_obj" }
+            ]
+        },
         "sff-8472_extended_signaling_rate": {
             "$id": "/schemas/sff-8472_extended_signaling_rate",
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -1019,6 +1027,14 @@
                 "Vendor Lot Code (Byte 90-91)"
             ]
         },
+        "sff-8472_cc_ext_checksum": {
+            "$id": "/schemas/sff-8472_cc_ext_checksum",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {  "const": "auto" },
+                { "$ref": "/schemas/single_byte_value_obj" }
+            ]
+        },
     },
 
     "properties": {
@@ -1049,9 +1065,11 @@
         "Vendor Rev": {"$ref": "/schemas/sff-8472_vendor_rev"},
         "Wavelength Or Cable Specification Compliance": {"$ref": "/schemas/sff-8472_wavelength_or_cable_specification_compliance"},
         "Fibre Channel Speed 2": { "$ref": "/schemas/sff-8472_fibre_channel_speed_2_codes" },
+        "CC_BASE": {"$ref": "/schemas/sff-8472_cc_base_checksum"},
         "Extended Signaling Rate": { "$ref": "/schemas/sff-8472_extended_signaling_rate" },
         "Vendor Serial Number": {"$ref": "/schemas/sff-8472_vendor_serial_number"},
         "Date Code": {"$ref": "/schemas/sff-8472_date_code"},
+        "CC_EXT": {"$ref": "/schemas/sff-8472_cc_ext_checksum"},
     },
 
     "required": [
@@ -1080,8 +1098,10 @@
         "Vendor Rev",
         "Wavelength Or Cable Specification Compliance",
         "Fibre Channel Speed 2",
+        "CC_BASE",
         "Extended Signaling Rate",
         "Vendor Serial Number",
-        "Date Code"
+        "Date Code",
+        "CC_EXT"
     ]
 }

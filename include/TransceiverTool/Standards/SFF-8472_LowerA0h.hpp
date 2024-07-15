@@ -112,6 +112,10 @@ namespace TransceiverTool::Standards::SFF8472 {
         //Byte 62: Fibre Channel Speed 2
         Fibre_Channel_Speed_2_Codes byte_62_fibre_channel_2_speed_codes;
 
+        //Byte 63: CC_BASE
+        //Check code for Base ID Fields (addresses 0 to 62)
+        unsigned char byte_63_CC_BASE;
+
         //Byte 66: Signaling Rate, max 
         //Upper signaling rate margin, units of % (see details for rates >25.4 GBd)
         //If address 12 is not set to FFh, the upper signaling rate limit at which the transceiver still meets its specifications
@@ -133,5 +137,9 @@ namespace TransceiverTool::Standards::SFF8472 {
         //Byte 84-91: Date Code
         //Vendor's manufacturing date code (see Table 8-4)
         DateCode byte_84_91_date_code;
+
+        //Byte 94: CC_EXT
+        //Check code for the Extended ID Fields (addresses 64 to 94)
+        unsigned char byte_95_CC_EXT;
     };
 }

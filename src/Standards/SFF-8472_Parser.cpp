@@ -131,6 +131,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         parsedStruct.byte_62_fibre_channel_2_speed_codes.reserved_bit_1 = bytes[62] & (1 << 1);
         parsedStruct.byte_62_fibre_channel_2_speed_codes._64_GFC_bit_0 = bytes[62] & (1 << 0);
 
+        parsedStruct.byte_63_CC_BASE = bytes[63];
+
         
         parsedStruct.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud = bytes[66];
 
@@ -142,6 +144,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         std::memcpy(parsedStruct.byte_84_91_date_code.month_digits.data(), bytes + 86, 2);
         std::memcpy(parsedStruct.byte_84_91_date_code.day_digits.data(), bytes + 88, 2);
         std::memcpy(parsedStruct.byte_84_91_date_code.lot_code.data(), bytes + 90, 2);
+
+        parsedStruct.byte_95_CC_EXT = bytes[95];
 
         return parsedStruct;
     }

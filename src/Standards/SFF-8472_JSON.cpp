@@ -1,6 +1,8 @@
 #include "TransceiverTool/Standards/SFF-8472_JSON.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Encoding_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Transceiver_Connector_Type.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Assembler.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Checksum.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Compliance_Codes.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Date_Code.hpp"
 #include "TransceiverTool/Standards/SFF-8472_LowerA0h.hpp"
@@ -9,8 +11,10 @@
 #include "TransceiverTool/Standards/SFF-8024_Extended_Compliance_Codes.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Rate_Identifiers.hpp"
 #include <fmt/core.h>
+#include <optional>
 #include <stdexcept>
 #include <cppcodec/base64_rfc4648.hpp>
+#include "TransceiverTool/Standards/common.hpp"
 #include "TransceiverTool/Vendor_OUIs.hpp"
 
 
@@ -1450,6 +1454,34 @@ namespace TransceiverTool::Standards::SFF8472 {
 //############
 
 //############
+    nlohmann::ordered_json CC_BASEChecksumToJSON(unsigned char checkSumInProgramming, unsigned char correctChecksum) {
+        nlohmann::ordered_json j;
+
+        if(checkSumInProgramming == correctChecksum) {
+            j = "auto";
+        } else {
+            j = charToJSONByteStruct(checkSumInProgramming);
+        }
+
+        return j;
+    }
+    
+    //nullopt -> checksum auto in file
+    std::optional<unsigned char> CC_BASEChecksumFromJSON(const nlohmann::json& j) {
+        if(j.is_string()) {
+            auto strValue = j.template get<std::string>();
+            if(strValue != "auto") throw std::invalid_argument("CC_BASE string value must be auto");
+
+            return std::nullopt;
+        } else if(j.is_object()) {
+            return std::make_optional(charFromJSONByteStruct(j));
+        } else {
+            throw std::invalid_argument("CC_BASE must be either string or object");
+        }
+    }
+//############
+
+//############
     nlohmann::ordered_json ExtendedSignalingRateInfoToJSON(
         unsigned char byte_12_nominal_signaling_rate_in_100_mbaud,
         unsigned char byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud,
@@ -1780,9 +1812,45 @@ namespace TransceiverTool::Standards::SFF8472 {
     }
 //############
 
+//############
+    nlohmann::ordered_json CC_EXTChecksumToJSON(unsigned char checkSumInProgramming, unsigned char correctChecksum) {
+        nlohmann::ordered_json j;
+
+        if(checkSumInProgramming == correctChecksum) {
+            j = "auto";
+        } else {
+            j = charToJSONByteStruct(checkSumInProgramming);
+        }
+
+        return j;
+    }
+    
+    //nullopt -> checksum auto in file
+    std::optional<unsigned char> CC_EXTChecksumFromJSON(const nlohmann::json& j) {
+        if(j.is_string()) {
+            auto strValue = j.template get<std::string>();
+            if(strValue != "auto") throw std::invalid_argument("CC_EXT string value must be auto");
+
+            return std::nullopt;
+        } else if(j.is_object()) {
+            return std::make_optional(charFromJSONByteStruct(j));
+        } else {
+            throw std::invalid_argument("CC_EXT must be either string or object");
+        }
+    }
+//############
+
     void SFF8472_LowerA0hToJSON(nlohmann::ordered_json& j, const SFF8472_LowerA0h& programming, bool copperMode) {
 
+        //Calculate the correct checksums
+        //If the checksums in the programming are correct, serialise as Checksum: Auto
+        //If the checksums are incorrect, serialise as manual checksum value
         std::vector<unsigned char> binaryBuffer; binaryBuffer.resize(128, 0x00);
+        //Use MANUAL_USE_VALUE_IN_PROGRAMMING to avoid double calculation of checksum - we don't want to seek it in the binary
+        assembleToBinary(binaryBuffer.data(), programming, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
+
+        unsigned char correctCC_BASEChecksum = calculateCC_BASEChecksum(binaryBuffer.data());
+        unsigned char correctCC_EXTChecksum = calculateCC_EXTChecksum(binaryBuffer.data());
 
 
         j["Type"] = "SFF-8472 Rev 12.4 Lower Page A0h";
@@ -1846,6 +1914,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         j["Fibre Channel Speed 2"] = Fibre_Channel_Speed_2_CodesToJSON(programming.byte_62_fibre_channel_2_speed_codes);
 
+        j["CC_BASE"] = CC_BASEChecksumToJSON(programming.byte_63_CC_BASE, correctCC_BASEChecksum);
+
         j["Extended Signaling Rate"] = ExtendedSignalingRateInfoToJSON(
             programming.byte_12_nominal_signaling_rate_in_100_mbaud,
             programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud,
@@ -1855,6 +1925,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         j["Vendor Serial Number"] = VendorSNToJSON(programming.byte_68_83_vendor_sn);
 
         j["Date Code"] = DateCodeToJSON(programming.byte_84_91_date_code);
+
+        j["CC_EXT"] = CC_EXTChecksumToJSON(programming.byte_95_CC_EXT, correctCC_EXTChecksum);
     }
 
 
@@ -1917,6 +1989,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         programming.byte_62_fibre_channel_2_speed_codes = Fibre_Channel_Speed_2_CodesFromJSON(j.at("Fibre Channel Speed 2"));
 
+        //CC_BASE is done later
+
         auto extendedSignalingRateInfoFromJSONReturn = ExtendedSignalingRateFromJSON(j.at("Extended Signaling Rate"));
         programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud = extendedSignalingRateInfoFromJSONReturn.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud;
         programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent = extendedSignalingRateInfoFromJSONReturn.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent;
@@ -1924,5 +1998,30 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_68_83_vendor_sn = VendorSNFromJSON(j.at("Vendor Serial Number"));
 
         programming.byte_84_91_date_code = DateCodeFromJSON(j.at("Date Code"));
+
+        //CC_EXT is done later
+
+
+        //Calculate the correct checksums
+        std::vector<unsigned char> binaryBuffer; binaryBuffer.resize(256, 0x00);
+        //Use MANUAL_USE_VALUE_IN_PROGRAMMING to avoid double calculation of checksum - we don't want to seek it in the binary
+        assembleToBinary(binaryBuffer.data(), programming, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
+
+
+        auto CC_BASEVal = CC_BASEChecksumFromJSON(j.at("CC_BASE"));
+        if(CC_BASEVal.has_value()) {
+            programming.byte_63_CC_BASE = CC_BASEVal.value();
+        } else {
+            //Checksum == Auto
+            programming.byte_63_CC_BASE = calculateCC_BASEChecksum(binaryBuffer.data());
+        }
+
+        auto CC_EXTVal = CC_EXTChecksumFromJSON(j.at("CC_EXT"));
+        if(CC_EXTVal.has_value()) {
+            programming.byte_95_CC_EXT = CC_EXTVal.value();
+        } else {
+            //Checksum == Auto
+            programming.byte_95_CC_EXT = calculateCC_EXTChecksum(binaryBuffer.data());
+        }
     }   
 }

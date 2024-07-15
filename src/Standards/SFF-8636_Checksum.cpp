@@ -7,7 +7,10 @@ namespace TransceiverTool::Standards::SFF8636 {
         // The check code is a 1-byte code that can be used to verify that the first 63 bytes of serial information in the free
         // side device are valid. The check code shall be the low order 8 bits of the sum of the contents of all the bytes from
         // 128 to 190, inclusive.
+
+        static_assert(sizeof(unsigned int) >= 2);
         unsigned int sum = 0;
+
         for(int index = 128; index <= 190; ++index) {
             sum += bytes[index];
         }
@@ -21,7 +24,10 @@ namespace TransceiverTool::Standards::SFF8636 {
         // The check code is a 1-byte code that can be used to verify that the first 32 bytes of extended serial information in
         // the free side device is valid. The check code shall be the low order 8 bits of the sum of the contents of all the bytes
         // from 192 to 222, inclusive.
+
+        static_assert(sizeof(unsigned int) >= 2);
         unsigned int sum = 0;
+
         for(int index = 192; index <= 222; ++index) {
             sum += bytes[index];
         }

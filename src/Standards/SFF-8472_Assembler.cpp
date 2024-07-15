@@ -145,6 +145,14 @@ namespace TransceiverTool::Standards::SFF8472 {
             (unsigned char)(programming.byte_62_fibre_channel_2_speed_codes._64_GFC_bit_0) << 0;
 
 
+        if(CC_BASEDirective == common::ChecksumDirective::AUTO_CALCULATE_FROM_CONTENT) {
+            target[63] = calculateCC_BASEChecksum(target);
+        } else if(CC_BASEDirective == common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING) {
+            target[63] = programming.byte_63_CC_BASE;
+        } else {
+            throw std::runtime_error("Unhandled enum case!");
+        }
+
         target[66] = programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud;
 
         target[67] = programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent;
@@ -155,5 +163,13 @@ namespace TransceiverTool::Standards::SFF8472 {
         std::memcpy(target + 86, programming.byte_84_91_date_code.month_digits.data(), 2);
         std::memcpy(target + 88, programming.byte_84_91_date_code.day_digits.data(), 2);
         std::memcpy(target + 90, programming.byte_84_91_date_code.lot_code.data(), 2);
+
+        if(CC_EXTDirective == common::ChecksumDirective::AUTO_CALCULATE_FROM_CONTENT) {
+            target[95] = calculateCC_EXTChecksum(target);
+        } else if(CC_EXTDirective == common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING) {
+            target[95] = programming.byte_95_CC_EXT;
+        } else {
+            throw std::runtime_error("Unhandled enum case!");
+        }
     }
 }
