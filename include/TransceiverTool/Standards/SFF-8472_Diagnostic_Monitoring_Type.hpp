@@ -4,7 +4,7 @@
 
 namespace TransceiverTool::Standards::SFF8472 {
 
-    //SFF-8472 Rev 12.4 Section 8.9 Addressing Modes
+    //SFF-8472 Rev 12.4 Section 8.8 Diagnostic Monitoring Type [Address A0h, Byte 92]
     struct Diagnostic_Monitoring_Type {
         //Reserved for legacy diagnostic implementations. Must be '0' for compliance with this document.
         bool reserved_bit_7;

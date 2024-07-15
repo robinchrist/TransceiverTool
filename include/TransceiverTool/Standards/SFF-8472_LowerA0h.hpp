@@ -5,6 +5,7 @@
 #include "TransceiverTool/Standards/SFF-8472_Date_Code.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Diagnostic_Monitoring_Type.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Option_Values.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Enhanced_Options.hpp"
 
 namespace TransceiverTool::Standards::SFF8472 {
     struct SFF8472_LowerA0h {
@@ -145,9 +146,21 @@ namespace TransceiverTool::Standards::SFF8472 {
         DateCode byte_84_91_date_code;
 
         //Byte 92: Diagnostic Monitoring Type
+        //Indicates which type of diagnostic monitoring is implemented
+        //(if any) in the transceiver (see Table 8-5)
         Diagnostic_Monitoring_Type byte_92_diagnostic_monitoring_type;
 
-        //Byte 94: CC_EXT
+        //Byte 93: Enhanced Options 
+        //Indicates which optional enhanced features are implemented
+        //(if any) in the transceiver (see Table 8-6)
+        Enhanced_Options byte_93_enhanced_options;
+
+        //Byte 94: SFF-8472 Compliance
+        //Indicates which revision of SFF-8472 the transceiver complies with.
+        //(see Table 8-8)
+        unsigned char byte_94_sff_8472_compliance;
+
+        //Byte 95: CC_EXT
         //Check code for the Extended ID Fields (addresses 64 to 94)
         unsigned char byte_95_CC_EXT;
     };

@@ -1095,6 +1095,31 @@
                 "Reserved (Bit 0)"
             ]
         },
+        "sff-8472_enhanced_options": {
+            "$id": "/schemas/sff-8472_enhanced_options",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Optional Alarm/warning flags implemented (Bit 7)": {"type": "boolean"},
+                "Optional soft TX_DISABLE control and monitoring implemented (Bit 6)": {"type": "boolean"},
+                "Optional soft TX_FAULT monitoring implemented (Bit 5)": {"type": "boolean"},
+                "Optional soft RX_LOS monitoring implemented (Bit 4)": {"type": "boolean"},
+                "Optional soft RATE_SELECT control and monitoring implemented (Bit 3)": {"type": "boolean"},
+                "Optional Application Select control implemented per SFF-8079 (Bit 2)": {"type": "boolean"},
+                "Optional soft Rate Select control implemented per SFF-8431 (Bit 1)": {"type": "boolean"},
+                "Reserved (Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "Optional Alarm/warning flags implemented (Bit 7)",
+                "Optional soft TX_DISABLE control and monitoring implemented (Bit 6)",
+                "Optional soft TX_FAULT monitoring implemented (Bit 5)",
+                "Optional soft RX_LOS monitoring implemented (Bit 4)",
+                "Optional soft RATE_SELECT control and monitoring implemented (Bit 3)",
+                "Optional Application Select control implemented per SFF-8079 (Bit 2)",
+                "Optional soft Rate Select control implemented per SFF-8431 (Bit 1)",
+                "Reserved (Bit 0)"
+            ]
+        },
         "sff-8472_cc_ext_checksum": {
             "$id": "/schemas/sff-8472_cc_ext_checksum",
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -1139,6 +1164,7 @@
         "Vendor Serial Number": {"$ref": "/schemas/sff-8472_vendor_serial_number"},
         "Date Code": {"$ref": "/schemas/sff-8472_date_code"},
         "Diagnostic Monitoring Type": {"$ref": "/schemas/sff-8472_diagnostic_monitoring_type"},
+        "Enhanced Options": {"$ref": "/schemas/sff-8472_enhanced_options"},
         "CC_EXT": {"$ref": "/schemas/sff-8472_cc_ext_checksum"},
     },
 
@@ -1174,6 +1200,7 @@
         "Vendor Serial Number",
         "Date Code",
         "Diagnostic Monitoring Type",
+        "Enhanced Options",
         "CC_EXT"
     ]
 }
