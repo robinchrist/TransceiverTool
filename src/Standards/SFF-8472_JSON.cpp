@@ -12,6 +12,7 @@
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Extended_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Extended_Compliance_Codes.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Rate_Identifiers.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Compliance.hpp"
 #include <fmt/core.h>
 #include <optional>
 #include <stdexcept>
@@ -1946,6 +1947,46 @@ namespace TransceiverTool::Standards::SFF8472 {
 //############
 
 //############
+    nlohmann::ordered_json SFF_8472_ComplianceToJSON(unsigned char byte_value) {
+        nlohmann::ordered_json j;
+
+        auto it = std::find_if(
+            SFF8472::SFF_8472_ComplianceAssignedValues.begin(),
+            SFF8472::SFF_8472_ComplianceAssignedValues.end(),
+            [byte_value](const SFF8472::SFF_8472_ComplianceAssignedValue& entry) { return entry.byte_value == byte_value; }
+        );
+
+        if(it != SFF8472::SFF_8472_ComplianceAssignedValues.end()) {
+            j = it->name;
+        } else {
+            j = charToJSONByteStruct(byte_value);
+        }
+
+        return j;
+    }
+
+    unsigned char SFF_8472_ComplianceFromJSON(const nlohmann::json& j) {
+        if(j.is_string()) {
+            auto strValue = j.template get<std::string>();
+
+            auto it = std::find_if(
+                SFF8472::SFF_8472_ComplianceAssignedValues.begin(),
+                SFF8472::SFF_8472_ComplianceAssignedValues.end(),
+                [&strValue](const SFF8472::SFF_8472_ComplianceAssignedValue& entry) { return entry.name == strValue; }
+            );
+
+            if(it == SFF8472::SFF_8472_ComplianceAssignedValues.end()) throw std::invalid_argument("SFF-8472 Compliance is not a known string value");
+
+            return it->byte_value;
+        } else if(j.is_object()) {
+            return charFromJSONByteStruct(j);
+        } else {
+            throw std::invalid_argument("SFF-8472 Compliance has wrong type (neither string nor object)");
+        }
+    }
+//############
+
+//############
     nlohmann::ordered_json CC_EXTChecksumToJSON(unsigned char checkSumInProgramming, unsigned char correctChecksum) {
         nlohmann::ordered_json j;
 
@@ -2065,6 +2106,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         j["Enhanced Options"] = Enhanced_OptionsToJSON(programming.byte_93_enhanced_options);
 
+        j["SFF-8472 Compliance"] = SFF_8472_ComplianceToJSON(programming.byte_94_sff_8472_compliance);
+
         j["CC_EXT"] = CC_EXTChecksumToJSON(programming.byte_95_CC_EXT, correctCC_EXTChecksum);
     }
 
@@ -2143,6 +2186,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_92_diagnostic_monitoring_type = Diagnostic_Monitoring_TypeFromJSON(j.at("Diagnostic Monitoring Type"));
 
         programming.byte_93_enhanced_options = Enhanced_OptionsFromJSON(j.at("Enhanced Options"));
+
+        programming.byte_94_sff_8472_compliance = SFF_8472_ComplianceFromJSON(j.at("SFF-8472 Compliance"));
 
         //CC_EXT is done later
 

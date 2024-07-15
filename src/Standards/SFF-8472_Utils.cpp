@@ -2,6 +2,7 @@
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Extended_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Compliance_Codes.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Rate_Identifiers.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Compliance.hpp"
 #include "fmt/core.h"
 #include <algorithm>
 
@@ -65,13 +66,6 @@ namespace TransceiverTool::Standards::SFF8472 {
             [enum_value](const RateIdentifierAssignedValue& entry) { return entry.enum_value == enum_value; }
         );
     }
-    RateIdentifier getSFF8472_RateIdentifier_From_Char(unsigned char value) {
-         return std::find_if(
-            RateIdentifierAssignedValues.begin(),
-            RateIdentifierAssignedValues.end(),
-            [value](const RateIdentifierAssignedValue& entry) { return entry.byte_value == value; }
-        )->enum_value;
-    }
     std::string byteToRateIdentifierString(unsigned char byte) {
         auto it = std::find_if(
             RateIdentifierAssignedValues.begin(),
@@ -85,6 +79,31 @@ namespace TransceiverTool::Standards::SFF8472 {
         } else if (byte == 0x03 || byte == 0x05 || byte == 0x07 || byte == 0x09 || byte == 0x0B || byte == 0x0D || byte == 0x0F || byte == 0x11) {
             name = "Unspecified or INF-8074 (value = 0) or 4/2/1G selection per SFF-8079 (value = 1)";
         } else { // (byte >= 0x12 && byte <= 0x1F) || (byte >= 0x21 && byte <= 0xFF)
+            name = "Reserved";
+        }
+
+        return fmt::format("{} ({:#04x})", name, byte);
+    }
+
+    const SFF_8472_ComplianceAssignedValue& getSFF_8472_ComplianceInfo(SFF_8472_Compliance enum_value) {
+        return *std::find_if(
+            SFF_8472_ComplianceAssignedValues.begin(),
+            SFF_8472_ComplianceAssignedValues.end(),
+            [enum_value](const SFF_8472_ComplianceAssignedValue& entry) { return entry.enum_value == enum_value; }
+        );
+    }
+
+    std::string byteToSFF_8472_ComplianceAssignedValueString(unsigned char byte) {
+        auto it = std::find_if(
+            SFF_8472_ComplianceAssignedValues.begin(),
+            SFF_8472_ComplianceAssignedValues.end(),
+            [byte](const SFF_8472_ComplianceAssignedValue& it_val) { return it_val.byte_value == byte; }
+        );
+
+        std::string name;
+        if(it != SFF_8472_ComplianceAssignedValues.end()) {
+            name = it->name;
+        } else { // (byte == 0x0) || (byte >= 0x0A)
             name = "Reserved";
         }
 

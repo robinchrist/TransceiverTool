@@ -8,6 +8,7 @@
 #include "TransceiverTool/Standards/SFF-8024_Transceiver_Connector_Type.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Rate_Identifiers.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Checksum.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Compliance.hpp"
 #include "TransceiverTool/Standards/common.hpp"
 #include "fmt/format.h"
 #include "fmt/color.h"
@@ -870,6 +871,12 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
     );
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
         "Enhanced Options [93, 0]", formatReservedBit(programming.byte_93_enhanced_options.reserved_bit_0)
+    );
+    str.append("\n");
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "SFF-8472 Compliance [94]", byteToSFF_8472_ComplianceAssignedValueString(programming.byte_94_sff_8472_compliance)
     );
     str.append("\n");
 

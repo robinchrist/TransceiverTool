@@ -49,7 +49,6 @@ namespace TransceiverTool::Standards::SFF8472 {
         //21h-FFh Reserved
     }};
     const RateIdentifierAssignedValue& getSFF8472_RateIdentifierInfo(RateIdentifier enum_value);
-    RateIdentifier getSFF8472_RateIdentifier_From_Char(unsigned char value);
 
     std::string byteToRateIdentifierString(unsigned char value);
 
