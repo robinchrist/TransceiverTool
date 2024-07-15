@@ -903,6 +903,47 @@
                 { "$ref": "/schemas/single_byte_value_obj" }
             ]
         },
+        "sff-8472_option_values": {
+            "$id": "/schemas/sff-8472_option_values",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Reserved (Byte 64, Bit 7)": {"type": "boolean"},
+                "High Power Level (Level 4) requirement (Byte 64, Bit 6)": {"type": "boolean"},
+                "High Power Level (Level 3 or Level 4) requirement (Byte 64, Bit 5)": {"type": "boolean"},
+                "Paging implemented (Byte 64, Bit 4)": {"type": "boolean"},
+                "Internal retimer or data recovery (CDR) circuit present (Byte 64, Bit 3)": {"type": "boolean"},
+                "Cooled Laser (Byte 64, Bit 2)": {"type": "boolean"},
+                "Power Level 2 requirement (Byte 64, Bit 1)": {"type": "boolean"},
+                "Linear Receiver Output implemented (Byte 64, Bit 0)": {"type": "boolean"},
+                "Receiver decision threshold implemented (Byte 65, Bit 7)": {"type": "boolean"},
+                "Transmitter tunable (Byte 65, Bit 6)": {"type": "boolean"},
+                "RATE_SELECT functionality implemented (Byte 65, Bit 5)": {"type": "boolean"},
+                "TX_DISABLE implemented (Byte 65, Bit 4)": {"type": "boolean"},
+                "TX_FAULT signal implemented (Byte 65, Bit 3)": {"type": "boolean"},
+                "Loss of Signal with inverted signal implemented (Byte 65, Bit 2)": {"type": "boolean"},
+                "Loss of Signal implemented (Byte 65, Bit 1)": {"type": "boolean"},
+                "Reserved (Byte 65, Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "Reserved (Byte 64, Bit 7)",
+                "High Power Level (Level 4) requirement (Byte 64, Bit 6)",
+                "High Power Level (Level 3 or Level 4) requirement (Byte 64, Bit 5)",
+                "Paging implemented (Byte 64, Bit 4)",
+                "Internal retimer or data recovery (CDR) circuit present (Byte 64, Bit 3)",
+                "Cooled Laser (Byte 64, Bit 2)",
+                "Power Level 2 requirement (Byte 64, Bit 1)",
+                "Linear Receiver Output implemented (Byte 64, Bit 0)",
+                "Receiver decision threshold implemented (Byte 65, Bit 7)",
+                "Transmitter tunable (Byte 65, Bit 6)",
+                "RATE_SELECT functionality implemented (Byte 65, Bit 5)",
+                "TX_DISABLE implemented (Byte 65, Bit 4)",
+                "TX_FAULT signal implemented (Byte 65, Bit 3)",
+                "Loss of Signal with inverted signal implemented (Byte 65, Bit 2)",
+                "Loss of Signal implemented (Byte 65, Bit 1)",
+                "Reserved (Byte 65, Bit 0)"
+            ]
+        },
         "sff-8472_extended_signaling_rate": {
             "$id": "/schemas/sff-8472_extended_signaling_rate",
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -1066,6 +1107,7 @@
         "Wavelength Or Cable Specification Compliance": {"$ref": "/schemas/sff-8472_wavelength_or_cable_specification_compliance"},
         "Fibre Channel Speed 2": { "$ref": "/schemas/sff-8472_fibre_channel_speed_2_codes" },
         "CC_BASE": {"$ref": "/schemas/sff-8472_cc_base_checksum"},
+        "Option Values": {"$ref": "/schemas/sff-8472_option_values"},
         "Extended Signaling Rate": { "$ref": "/schemas/sff-8472_extended_signaling_rate" },
         "Vendor Serial Number": {"$ref": "/schemas/sff-8472_vendor_serial_number"},
         "Date Code": {"$ref": "/schemas/sff-8472_date_code"},
@@ -1099,6 +1141,7 @@
         "Wavelength Or Cable Specification Compliance",
         "Fibre Channel Speed 2",
         "CC_BASE",
+        "Option Values",
         "Extended Signaling Rate",
         "Vendor Serial Number",
         "Date Code",

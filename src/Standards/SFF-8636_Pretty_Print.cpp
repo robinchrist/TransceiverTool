@@ -397,7 +397,7 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
         "Device & Transmitter technology [147, 1]", programming.byte_147_device_technology_and_transmitter_technology.pin_apd_detector_bit_1 ? "APD detector" : "Pin detector"
     );
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-        "Device & Transmitter technology [147, 0]", programming.byte_147_device_technology_and_transmitter_technology.transmitter_tunable_bit_0 ? "Transmitter tunable" : "Transmitter not tunable"
+        "Device & Transmitter technology [147, 0]", programming.byte_147_device_technology_and_transmitter_technology.transmitter_tunable_bit_0 ? "Transmitter tunable" : "Transmitter NOT tunable"
     );
     str.append("\n");
 

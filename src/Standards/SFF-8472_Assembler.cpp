@@ -153,6 +153,25 @@ namespace TransceiverTool::Standards::SFF8472 {
             throw std::runtime_error("Unhandled enum case!");
         }
 
+        target[64] = (unsigned char)(programming.byte_64_option_values.reserved_bit_7) << 7 |
+            (unsigned char)(programming.byte_64_option_values.high_level_power_level_4_bit_6) << 6 |
+            (unsigned char)(programming.byte_64_option_values.high_level_power_level_4_3_bit_5) << 5 |
+            (unsigned char)(programming.byte_64_option_values.paging_implemented_indicator_bit_4) << 4 |
+            (unsigned char)(programming.byte_64_option_values.retimer_or_cdr_indicator_bit_3) << 3 |
+            (unsigned char)(programming.byte_64_option_values.cooled_transceiver_bit_2) << 2 |
+            (unsigned char)(programming.byte_64_option_values.power_level_2_bit_1) << 1 |
+            (unsigned char)(programming.byte_64_option_values.linear_receiver_output_implemented_bit_0) << 0;
+
+        target[65] = (unsigned char)(programming.byte_65_option_values.receiver_rdt_implemented_bit_7) << 7 |
+            (unsigned char)(programming.byte_65_option_values.receiver_tunable_bit_6) << 6 |
+            (unsigned char)(programming.byte_65_option_values.rate_select_implemented_bit_5) << 5 |
+            (unsigned char)(programming.byte_65_option_values.tx_disable_implemented_bit_4) << 4 |
+            (unsigned char)(programming.byte_65_option_values.tx_fault_implemented_bit_3) << 3 |
+            (unsigned char)(programming.byte_65_option_values.loss_of_signal_inverted_bit_2) << 2 |
+            (unsigned char)(programming.byte_65_option_values.loss_of_signal_implemented_bit_1) << 1 |
+            (unsigned char)(programming.byte_65_option_values.reserved_bit_0) << 0;
+
+
         target[66] = programming.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud;
 
         target[67] = programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent;
