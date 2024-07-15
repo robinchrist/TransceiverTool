@@ -1275,6 +1275,147 @@ namespace TransceiverTool::Standards::SFF8472 {
 //############
 
 //############
+    nlohmann::ordered_json WavelengthOrCableSpecificationComplianceToJSON(
+        bool byte_8_sfp_plus_cable_technology_codes_Passive_Cable_bit_2,
+        bool byte_8_sfp_plus_cable_technology_codes_Active_Cable_bit_3,
+        unsigned char byte_60_wavelength_high_order_byte_or_cable_specification_compliance,
+        unsigned char byte_61_wavelength_low_order_byte_or_cable_specification_compliance
+    ) {
+
+        nlohmann::ordered_json j;
+
+        if(false && !byte_8_sfp_plus_cable_technology_codes_Passive_Cable_bit_2 && !byte_8_sfp_plus_cable_technology_codes_Active_Cable_bit_3) {
+            j["Type"] = "Wavelength";
+
+            static_assert(sizeof(unsigned int) >= 2);
+            unsigned int wavelengthRaw = 0;
+            wavelengthRaw |= (unsigned(byte_60_wavelength_high_order_byte_or_cable_specification_compliance) << 8);
+            wavelengthRaw |= (unsigned(byte_61_wavelength_low_order_byte_or_cable_specification_compliance) << 0);
+
+            j["Wavelength [nm]"] = (unsigned long)(wavelengthRaw);
+
+        } else if(byte_8_sfp_plus_cable_technology_codes_Passive_Cable_bit_2 && !byte_8_sfp_plus_cable_technology_codes_Active_Cable_bit_3) {
+            //Passive cable
+            j["Type"] = "Passive Cable";
+
+            j["Reserved (Byte 60, Bit 7)"] = bool(byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 7));
+            j["Reserved (Byte 60, Bit 6)"] = bool(byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 6));
+            j["Reserved for SFF-8461 (Byte 60, Bit 5)"] = bool(byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 5));
+            j["Reserved for SFF-8461 (Byte 60, Bit 4)"] = bool(byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 4));
+            j["Reserved for SFF-8461 (Byte 60, Bit 3)"] = bool(byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 3));
+            j["Reserved for SFF-8461 (Byte 60, Bit 2)"] = bool(byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 2));
+            j["FC-PI-4 Appendix H compliant (Byte 60, Bit 1)"] = bool(byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 1));
+            j["SFF-8431 Appendix E compliant (Byte 60, Bit 0)"] = bool(byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 0));
+
+            j["Reserved (Byte 61, Bit 7)"] = bool(byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 7));
+            j["Reserved (Byte 61, Bit 6)"] = bool(byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 6));
+            j["Reserved (Byte 61, Bit 5)"] = bool(byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 5));
+            j["Reserved (Byte 61, Bit 4)"] = bool(byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 4));
+            j["Reserved (Byte 61, Bit 3)"] = bool(byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 3));
+            j["Reserved (Byte 61, Bit 2)"] = bool(byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 2));
+            j["Reserved (Byte 61, Bit 1)"] = bool(byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 1));
+            j["Reserved (Byte 61, Bit 0)"] = bool(byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 0));
+        } else {
+            //Active cable is also fallback
+            j["Type"] = "Active Cable";
+
+            j["Reserved (Byte 60, Bit 7)"] = bool(byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 7));
+            j["Reserved (Byte 60, Bit 6)"] = bool(byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 6));
+            j["Reserved (Byte 60, Bit 5)"] = bool(byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 5));
+            j["Reserved (Byte 60, Bit 4)"] = bool(byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 4));
+            j["FC-PI-4 Limiting compliant (Byte 60, Bit 3)"] = bool(byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 3));
+            j["SFF-8431 Limiting compliant (Byte 60, Bit 2)"] = bool(byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 2));
+            j["FC-PI-4 Appendix H compliant (Byte 60, Bit 1)"] = bool(byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 1));
+            j["SFF-8431 Appendix E compliant (Byte 60, Bit 0)"] = bool(byte_60_wavelength_high_order_byte_or_cable_specification_compliance & (1 << 0));
+
+            j["Reserved (Byte 61, Bit 7)"] = bool(byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 7));
+            j["Reserved (Byte 61, Bit 6)"] = bool(byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 6));
+            j["Reserved (Byte 61, Bit 5)"] = bool(byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 5));
+            j["Reserved (Byte 61, Bit 4)"] = bool(byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 4));
+            j["Reserved (Byte 61, Bit 3)"] = bool(byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 3));
+            j["Reserved (Byte 61, Bit 2)"] = bool(byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 2));
+            j["Reserved (Byte 61, Bit 1)"] = bool(byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 1));
+            j["Reserved (Byte 61, Bit 0)"] = bool(byte_61_wavelength_low_order_byte_or_cable_specification_compliance & (1 << 0));
+        }
+
+        return j;
+    }
+
+    struct WavelengthOrCableSpecificationComplianceJSONReturn {
+        unsigned char byte_60_wavelength_high_order_byte_or_cable_specification_compliance;
+        unsigned char byte_61_wavelength_low_order_byte_or_cable_specification_compliance;
+    };
+
+    WavelengthOrCableSpecificationComplianceJSONReturn WavelengthOrCableSpecificationComplianceFromJSON(const nlohmann::json& j) {
+
+        if(!j.is_object()) throw std::invalid_argument("Wavelength Or Cable Specification Compliance must be an object");
+
+        WavelengthOrCableSpecificationComplianceJSONReturn parsedStruct;
+
+        auto typeStr = j.at("Type").template get<std::string>();
+
+        if(typeStr == "Wavelength") {
+
+            const auto& wavelengthVal = j.at("Wavelength [nm]");
+            if(!wavelengthVal.is_number_unsigned()) throw std::invalid_argument("Wavelength [nm] must be an unsigned number");
+
+            auto wavelengthRaw = wavelengthVal.template get<std::uint64_t>();
+            if(wavelengthRaw > 65535) throw std::invalid_argument("Wavelength must not be greater than 65535!");
+
+            parsedStruct.byte_60_wavelength_high_order_byte_or_cable_specification_compliance = (wavelengthRaw >> 8) & (0b11111111);
+            parsedStruct.byte_61_wavelength_low_order_byte_or_cable_specification_compliance = (wavelengthRaw >> 0) & (0b11111111);
+
+        } else if(typeStr == "Passive Cable") {
+
+            parsedStruct.byte_60_wavelength_high_order_byte_or_cable_specification_compliance =
+                (unsigned char)(j.at("Reserved (Byte 60, Bit 7)").template get<bool>()) << 7 |
+                (unsigned char)(j.at("Reserved (Byte 60, Bit 6)").template get<bool>()) << 6 |
+                (unsigned char)(j.at("Reserved for SFF-8461 (Byte 60, Bit 5)").template get<bool>()) << 5 |
+                (unsigned char)(j.at("Reserved for SFF-8461 (Byte 60, Bit 4)").template get<bool>()) << 4 |
+                (unsigned char)(j.at("Reserved for SFF-8461 (Byte 60, Bit 3)").template get<bool>()) << 3 |
+                (unsigned char)(j.at("Reserved for SFF-8461 (Byte 60, Bit 2)").template get<bool>()) << 2 |
+                (unsigned char)(j.at("FC-PI-4 Appendix H compliant (Byte 60, Bit 1)").template get<bool>()) << 1 |
+                (unsigned char)(j.at("SFF-8431 Appendix E compliant (Byte 60, Bit 0)").template get<bool>()) << 0;
+
+            parsedStruct.byte_61_wavelength_low_order_byte_or_cable_specification_compliance =
+                (unsigned char)(j.at("Reserved (Byte 61, Bit 7)").template get<bool>()) << 7 |
+                (unsigned char)(j.at("Reserved (Byte 61, Bit 6)").template get<bool>()) << 6 |
+                (unsigned char)(j.at("Reserved (Byte 61, Bit 5)").template get<bool>()) << 5 |
+                (unsigned char)(j.at("Reserved (Byte 61, Bit 4)").template get<bool>()) << 4 |
+                (unsigned char)(j.at("Reserved (Byte 61, Bit 3)").template get<bool>()) << 3 |
+                (unsigned char)(j.at("Reserved (Byte 61, Bit 2)").template get<bool>()) << 2 |
+                (unsigned char)(j.at("Reserved (Byte 61, Bit 1)").template get<bool>()) << 1 |
+                (unsigned char)(j.at("Reserved (Byte 61, Bit 0)").template get<bool>()) << 0;
+
+        } else if(typeStr == "Active Cable") {
+            parsedStruct.byte_60_wavelength_high_order_byte_or_cable_specification_compliance =
+                (unsigned char)(j.at("Reserved (Byte 60, Bit 7)").template get<bool>()) << 7 |
+                (unsigned char)(j.at("Reserved (Byte 60, Bit 6)").template get<bool>()) << 6 |
+                (unsigned char)(j.at("Reserved (Byte 60, Bit 5)").template get<bool>()) << 5 |
+                (unsigned char)(j.at("Reserved (Byte 60, Bit 4)").template get<bool>()) << 4 |
+                (unsigned char)(j.at("FC-PI-4 Limiting compliant (Byte 60, Bit 3)").template get<bool>()) << 3 |
+                (unsigned char)(j.at("SFF-8431 Limiting compliant (Byte 60, Bit 2)").template get<bool>()) << 2 |
+                (unsigned char)(j.at("FC-PI-4 Appendix H compliant (Byte 60, Bit 1)").template get<bool>()) << 1 |
+                (unsigned char)(j.at("SFF-8431 Appendix E compliant (Byte 60, Bit 0)").template get<bool>()) << 0;
+
+            parsedStruct.byte_61_wavelength_low_order_byte_or_cable_specification_compliance =
+                (unsigned char)(j.at("Reserved (Byte 61, Bit 7)").template get<bool>()) << 7 |
+                (unsigned char)(j.at("Reserved (Byte 61, Bit 6)").template get<bool>()) << 6 |
+                (unsigned char)(j.at("Reserved (Byte 61, Bit 5)").template get<bool>()) << 5 |
+                (unsigned char)(j.at("Reserved (Byte 61, Bit 4)").template get<bool>()) << 4 |
+                (unsigned char)(j.at("Reserved (Byte 61, Bit 3)").template get<bool>()) << 3 |
+                (unsigned char)(j.at("Reserved (Byte 61, Bit 2)").template get<bool>()) << 2 |
+                (unsigned char)(j.at("Reserved (Byte 61, Bit 1)").template get<bool>()) << 1 |
+                (unsigned char)(j.at("Reserved (Byte 61, Bit 0)").template get<bool>()) << 0;
+        } else {
+            throw std::invalid_argument("Wavelength Or Cable Specification Compliance has invalid Type string, must be Wavelength, Passive Cable or Active Cable");
+        }
+
+        return parsedStruct;
+    }
+//############
+
+//############
     nlohmann::ordered_json Fibre_Channel_Speed_2_CodesToJSON(const Fibre_Channel_Speed_2_Codes& value) {
         nlohmann::ordered_json j;
 
@@ -1695,6 +1836,14 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         j["Vendor Rev"] = VendorRevToJSON(programming.byte_56_59_vendor_rev);
 
+        j["Wavelength Or Cable Specification Compliance"] = WavelengthOrCableSpecificationComplianceToJSON(
+            programming.byte_8_sfp_plus_cable_technology_codes.Passive_Cable_bit_2,
+            programming.byte_8_sfp_plus_cable_technology_codes.Active_Cable_bit_3,
+            programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance,
+            programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance
+        );
+        
+
         j["Fibre Channel Speed 2"] = Fibre_Channel_Speed_2_CodesToJSON(programming.byte_62_fibre_channel_2_speed_codes);
 
         j["Extended Signaling Rate"] = ExtendedSignalingRateInfoToJSON(
@@ -1761,6 +1910,10 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_40_55_vendor_pn = VendorPNFromJSON(j.at("Vendor Part Number"));
 
         programming.byte_56_59_vendor_rev = VendorRevFromJSON(j.at("Vendor Rev"));
+
+        auto WavelengthOrCableSpecificationComplianceFromJSONReturn = WavelengthOrCableSpecificationComplianceFromJSON(j.at("Wavelength Or Cable Specification Compliance"));
+        programming.byte_60_wavelength_high_order_byte_or_cable_specification_compliance = WavelengthOrCableSpecificationComplianceFromJSONReturn.byte_60_wavelength_high_order_byte_or_cable_specification_compliance;
+        programming.byte_61_wavelength_low_order_byte_or_cable_specification_compliance = WavelengthOrCableSpecificationComplianceFromJSONReturn.byte_61_wavelength_low_order_byte_or_cable_specification_compliance;
 
         programming.byte_62_fibre_channel_2_speed_codes = Fibre_Channel_Speed_2_CodesFromJSON(j.at("Fibre Channel Speed 2"));
 

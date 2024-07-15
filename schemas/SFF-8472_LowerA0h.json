@@ -762,6 +762,114 @@
                 }
             ]
         },
+        "sff-8472_wavelength_or_cable_specification_compliance": {
+            "$id": "/schemas/sff-8472_wavelength_or_cable_specification_compliance",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "Type": {
+                            "const": "Wavelength"
+                        },
+                        "Wavelength [nm]": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 65535
+                        }
+                    },
+                    "required": [
+                        "Type"
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "Type": {
+                            "const": "Passive Cable"
+                        },
+                            "Reserved (Byte 60, Bit 7)": {"type": "boolean"},
+                            "Reserved (Byte 60, Bit 6)": {"type": "boolean"},
+                            "Reserved for SFF-8461 (Byte 60, Bit 5)": {"type": "boolean"},
+                            "Reserved for SFF-8461 (Byte 60, Bit 4)": {"type": "boolean"},
+                            "Reserved for SFF-8461 (Byte 60, Bit 3)": {"type": "boolean"},
+                            "Reserved for SFF-8461 (Byte 60, Bit 2)": {"type": "boolean"},
+                            "FC-PI-4 Appendix H compliant (Byte 60, Bit 1)": {"type": "boolean"},
+                            "SFF-8431 Appendix E compliant (Byte 60, Bit 0)": {"type": "boolean"},
+                            "Reserved (Byte 61, Bit 7)": {"type": "boolean"},
+                            "Reserved (Byte 61, Bit 6)": {"type": "boolean"},
+                            "Reserved (Byte 61, Bit 5)": {"type": "boolean"},
+                            "Reserved (Byte 61, Bit 4)": {"type": "boolean"},
+                            "Reserved (Byte 61, Bit 3)": {"type": "boolean"},
+                            "Reserved (Byte 61, Bit 2)": {"type": "boolean"},
+                            "Reserved (Byte 61, Bit 1)": {"type": "boolean"},
+                            "Reserved (Byte 61, Bit 0)": {"type": "boolean"}
+                    },
+                    "required": [
+                        "Type",
+                        "Reserved (Byte 60, Bit 7)",
+                        "Reserved (Byte 60, Bit 6)",
+                        "Reserved for SFF-8461 (Byte 60, Bit 5)",
+                        "Reserved for SFF-8461 (Byte 60, Bit 4)",
+                        "Reserved for SFF-8461 (Byte 60, Bit 3)",
+                        "Reserved for SFF-8461 (Byte 60, Bit 2)",
+                        "FC-PI-4 Appendix H compliant (Byte 60, Bit 1)",
+                        "SFF-8431 Appendix E compliant (Byte 60, Bit 0)",
+                        "Reserved (Byte 61, Bit 7)",
+                        "Reserved (Byte 61, Bit 6)",
+                        "Reserved (Byte 61, Bit 5)",
+                        "Reserved (Byte 61, Bit 4)",
+                        "Reserved (Byte 61, Bit 3)",
+                        "Reserved (Byte 61, Bit 2)",
+                        "Reserved (Byte 61, Bit 1)",
+                        "Reserved (Byte 61, Bit 0)",
+                    ]
+                },
+                {
+                    "type": "object",
+                    "properties": {
+                        "Type": {
+                            "const": "Active Cable"
+                        },
+                        "Reserved (Byte 60, Bit 7)": {"type": "boolean"},
+                        "Reserved (Byte 60, Bit 6)": {"type": "boolean"},
+                        "Reserved (Byte 60, Bit 5)": {"type": "boolean"},
+                        "Reserved (Byte 60, Bit 4)": {"type": "boolean"},
+                        "FC-PI-4 Limiting compliant (Byte 60, Bit 3)": {"type": "boolean"},
+                        "SFF-8431 Limiting compliant (Byte 60, Bit 2)": {"type": "boolean"},
+                        "FC-PI-4 Appendix H compliant (Byte 60, Bit 1)": {"type": "boolean"},
+                        "SFF-8431 Appendix E compliant (Byte 60, Bit 0)": {"type": "boolean"},
+                        "Reserved (Byte 61, Bit 7)": {"type": "boolean"},
+                        "Reserved (Byte 61, Bit 6)": {"type": "boolean"},
+                        "Reserved (Byte 61, Bit 5)": {"type": "boolean"},
+                        "Reserved (Byte 61, Bit 4)": {"type": "boolean"},
+                        "Reserved (Byte 61, Bit 3)": {"type": "boolean"},
+                        "Reserved (Byte 61, Bit 2)": {"type": "boolean"},
+                        "Reserved (Byte 61, Bit 1)": {"type": "boolean"},
+                        "Reserved (Byte 61, Bit 0)": {"type": "boolean"}
+                    },
+                    "required": [
+                        "Type",
+                        "Reserved (Byte 60, Bit 7)",
+                        "Reserved (Byte 60, Bit 6)",
+                        "Reserved (Byte 60, Bit 5)",
+                        "Reserved (Byte 60, Bit 4)",
+                        "FC-PI-4 Limiting compliant (Byte 60, Bit 3)",
+                        "SFF-8431 Limiting compliant (Byte 60, Bit 2)",
+                        "FC-PI-4 Appendix H compliant (Byte 60, Bit 1)",
+                        "SFF-8431 Appendix E compliant (Byte 60, Bit 0)",
+                        "Reserved (Byte 61, Bit 7)",
+                        "Reserved (Byte 61, Bit 6)",
+                        "Reserved (Byte 61, Bit 5)",
+                        "Reserved (Byte 61, Bit 4)",
+                        "Reserved (Byte 61, Bit 3)",
+                        "Reserved (Byte 61, Bit 2)",
+                        "Reserved (Byte 61, Bit 1)",
+                        "Reserved (Byte 61, Bit 0)"
+                    ]
+                }
+            ]
+        },
         "sff-8472_fibre_channel_speed_2_codes": {
             "$id": "/schemas/sff-8472_fibre_channel_speed_2_codes",
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -939,6 +1047,7 @@
         "Vendor OUI": {"$ref": "/schemas/sff-8472_vendor_oui"},
         "Vendor Part Number": {"$ref": "/schemas/sff-8472_vendor_part_number"},
         "Vendor Rev": {"$ref": "/schemas/sff-8472_vendor_rev"},
+        "Wavelength Or Cable Specification Compliance": {"$ref": "/schemas/sff-8472_wavelength_or_cable_specification_compliance"},
         "Fibre Channel Speed 2": { "$ref": "/schemas/sff-8472_fibre_channel_speed_2_codes" },
         "Extended Signaling Rate": { "$ref": "/schemas/sff-8472_extended_signaling_rate" },
         "Vendor Serial Number": {"$ref": "/schemas/sff-8472_vendor_serial_number"},
@@ -969,6 +1078,7 @@
         "Vendor OUI",
         "Vendor Part Number",
         "Vendor Rev",
+        "Wavelength Or Cable Specification Compliance",
         "Fibre Channel Speed 2",
         "Extended Signaling Rate",
         "Vendor Serial Number",
