@@ -1068,6 +1068,33 @@
                 "Vendor Lot Code (Byte 90-91)"
             ]
         },
+        "sff-8472_diagnostic_monitoring_type": {
+            "$id": "/schemas/sff-8472_diagnostic_monitoring_type",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                "Reserved (Bit 7)": {"type": "boolean"},
+                "Digital diagnostic monitoring implemented (Bit 6)": {"type": "boolean"},
+                "Internally calibrated (Bit 5)": {"type": "boolean"},
+                "Externally calibrated (Bit 4)": {"type": "boolean"},
+                "Received power measurement type (Bit 3)": {
+                    "enum": ["Average", "OMA"]
+                },
+                "Address change required (Bit 2)": {"type": "boolean"},
+                "Reserved (Bit 1)": {"type": "boolean"},
+                "Reserved (Bit 0)": {"type": "boolean"}
+            },
+            "required": [
+                "Reserved (Bit 7)",
+                "Digital diagnostic monitoring implemented (Bit 6)",
+                "Internally calibrated (Bit 5)",
+                "Externally calibrated (Bit 4)",
+                "Received power measurement type (Bit 3)",
+                "Address change required (Bit 2)",
+                "Reserved (Bit 1)",
+                "Reserved (Bit 0)"
+            ]
+        },
         "sff-8472_cc_ext_checksum": {
             "$id": "/schemas/sff-8472_cc_ext_checksum",
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -1111,6 +1138,7 @@
         "Extended Signaling Rate": { "$ref": "/schemas/sff-8472_extended_signaling_rate" },
         "Vendor Serial Number": {"$ref": "/schemas/sff-8472_vendor_serial_number"},
         "Date Code": {"$ref": "/schemas/sff-8472_date_code"},
+        "Diagnostic Monitoring Type": {"$ref": "/schemas/sff-8472_diagnostic_monitoring_type"},
         "CC_EXT": {"$ref": "/schemas/sff-8472_cc_ext_checksum"},
     },
 
@@ -1145,6 +1173,7 @@
         "Extended Signaling Rate",
         "Vendor Serial Number",
         "Date Code",
+        "Diagnostic Monitoring Type",
         "CC_EXT"
     ]
 }

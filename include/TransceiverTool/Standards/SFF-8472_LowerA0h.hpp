@@ -3,6 +3,7 @@
 #include <array>
 #include "TransceiverTool/Standards/SFF-8472_Compliance_Codes.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Date_Code.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Diagnostic_Monitoring_Type.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Option_Values.hpp"
 
 namespace TransceiverTool::Standards::SFF8472 {
@@ -142,6 +143,9 @@ namespace TransceiverTool::Standards::SFF8472 {
         //Byte 84-91: Date Code
         //Vendor's manufacturing date code (see Table 8-4)
         DateCode byte_84_91_date_code;
+
+        //Byte 92: Diagnostic Monitoring Type
+        Diagnostic_Monitoring_Type byte_92_diagnostic_monitoring_type;
 
         //Byte 94: CC_EXT
         //Check code for the Extended ID Fields (addresses 64 to 94)

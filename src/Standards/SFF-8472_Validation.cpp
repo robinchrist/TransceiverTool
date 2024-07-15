@@ -2,6 +2,7 @@
 #include "TransceiverTool/Standards/SFF-8472_Assembler.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Checksum.hpp"
 #include "TransceiverTool/Standards/SFF-8472_LowerA0h.hpp"
+#include "TransceiverTool/Standards/SFF-8636_Validation.hpp"
 #include <cctype>
 #include <fmt/core.h>
 #include <algorithm>
@@ -320,7 +321,7 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
             );
         }
     }
-    
+
     void validateVendorSerialNumber(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
         //SFF-8472 Rev 12.4 Section 8.6 Vendor SN [Address A0h, Bytes 68-83]
         bool vendorSNAllZeros = std::all_of(programming.byte_68_83_vendor_sn.begin(), programming.byte_68_83_vendor_sn.end(), [](unsigned char val) { return val == 0; });
@@ -423,6 +424,26 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         }
     }
 
+    void validateDiagnosticMonitoringType(const SFF8472_LowerA0h &programming, common::ValidationResult &validationResult) {
+        if(programming.byte_92_diagnostic_monitoring_type.reserved_bit_7 || programming.byte_92_diagnostic_monitoring_type.reserved_bit_1 ||
+            programming.byte_92_diagnostic_monitoring_type.reserved_bit_0
+        ) {
+            validationResult.errors.push_back(
+                fmt::format(
+                    "Byte 92 (\"Diagnostic Monitoring Type\") value has at least one reserved bit set: Bit 7 {:d}, Bit 1 {:d}, Bit 0 {:d}",
+                    programming.byte_92_diagnostic_monitoring_type.reserved_bit_7, programming.byte_92_diagnostic_monitoring_type.reserved_bit_1, 
+                    programming.byte_92_diagnostic_monitoring_type.reserved_bit_0
+                )
+            );
+        }
+
+        if(programming.byte_92_diagnostic_monitoring_type.internally_calibrated_bit_5 && programming.byte_92_diagnostic_monitoring_type.externally_calibrated_bit_4) {
+            validationResult.errors.push_back(
+                "Byte 92 (\"Diagnostic Monitoring Type\") value has both internally calibrated and externally calibrated bits set"
+            ); 
+        }
+    }
+
     void validateCC_EXTChecksum(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
         std::vector<unsigned char> buffer; buffer.resize(128, 0x00);
         assembleToBinary(buffer.data(), programming, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
@@ -499,6 +520,9 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
 
         //SFF-8472 Rev 12.4 Section 8.7 Date Code [Address A0h, Bytes 84-91]
         validateDateCode(programming, validationResult);
+
+        //SFF-8472 Rev 12.4 Section 8.8 Diagnostic Monitoring Type [Address A0h, Byte 92]
+        validateDiagnosticMonitoringType(programming, validationResult);
 
         //SFF-8472 Rev 12.4 Section 8.12 CC_EXT [Address A0h, Byte 95]
         validateCC_EXTChecksum(programming, validationResult);

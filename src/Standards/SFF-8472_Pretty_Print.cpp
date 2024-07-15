@@ -803,7 +803,7 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
     }
 
     bool lotCodePrintable = std::all_of(programming.byte_84_91_date_code.lot_code.begin(), programming.byte_84_91_date_code.lot_code.end(), [](char c) {return std::isprint(c); });
-    if(dateCodeDayPrintable) {
+    if(lotCodePrintable) {
         fmt::format_to(std::back_inserter(str), "{: <85s}: {:?}\n", 
             "Date Code, lot code (wrapping quotes added by TransceiverTool) [90-91]", std::string(reinterpret_cast<char const *>(programming.byte_84_91_date_code.lot_code.data()), 2)
         );
@@ -817,6 +817,33 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
         }
         str.append("\n");
     }
+    str.append("\n");
+
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [92, 7]", formatReservedBit(programming.byte_92_diagnostic_monitoring_type.reserved_bit_7)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [92, 6]", programming.byte_92_diagnostic_monitoring_type.digital_diagnostic_monitoring_implemented_bit_6 ? "Digital diagnostic monitoring implemented" : "Digital diagnostic monitoring NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [92, 5]", programming.byte_92_diagnostic_monitoring_type.internally_calibrated_bit_5 ? "Internally Calibrated" : "NOT Internally Calibrated"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [92, 4]", programming.byte_92_diagnostic_monitoring_type.externally_calibrated_bit_4 ? "Externally Calibrated" : "NOT Externally Calibrated"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [92, 3]", programming.byte_92_diagnostic_monitoring_type.received_power_measurement_is_average_bit_3 ? "Received power measurements type = Average" : "Received power measurements type = OMA"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [92, 2]", programming.byte_92_diagnostic_monitoring_type.address_change_required_bit_2 ? "Address change required" : "Address change NOT required"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [92, 1]", formatReservedBit(programming.byte_92_diagnostic_monitoring_type.reserved_bit_1)
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Option Values [92, 0]", formatReservedBit(programming.byte_92_diagnostic_monitoring_type.reserved_bit_0)
+    );
     str.append("\n");
 
     if(programming.byte_95_CC_EXT == CC_EXT) {
