@@ -1885,7 +1885,7 @@ namespace TransceiverTool::Standards::SFF8472 {
     }
 
     Diagnostic_Monitoring_Type Diagnostic_Monitoring_TypeFromJSON(const nlohmann::json& j) {
-        if(!j.is_object()) throw std::invalid_argument("Fibre Channel Technology must be an object");
+        if(!j.is_object()) throw std::invalid_argument("Diagnostic Monitoring Type must be an object");
 
         Diagnostic_Monitoring_Type value;
 
@@ -1905,6 +1905,40 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         value.address_change_required_bit_2 = j.at("Address change required (Bit 2)").template get<bool>();
         value.reserved_bit_1 = j.at("Reserved (Bit 1)").template get<bool>();
+        value.reserved_bit_0 = j.at("Reserved (Bit 0)").template get<bool>();
+
+        return value;
+    }
+//############
+
+//############
+    nlohmann::ordered_json Enhanced_OptionsToJSON(const Enhanced_Options& value) {
+        nlohmann::ordered_json j;
+
+        j["Optional Alarm/warning flags implemented (Bit 7)"] = value.optional_alarm_warning_flags_implemented_bit_7;
+        j["Optional soft TX_DISABLE control and monitoring implemented (Bit 6)"] = value.optional_soft_TX_DISABLE_control_and_monitoring_implemented_bit_6;
+        j["Optional soft TX_FAULT monitoring implemented (Bit 5)"] = value.optional_soft_TX_FAULT_monitoring_implemented_bit_5;
+        j["Optional soft RX_LOS monitoring implemented (Bit 4)"] = value.optional_soft_RX_LOS_monitoring_implemented_bit_4;
+        j["Optional soft RATE_SELECT control and monitoring implemented (Bit 3)"] = value.optional_soft_RATE_SELECT_control_and_monitoring_implemented_bit_3;
+        j["Optional Application Select control implemented per SFF-8079 (Bit 2)"] = value.optional_application_select_control_implemented_per_SFF_8079_bit_2;
+        j["Optional soft Rate Select control implemented per SFF-8431 (Bit 1)"] = value.optional_soft_rate_select_control_implemented_per_SFF_8431_bit_1;
+        j["Reserved (Bit 0)"] = value.reserved_bit_0;
+
+        return j;
+    }
+
+    Enhanced_Options Enhanced_OptionsFromJSON(const nlohmann::json& j) {
+        if(!j.is_object()) throw std::invalid_argument("Fibre Channel Technology must be an object");
+
+        Enhanced_Options value;
+
+        value.optional_alarm_warning_flags_implemented_bit_7 = j.at("Optional Alarm/warning flags implemented (Bit 7)").template get<bool>();
+        value.optional_soft_TX_DISABLE_control_and_monitoring_implemented_bit_6 = j.at("Optional soft TX_DISABLE control and monitoring implemented (Bit 6)").template get<bool>();
+        value.optional_soft_TX_FAULT_monitoring_implemented_bit_5 = j.at("Optional soft TX_FAULT monitoring implemented (Bit 5)").template get<bool>();
+        value.optional_soft_RX_LOS_monitoring_implemented_bit_4 = j.at("Optional soft RX_LOS monitoring implemented (Bit 4)").template get<bool>();
+        value.optional_soft_RATE_SELECT_control_and_monitoring_implemented_bit_3 = j.at("Optional soft RATE_SELECT control and monitoring implemented (Bit 3)").template get<bool>();
+        value.optional_application_select_control_implemented_per_SFF_8079_bit_2 = j.at("Optional Application Select control implemented per SFF-8079 (Bit 2)").template get<bool>();
+        value.optional_soft_rate_select_control_implemented_per_SFF_8431_bit_1 = j.at("Optional soft Rate Select control implemented per SFF-8431 (Bit 1)").template get<bool>();
         value.reserved_bit_0 = j.at("Reserved (Bit 0)").template get<bool>();
 
         return value;
@@ -2029,6 +2063,8 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         j["Diagnostic Monitoring Type"] = Diagnostic_Monitoring_TypeToJSON(programming.byte_92_diagnostic_monitoring_type);
 
+        j["Enhanced Options"] = Enhanced_OptionsToJSON(programming.byte_93_enhanced_options);
+
         j["CC_EXT"] = CC_EXTChecksumToJSON(programming.byte_95_CC_EXT, correctCC_EXTChecksum);
     }
 
@@ -2105,6 +2141,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_84_91_date_code = DateCodeFromJSON(j.at("Date Code"));
 
         programming.byte_92_diagnostic_monitoring_type = Diagnostic_Monitoring_TypeFromJSON(j.at("Diagnostic Monitoring Type"));
+
+        programming.byte_93_enhanced_options = Enhanced_OptionsFromJSON(j.at("Enhanced Options"));
 
         //CC_EXT is done later
 

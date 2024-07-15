@@ -846,6 +846,35 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
     );
     str.append("\n");
 
+
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Enhanced Options [93, 7]", programming.byte_93_enhanced_options.optional_alarm_warning_flags_implemented_bit_7 ? "Optional Alarm/warning flags implemented" : "Optional Alarm/warning flags NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Enhanced Options [93, 6]", programming.byte_93_enhanced_options.optional_soft_TX_DISABLE_control_and_monitoring_implemented_bit_6 ? "Optional soft TX_DISABLE control and monitoring implemented" : "Optional soft TX_DISABLE control and monitoring NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Enhanced Options [93, 5]", programming.byte_93_enhanced_options.optional_soft_TX_FAULT_monitoring_implemented_bit_5 ? "Optional soft TX_FAULT monitoring implemented" : "Optional soft TX_FAULT monitoring NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Enhanced Options [93, 4]", programming.byte_93_enhanced_options.optional_soft_RX_LOS_monitoring_implemented_bit_4 ? "Optional soft RX_LOS monitoring implemented" : "Optional soft RX_LOS monitoring NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Enhanced Options [93, 3]", programming.byte_93_enhanced_options.optional_soft_RATE_SELECT_control_and_monitoring_implemented_bit_3 ? "Optional soft RATE_SELECT control and monitoring implemented" : "Optional soft RATE_SELECT control and monitoring NOT implemented"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Enhanced Options [93, 2]", programming.byte_93_enhanced_options.optional_application_select_control_implemented_per_SFF_8079_bit_2 ? "Optional Application Select control implemented per SFF-8079" : "Optional Application Select control NOT implemented per SFF-8079"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Enhanced Options [93, 1]", programming.byte_93_enhanced_options.optional_soft_rate_select_control_implemented_per_SFF_8431_bit_1 ? "Optional soft Rate Select control implemented per SFF-8431" : "Optional soft Rate Select control NOT implemented per SFF-8431"
+    );
+    fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+        "Enhanced Options [93, 0]", formatReservedBit(programming.byte_93_enhanced_options.reserved_bit_0)
+    );
+    str.append("\n");
+
+
+
     if(programming.byte_95_CC_EXT == CC_EXT) {
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
             "CC_EXT checksum [95]", fmt::format("{:#04x} (correct)", programming.byte_95_CC_EXT)

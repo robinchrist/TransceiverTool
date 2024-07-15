@@ -193,6 +193,18 @@ namespace TransceiverTool::Standards::SFF8472 {
             (unsigned char)(programming.byte_92_diagnostic_monitoring_type.reserved_bit_1) << 1 |
             (unsigned char)(programming.byte_92_diagnostic_monitoring_type.reserved_bit_0) << 0;
 
+
+        target[93] = (unsigned char)(programming.byte_93_enhanced_options.optional_alarm_warning_flags_implemented_bit_7) << 7 |
+            (unsigned char)(programming.byte_93_enhanced_options.optional_soft_TX_DISABLE_control_and_monitoring_implemented_bit_6) << 6 |
+            (unsigned char)(programming.byte_93_enhanced_options.optional_soft_TX_FAULT_monitoring_implemented_bit_5) << 5 |
+            (unsigned char)(programming.byte_93_enhanced_options.optional_soft_RX_LOS_monitoring_implemented_bit_4) << 4 |
+            (unsigned char)(programming.byte_93_enhanced_options.optional_soft_RATE_SELECT_control_and_monitoring_implemented_bit_3) << 3 |
+            (unsigned char)(programming.byte_93_enhanced_options.optional_application_select_control_implemented_per_SFF_8079_bit_2) << 2 |
+            (unsigned char)(programming.byte_93_enhanced_options.optional_soft_rate_select_control_implemented_per_SFF_8431_bit_1) << 1 |
+            (unsigned char)(programming.byte_93_enhanced_options.reserved_bit_0) << 0;
+
+        target[94] = programming.byte_94_sff_8472_compliance;
+
         if(CC_EXTDirective == common::ChecksumDirective::AUTO_CALCULATE_FROM_CONTENT) {
             target[95] = calculateCC_EXTChecksum(target);
         } else if(CC_EXTDirective == common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING) {
