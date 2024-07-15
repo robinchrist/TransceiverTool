@@ -1120,6 +1120,26 @@
                 "Reserved (Bit 0)"
             ]
         },
+        "sff-8472_compliance": {
+            "$id": "/schemas/sff-8472_compliance",
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "anyOf": [
+                { "$ref": "/schemas/single_byte_value_obj" },
+                { 
+                    "enum": [
+                        "Includes functionality described in Rev 9.3 of SFF-8472",
+                        "Includes functionality described in Rev 9.5 of SFF-8472",
+                        "Includes functionality described in Rev 10.2 of SFF-8472",
+                        "Includes functionality described in Rev 10.4 of SFF-8472",
+                        "Includes functionality described in Rev 11.0 of SFF-8472",
+                        "Includes functionality described in Rev 11.3 of SFF-8472",
+                        "Includes functionality described in Rev 11.4 of SFF-8472",
+                        "Includes functionality described in Rev 12.3 of SFF-8472",
+                        "Includes functionality described in Rev 12.4 of SFF-8472"
+                    ]
+                }
+            ]
+        },
         "sff-8472_cc_ext_checksum": {
             "$id": "/schemas/sff-8472_cc_ext_checksum",
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -1165,6 +1185,7 @@
         "Date Code": {"$ref": "/schemas/sff-8472_date_code"},
         "Diagnostic Monitoring Type": {"$ref": "/schemas/sff-8472_diagnostic_monitoring_type"},
         "Enhanced Options": {"$ref": "/schemas/sff-8472_enhanced_options"},
+        "SFF-8472 Compliance": {"$ref": "/schemas/sff-8472_compliance"},
         "CC_EXT": {"$ref": "/schemas/sff-8472_cc_ext_checksum"},
     },
 
@@ -1201,6 +1222,7 @@
         "Date Code",
         "Diagnostic Monitoring Type",
         "Enhanced Options",
+        "SFF-8472 Compliance",
         "CC_EXT"
     ]
 }

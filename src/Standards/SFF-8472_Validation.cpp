@@ -444,6 +444,22 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         }
     }
 
+    void validateEnhancedOptions(const SFF8472_LowerA0h &programming, common::ValidationResult &validationResult) {
+        if(programming.byte_93_enhanced_options.reserved_bit_0) {
+            validationResult.errors.push_back(
+                "Byte 93 (\"Enhanced Options\") value has reserved bit 0 set"
+            );
+        }
+    }
+
+    void validateSFF8472Compliance(const SFF8472_LowerA0h &programming, common::ValidationResult &validationResult) {
+        if(programming.byte_94_sff_8472_compliance == 0x0 || programming.byte_94_sff_8472_compliance >= 0x0A) {
+            validationResult.errors.push_back(
+                fmt::format("Byte 94 (\"SFF-8472 Compliance\") value corresponds to \"Reserved\" range, value is {:#04x}", programming.byte_94_sff_8472_compliance)
+            );
+        }
+    }
+
     void validateCC_EXTChecksum(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
         std::vector<unsigned char> buffer; buffer.resize(128, 0x00);
         assembleToBinary(buffer.data(), programming, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
@@ -523,6 +539,12 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
 
         //SFF-8472 Rev 12.4 Section 8.8 Diagnostic Monitoring Type [Address A0h, Byte 92]
         validateDiagnosticMonitoringType(programming, validationResult);
+
+        //SFF-8472 Rev 12.4 Section 8.10 Enhanced Options [Address A0h, Byte 93]
+        validateEnhancedOptions(programming, validationResult);
+
+        //SFF-8472 Rev 12.4 Section 8.11 SFF-8472 Compliance [Address A0h, Byte 94]
+        validateSFF8472Compliance(programming, validationResult);
 
         //SFF-8472 Rev 12.4 Section 8.12 CC_EXT [Address A0h, Byte 95]
         validateCC_EXTChecksum(programming, validationResult);
