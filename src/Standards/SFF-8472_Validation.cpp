@@ -290,6 +290,18 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         }
     }
 
+    void validateCC_BASEChecksum(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
+        std::vector<unsigned char> buffer; buffer.resize(128, 0x00);
+        assembleToBinary(buffer.data(), programming, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
+
+        auto correctChecksum = calculateCC_BASEChecksum(buffer.data());
+
+        if(programming.byte_63_CC_BASE != correctChecksum) {
+            validationResult.errors.push_back(
+                fmt::format("Byte 63 (\"CC_EXT\") value is {:#04x}, but should be {:#04x}", programming.byte_63_CC_BASE, correctChecksum)
+            );
+        }
+    }
     
     void validateVendorSerialNumber(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
         //SFF-8472 Rev 12.4 Section 8.6 Vendor SN [Address A0h, Bytes 68-83]
@@ -393,6 +405,19 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         }
     }
 
+    void validateCC_EXTChecksum(const SFF8472_LowerA0h& programming, common::ValidationResult& validationResult) {
+        std::vector<unsigned char> buffer; buffer.resize(128, 0x00);
+        assembleToBinary(buffer.data(), programming, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
+
+        auto correctChecksum = calculateCC_EXTChecksum(buffer.data());
+
+        if(programming.byte_95_CC_EXT != correctChecksum) {
+            validationResult.errors.push_back(
+                fmt::format("Byte 95 (\"CC_EXT\") value is {:#04x}, but should be {:#04x}", programming.byte_95_CC_EXT, correctChecksum)
+            );
+        }
+    }
+
     //TODO: Introduce options to not warn on values in "Vendor Specific" ranges (in case this tool is used by an actual vendor?)
     common::ValidationResult validateSFF8472_LowerA0h(const TransceiverTool::Standards::SFF8472::SFF8472_LowerA0h& programming) {
         common::ValidationResult validationResult;
@@ -445,11 +470,17 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         //SFF-8472 Rev 12.4 Table 5-3 Transceiver Compliance Codes
         validateFibreChannelSpeed2ComplianceCodes(programming, validationResult);
 
+        //SFF-8472 Rev 12.4 Section 8.2 CC_BASE [Address A0h, Byte 63]
+        validateCC_BASEChecksum(programming, validationResult);
+
         //SFF-8472 Rev 12.4 Section 8.6 Vendor SN [Address A0h, Bytes 68-83]
         validateVendorSerialNumber(programming, validationResult);
 
         //SFF-8472 Rev 12.4 Section 8.7 Date Code [Address A0h, Bytes 84-91]
         validateDateCode(programming, validationResult);
+
+        //SFF-8472 Rev 12.4 Section 8.12 CC_EXT [Address A0h, Byte 95]
+        validateCC_EXTChecksum(programming, validationResult);
 
         return validationResult;
     }

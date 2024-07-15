@@ -1,16 +1,20 @@
 #include "TransceiverTool/Standards/SFF-8472_Pretty_Print.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Encoding_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Extended_Compliance_Codes.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Assembler.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Compliance_Codes.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Extended_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Transceiver_Connector_Type.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Rate_Identifiers.hpp"
+#include "TransceiverTool/Standards/SFF-8472_Checksum.hpp"
+#include "TransceiverTool/Standards/common.hpp"
 #include "fmt/format.h"
 #include "fmt/color.h"
 #include <algorithm>
 #include <iterator>
 #include "TransceiverTool/Vendor_OUIs.hpp"
+#include <vector>
 
 
 std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SFF8472_LowerA0h &programming, bool fiberMode, bool copperMode) {
@@ -23,6 +27,12 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
             return "N/A";
         }
     };
+    
+    std::vector<unsigned char> binary; binary.resize(128, 0x00);
+    assembleToBinary(binary.data(), programming, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
+
+    unsigned char CC_BASE = calculateCC_BASEChecksum(binary.data());
+    unsigned char CC_EXT = calculateCC_EXTChecksum(binary.data());
 
 
     std::string str;
@@ -601,6 +611,17 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
     );
     str.append("\n");
 
+    if(programming.byte_63_CC_BASE == CC_BASE) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "CC_BASE checksum [63]", fmt::format("{:#04x} (correct)", programming.byte_63_CC_BASE)
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "CC_BASE checksum [63]", fmt::format("{:#04x} (incorrect, should be {:#04x})", programming.byte_63_CC_BASE, CC_BASE)
+        );
+    }
+    str.append("\n");
+
 
     if(programming.byte_12_nominal_signaling_rate_in_100_mbaud != 0xFF) {
         fmt::format_to(std::back_inserter(str), optionTitleFormatString,
@@ -743,6 +764,17 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
             fmt::format_to(std::back_inserter(str), " {:#04x}", programming.byte_84_91_date_code.lot_code[index]);
         }
         str.append("\n");
+    }
+    str.append("\n");
+
+    if(programming.byte_95_CC_EXT == CC_EXT) {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "CC_EXT checksum [95]", fmt::format("{:#04x} (correct)", programming.byte_95_CC_EXT)
+        );
+    } else {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "CC_EXT checksum [95]", fmt::format("{:#04x} (incorrect, should be {:#04x})", programming.byte_95_CC_EXT, CC_EXT)
+        );
     }
     str.append("\n");
 

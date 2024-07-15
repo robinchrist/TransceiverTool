@@ -2050,8 +2050,6 @@ namespace TransceiverTool::Standards::SFF8636 {
         //Use MANUAL_USE_VALUE_IN_PROGRAMMING to avoid double calculation of checksum - we don't want to seek it in the binary
         assembleToBinary(binaryBuffer.data(), programming, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
 
-        
-        unsigned char correctCC_EXTChecksum = calculateCC_EXTChecksum(binaryBuffer.data());
 
         auto CC_BASEVal = CC_BASEChecksumFromJSON(j.at("CC_BASE"));
         if(CC_BASEVal.has_value()) {

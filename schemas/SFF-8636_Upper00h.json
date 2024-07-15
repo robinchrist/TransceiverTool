@@ -759,7 +759,7 @@
             "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
                 {  "const": "auto" },
-                { "$ref": "/schemas/base64_obj" }
+                { "$ref": "/schemas/single_byte_value_obj" }
             ]
         },
         "sff-8636_extended_specification_compliance_codes": {
@@ -1040,7 +1040,7 @@
             "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
                 {  "const": "auto" },
-                { "$ref": "/schemas/base64_obj" }
+                { "$ref": "/schemas/single_byte_value_obj" }
             ]
         },
         "sff-8636_vendor_specific": {
