@@ -622,7 +622,7 @@ namespace TransceiverTool::Standards::SFF8472 {
 
 //############
     nlohmann::ordered_json LinkLengthInfoToJSON(
-        bool copperMode,
+        bool fiberMode,
         unsigned char byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz,
         unsigned char byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz,
         unsigned char byte_16_length_om2_in_10_m,
@@ -632,57 +632,7 @@ namespace TransceiverTool::Standards::SFF8472 {
     ) {
         nlohmann::ordered_json j;
 
-        if(copperMode) {
-            j["Type"] = "Copper or Direct Attach";
-
-            if(byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz == 0) {
-                j["Copper Cable Attenuation @ 12.9 GHz [dB]"] = "N/A";
-            } else {
-                j["Copper Cable Attenuation @ 12.9 GHz [dB]"] = (unsigned long)(byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz);
-            }
-
-            if(byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz == 0) {
-                j["Copper Cable Attenuation @ 25.78 GHz [dB]"] = "N/A";
-            } else {
-                j["Copper Cable Attenuation @ 25.78 GHz [dB]"] = (unsigned long)(byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz);
-            }
-
-            //Duplicated to preserve order
-            if(byte_16_length_om2_in_10_m == 0xFF) {
-                j["Length (OM2 50 um) [m] (Divisible by 10)"] = "> 2.54 km";
-            } else if(byte_16_length_om2_in_10_m == 0) {
-                j["Length (OM2 50 um) [m] (Divisible by 10)"] = "N/A";
-            } else {
-                j["Length (OM2 50 um) [m] (Divisible by 10)"] = (unsigned long)(byte_16_length_om2_in_10_m) * 10ul;
-            }
-
-            if(byte_17_length_om1_in_10_m == 0xFF) {
-                j["Length (OM1 62.5 um) [m] (Divisible by 10)"] = "> 2.54 km";
-            } else if(byte_17_length_om1_in_10_m == 0) {
-                j["Length (OM1 62.5 um) [m] (Divisible by 10)"] = "N/A";
-            } else {
-                j["Length (OM1 62.5 um) [m] (Divisible by 10)"] = (unsigned long)(byte_17_length_om1_in_10_m) * 10ul;
-            }
-
-            if(byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m == 0xFF) {
-                j["Length (Copper) or Actual Length (DAC) [m]"] = "> 254 m";
-            } else if(byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m == 0) {
-                j["Length (Copper) or Actual Length (DAC) [m]"] = "N/A";
-            } else {
-                j["Length (Copper) or Actual Length (DAC) [m]"] = (unsigned long)(byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m);
-            }
-
-            unsigned char multiplierBits = (byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value & 0b11000000) >> 6;
-
-            if(multiplierBits == 0) { j["Length (Copper) or Actual Length (DAC), Additional, Multiplier"] = "0.1"; }
-            else if(multiplierBits == 1) { j["Length (Copper) or Actual Length (DAC), Additional, Multiplier"] = "1"; }
-            else if(multiplierBits == 2) { j["Length (Copper) or Actual Length (DAC), Additional, Multiplier"] = "10"; }
-            else {j["Length (Copper) or Actual Length (DAC), Additional, Multiplier"] = "100";}
-
-            unsigned char baseValue = byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value & 0b00111111;
-
-            j["Length (Copper) or Actual Length (DAC), Additional, Base Value [m]"] = (unsigned long)(baseValue);
-        } else {
+        if(fiberMode) {
             j["Type"] = "Fibre";
 
             if(byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz == 0xFF) {
@@ -733,6 +683,56 @@ namespace TransceiverTool::Standards::SFF8472 {
             } else {
                 j["Length (OM3 50 um) [m] (Divisible by 10)"] = (unsigned long)(byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value) * 10ul;
             }
+        } else {
+            j["Type"] = "Copper or Direct Attach";
+
+            if(byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz == 0) {
+                j["Copper Cable Attenuation @ 12.9 GHz [dB]"] = "N/A";
+            } else {
+                j["Copper Cable Attenuation @ 12.9 GHz [dB]"] = (unsigned long)(byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz);
+            }
+
+            if(byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz == 0) {
+                j["Copper Cable Attenuation @ 25.78 GHz [dB]"] = "N/A";
+            } else {
+                j["Copper Cable Attenuation @ 25.78 GHz [dB]"] = (unsigned long)(byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz);
+            }
+
+            //Duplicated to preserve order
+            if(byte_16_length_om2_in_10_m == 0xFF) {
+                j["Length (OM2 50 um) [m] (Divisible by 10)"] = "> 2.54 km";
+            } else if(byte_16_length_om2_in_10_m == 0) {
+                j["Length (OM2 50 um) [m] (Divisible by 10)"] = "N/A";
+            } else {
+                j["Length (OM2 50 um) [m] (Divisible by 10)"] = (unsigned long)(byte_16_length_om2_in_10_m) * 10ul;
+            }
+
+            if(byte_17_length_om1_in_10_m == 0xFF) {
+                j["Length (OM1 62.5 um) [m] (Divisible by 10)"] = "> 2.54 km";
+            } else if(byte_17_length_om1_in_10_m == 0) {
+                j["Length (OM1 62.5 um) [m] (Divisible by 10)"] = "N/A";
+            } else {
+                j["Length (OM1 62.5 um) [m] (Divisible by 10)"] = (unsigned long)(byte_17_length_om1_in_10_m) * 10ul;
+            }
+
+            if(byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m == 0xFF) {
+                j["Length (Copper) or Actual Length (DAC) [m]"] = "> 254 m";
+            } else if(byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m == 0) {
+                j["Length (Copper) or Actual Length (DAC) [m]"] = "N/A";
+            } else {
+                j["Length (Copper) or Actual Length (DAC) [m]"] = (unsigned long)(byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m);
+            }
+
+            unsigned char multiplierBits = (byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value & 0b11000000) >> 6;
+
+            if(multiplierBits == 0) { j["Length (Copper) or Actual Length (DAC), Additional, Multiplier"] = "0.1"; }
+            else if(multiplierBits == 1) { j["Length (Copper) or Actual Length (DAC), Additional, Multiplier"] = "1"; }
+            else if(multiplierBits == 2) { j["Length (Copper) or Actual Length (DAC), Additional, Multiplier"] = "10"; }
+            else {j["Length (Copper) or Actual Length (DAC), Additional, Multiplier"] = "100";}
+
+            unsigned char baseValue = byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value & 0b00111111;
+
+            j["Length (Copper) or Actual Length (DAC), Additional, Base Value [m]"] = (unsigned long)(baseValue);
         }
 
 
@@ -2048,7 +2048,7 @@ namespace TransceiverTool::Standards::SFF8472 {
     }
 //############
 
-    void SFF8472_LowerA0hToJSON(nlohmann::ordered_json& j, const SFF8472_LowerA0h& programming, bool copperMode) {
+    void SFF8472_LowerA0hToJSON(nlohmann::ordered_json& j, const SFF8472_LowerA0h& programming, bool fiberMode) {
 
         //Calculate the correct checksums
         //If the checksums in the programming are correct, serialise as Checksum: Auto
@@ -2093,7 +2093,7 @@ namespace TransceiverTool::Standards::SFF8472 {
         j["Rate Identifier"] = RateIdentifierToJSON(programming.byte_13_rate_identifier);
 
         j["Link Length"] = LinkLengthInfoToJSON(
-            copperMode,
+            fiberMode,
             programming.byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz,
             programming.byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz,
             programming.byte_16_length_om2_in_10_m,

@@ -686,7 +686,7 @@ namespace TransceiverTool::Standards::SFF8636 {
 
 //############
     nlohmann::ordered_json CopperOrFibreInfoToJSON(
-        bool copperMode,
+        bool fiberMode,
         unsigned char byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB,
         unsigned char byte_146_length_copper_in_1m_or_om4_in_2m,
         unsigned char byte_186_wavelength_high_order_or_copper_attenuation,
@@ -695,7 +695,35 @@ namespace TransceiverTool::Standards::SFF8636 {
         unsigned char byte_189_wavelength_tolerance_low_order_or_copper_attenuation
     ) {
         nlohmann::ordered_json j;
-        if(copperMode) {
+        if(fiberMode) {
+            j["Type"] = "Fibre";
+
+            if(byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB == 0) {
+                j["Length (OM1 62.5 um) [m]"] = "N/A";
+            } else {
+                j["Length (OM1 62.5 um) [m]"] = (unsigned long)(byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB);
+            }
+
+            if(byte_146_length_copper_in_1m_or_om4_in_2m == 0xFF) {
+                j["Length (OM4 50 um) [m] (Divisible by 2)"] = "> 508 m";
+            } else if(byte_146_length_copper_in_1m_or_om4_in_2m == 0) {
+                j["Length (OM4 50 um) [m] (Divisible by 2)"] = "N/A";
+            } else {
+                j["Length (OM4 50 um) [m] (Divisible by 2)"] = (unsigned long)(byte_146_length_copper_in_1m_or_om4_in_2m) * 2ul;
+            }
+
+            unsigned int wavelengthRaw = 0;
+            wavelengthRaw |= (unsigned(byte_186_wavelength_high_order_or_copper_attenuation) << 8);
+            wavelengthRaw |= (unsigned(byte_187_wavelength_low_order_or_copper_attenuation) << 0);
+            double wavelength = double(wavelengthRaw) / 20.0;
+            j["Wavelength [nm] (Divisible by 0.05)"] = wavelength;
+
+            unsigned int wavelengthToleranceRaw = 0;
+            wavelengthToleranceRaw |= (unsigned(byte_188_wavelength_tolerance_high_order_or_copper_attenuation) << 8);
+            wavelengthToleranceRaw |= (unsigned(byte_189_wavelength_tolerance_low_order_or_copper_attenuation) << 0);
+            double wavelengthTolerance = double(wavelengthToleranceRaw) / 200.0;
+            j["Wavelength Tolerance [nm] (Divisible by 0.005)"] = wavelengthTolerance;
+        } else {
             j["Type"] = "Copper";
 
             if(byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB == 0) {
@@ -735,34 +763,6 @@ namespace TransceiverTool::Standards::SFF8636 {
             } else {
                 j["Copper Cable Attenuation @ 12.9 GHz [dB]"] = (unsigned long)(byte_189_wavelength_tolerance_low_order_or_copper_attenuation);
             }
-        } else {
-            j["Type"] = "Fibre";
-
-            if(byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB == 0) {
-                j["Length (OM1 62.5 um) [m]"] = "N/A";
-            } else {
-                j["Length (OM1 62.5 um) [m]"] = (unsigned long)(byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB);
-            }
-
-            if(byte_146_length_copper_in_1m_or_om4_in_2m == 0xFF) {
-                j["Length (OM4 50 um) [m] (Divisible by 2)"] = "> 508 m";
-            } else if(byte_146_length_copper_in_1m_or_om4_in_2m == 0) {
-                j["Length (OM4 50 um) [m] (Divisible by 2)"] = "N/A";
-            } else {
-                j["Length (OM4 50 um) [m] (Divisible by 2)"] = (unsigned long)(byte_146_length_copper_in_1m_or_om4_in_2m) * 2ul;
-            }
-
-            unsigned int wavelengthRaw = 0;
-            wavelengthRaw |= (unsigned(byte_186_wavelength_high_order_or_copper_attenuation) << 8);
-            wavelengthRaw |= (unsigned(byte_187_wavelength_low_order_or_copper_attenuation) << 0);
-            double wavelength = double(wavelengthRaw) / 20.0;
-            j["Wavelength [nm] (Divisible by 0.05)"] = wavelength;
-
-            unsigned int wavelengthToleranceRaw = 0;
-            wavelengthToleranceRaw |= (unsigned(byte_188_wavelength_tolerance_high_order_or_copper_attenuation) << 8);
-            wavelengthToleranceRaw |= (unsigned(byte_189_wavelength_tolerance_low_order_or_copper_attenuation) << 0);
-            double wavelengthTolerance = double(wavelengthToleranceRaw) / 200.0;
-            j["Wavelength Tolerance [nm] (Divisible by 0.005)"] = wavelengthTolerance;
         }
 
 
@@ -1875,7 +1875,7 @@ namespace TransceiverTool::Standards::SFF8636 {
     }
 //############
 
-    void SFF8636_Upper00hToJSON(nlohmann::ordered_json& j, const SFF8636_Upper00h& programming, bool copperMode) {
+    void SFF8636_Upper00hToJSON(nlohmann::ordered_json& j, const SFF8636_Upper00h& programming, bool fiberMode) {
 
         //Calculate the correct checksums
         //If the checksums in the programming are correct, serialise as Checksum: Auto
@@ -1922,7 +1922,7 @@ namespace TransceiverTool::Standards::SFF8636 {
         j["Length (OM2 50 um) [m]"] = LengthOM2mToJSON(programming.byte_144_length_om2_in_m);
 
         j["Copper or Fibre Properties"] = CopperOrFibreInfoToJSON(
-            copperMode,
+            fiberMode,
             programming.byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB,
             programming.byte_146_length_copper_in_1m_or_om4_in_2m,
             programming.byte_186_wavelength_high_order_or_copper_attenuation,
