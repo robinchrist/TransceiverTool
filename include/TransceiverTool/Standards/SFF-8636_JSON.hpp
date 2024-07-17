@@ -6,7 +6,7 @@
 
 namespace TransceiverTool::Standards::SFF8636 {
 
-    void SFF8636_Upper00hToJSON(nlohmann::ordered_json& j, const SFF8636_Upper00h& programming, bool copperMode);
+    void SFF8636_Upper00hToJSON(nlohmann::ordered_json& j, const SFF8636_Upper00h& programming, bool fiberMode);
     void SFF8636_Upper00hFromJSON(const nlohmann::json& j, SFF8636_Upper00h& programming);
     
 }
