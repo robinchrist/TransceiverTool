@@ -280,7 +280,7 @@
                 "Active Cable compliant (Bit 3)": {"type": "boolean"},
                 "Twin Axial Pair (TW) compliant (Bit 7)": {"type": "boolean"},
                 "Twisted Pair (TP) compliant (Bit 6)": {"type": "boolean"},
-                "Miniature Coax (MI compliant (Bit 5)": {"type": "boolean"},
+                "Miniature Coax (MI) compliant (Bit 5)": {"type": "boolean"},
                 "Video Coax (TV) compliant (Bit 4)": {"type": "boolean"},
                 "Multimode, 62.5um (M6) compliant (Bit 3)": {"type": "boolean"},
                 "Multimode, 50um (M5, M5E) compliant (Bit 2)": {"type": "boolean"},
@@ -290,7 +290,7 @@
             "required": [
                 "Twin Axial Pair (TW) compliant (Bit 7)",
                 "Twisted Pair (TP) compliant (Bit 6)",
-                "Miniature Coax (MI compliant (Bit 5)",
+                "Miniature Coax (MI) compliant (Bit 5)",
                 "Video Coax (TV) compliant (Bit 4)",
                 "Multimode, 62.5um (M6) compliant (Bit 3)",
                 "Multimode, 50um (M5, M5E) compliant (Bit 2)",
