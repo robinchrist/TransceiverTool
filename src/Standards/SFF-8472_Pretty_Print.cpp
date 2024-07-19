@@ -18,7 +18,7 @@
 #include <vector>
 
 
-std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SFF8472_LowerA0h &programming, bool fiberMode, bool copperMode) {
+std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SFF8472_LowerA0h &programming, bool fiberMode) {
 
     std::string optionTitleFormatString = "{: <85s}: {:s}\n";
     auto formatReservedBit = [](bool bit) -> std::string {
@@ -306,26 +306,23 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
             "Length (SMF) [14]", (programming.byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz == 0) ? "not supported / must be determined from transceiver technology" : (programming.byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz == 255 ? "> 254 km" : fmt::format("{} km", programming.byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz))
         );
-    }
-    if(copperMode) {
+    } else {
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
             "Copper Cable Attenuation @ 12.9 GHz [14]", (programming.byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz == 0) ? "not known / unavailable" : fmt::format("{} dB", programming.byte_14_length_smf_in_kilometers_or_copper_attenuation_in_db_at_12_9_ghz)
         );
     }
-    if(copperMode || fiberMode) str.append("\n");
+    str.append("\n");
 
     if(fiberMode) {
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
             "Length (SMF) [15]", (programming.byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz == 0) ? "not supported / must be determined from transceiver technology" : (programming.byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz == 255 ? "> 25.4 km" : fmt::format("{} m", (unsigned)(programming.byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz) * 100u))
         );
-    }
-    if(copperMode) {
+    } else {
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
             "Copper Cable Attenuation @ 25.78 GHz [15]", (programming.byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz == 0) ? "not known / unavailable" : fmt::format("{} dB", programming.byte_15_length_smf_in_100_m_or_copper_attenuation_in_db_at_25_78_ghz)
         );
     }
-    if(copperMode || fiberMode) str.append("\n");
-
+    str.append("\n");
 
     fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
         "Length (OM2 50 um) [16]", (programming.byte_16_length_om2_in_10_m == 0) ? "not supported / must be determined from transceiver technology" : (programming.byte_16_length_om2_in_10_m == 255 ? "> 2.54 km" : fmt::format("{} m", unsigned(programming.byte_16_length_om2_in_10_m) * 10u))
@@ -343,21 +340,19 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
             "Length (OM4 50 um) [18]", (programming.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m == 0) ? "not supported / must be determined from transceiver technology" : (programming.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m == 255 ? "> 2.54 km" : fmt::format("{} m", (unsigned)(programming.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m) * 10u))
         );
-    }
-    if(copperMode) {
+    } else {
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
             "Copper Maximum Link Length or Actual Active Cable Length [18]", (programming.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m == 0) ? "not supported / must be determined from transceiver technology" : (programming.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m == 255 ? "> 254 m" : fmt::format("{} m", programming.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m))
         );
     }
-    if(copperMode || fiberMode) str.append("\n");
+    str.append("\n");
 
 
     if(fiberMode) {
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
             "Length (OM3 50 um) [19]", (programming.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value == 0) ? "not supported / must be determined from transceiver technology" : (programming.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value == 255 ? "> 2.54 km" : fmt::format("{} m", (unsigned)(programming.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value) * 10u))
         );
-    }
-    if(copperMode) {
+    } else {
         unsigned char multiplierBits = (programming.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value & 0b11000000) >> 6;
         unsigned char baseValue = programming.byte_19_length_om3_in_10m_or_copper_or_dac_multiplier_and_base_value & 0b00111111;
 
@@ -373,7 +368,7 @@ std::string TransceiverTool::Standards::SFF8472::prettyPrintProgramming(const SF
             "Copper Maximum Link Length or Actual Active Cable Length [19]", fmt::format("{} m ({} m * {})", actualLength, baseValue, multiplier)
         );
     }
-    if(copperMode || fiberMode) str.append("\n");
+    str.append("\n");
 
     bool vendorNamePrintable = std::all_of(
         programming.byte_20_35_vendor_name.begin(),

@@ -3,7 +3,7 @@
 
 namespace TransceiverTool::Standards::SFF8472 {
 
-    //Expects 256 bytes!
+    //Expects 128 bytes!
     TransceiverTool::Standards::SFF8472::SFF8472_LowerA0h parseBytesToStruct(unsigned char const * bytes) {
         SFF8472_LowerA0h parsedStruct;
 

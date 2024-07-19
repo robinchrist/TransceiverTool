@@ -17,6 +17,6 @@ target_sources(
     Standards/SFF-8636_Upper00h.cpp
     Standards/SFF-8636_Utils.cpp
     Standards/SFF-8636_Validation.cpp
-    main.cpp
+    CLI.cpp
 )
 
