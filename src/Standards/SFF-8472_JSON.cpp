@@ -19,6 +19,7 @@
 #include <cppcodec/base64_rfc4648.hpp>
 #include "TransceiverTool/Standards/common.hpp"
 #include "TransceiverTool/Vendor_OUIs.hpp"
+#include "TransceiverTool/Version.hpp"
 
 
 namespace TransceiverTool::Standards::SFF8472 {
@@ -2060,8 +2061,9 @@ namespace TransceiverTool::Standards::SFF8472 {
         unsigned char correctCC_BASEChecksum = calculateCC_BASEChecksum(binaryBuffer.data());
         unsigned char correctCC_EXTChecksum = calculateCC_EXTChecksum(binaryBuffer.data());
 
+        j["GeneratedBy"] = fmt::format("TransceiverTool v{}", TRANSCEIVERTOOL_VERSION);
 
-        j["Type"] = "SFF-8472 Rev 12.4 Lower Page A0h";
+        j["Type"] = SFF8472_JSON_TYPE;
         
         j["Identifier"] = PhysicalDeviceIdentifierToJSON(programming.byte_0_Identifier);
 

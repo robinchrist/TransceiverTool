@@ -11,6 +11,8 @@ class TransceiverToolRecipe(ConanFile):
 
         self.requires("cppcodec/0.2")
 
+        self.requires("cli11/2.4.2")
+
     def build_requirements(self):
         pass
 

@@ -7,6 +7,7 @@
 #include "TransceiverTool/Standards/SFF-8636_Date_Code.hpp"
 #include "TransceiverTool/Standards/SFF-8636_Extended_Identifier_Values.hpp"
 #include "TransceiverTool/Vendor_OUIs.hpp"
+#include "TransceiverTool/Version.hpp"
 #include <cctype>
 #include <fmt/core.h>
 #include <limits>
@@ -1887,8 +1888,9 @@ namespace TransceiverTool::Standards::SFF8636 {
         unsigned char correctCC_BASEChecksum = calculateCC_BASEChecksum(binaryBuffer.data());
         unsigned char correctCC_EXTChecksum = calculateCC_EXTChecksum(binaryBuffer.data());
 
+        j["GeneratedBy"] = fmt::format("TransceiverTool v{}", TRANSCEIVERTOOL_VERSION);
 
-        j["Type"] = "SFF-8636 Rev 2.11 Upper Page 00h";
+        j["Type"] = SFF8636_JSON_TYPE;
         
         j["Identifier"] = TransceiverReferenceToJSON(programming.byte_128_Identifier);
 

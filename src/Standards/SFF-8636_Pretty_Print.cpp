@@ -8,7 +8,7 @@
 #include "TransceiverTool/Vendor_OUIs.hpp"
 
 
-std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SFF8636_Upper00h &programming, bool fiberMode, bool copperMode) {
+std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SFF8636_Upper00h &programming, bool fiberMode) {
 
     std::string optionTitleFormatString = "{: <85s}: {:s}\n";
     auto formatReservedBit = [](bool bit) -> std::string {
@@ -360,27 +360,25 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
             "Length (OM1 62.5 um) [145]", programming.byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB > 1 ? fmt::format("{} m", programming.byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB) : "Not Applicable (e.g. AOC) / OM1 fiber type not supported / must be determined from the free side device"
         );
-    }
-    if(copperMode) {
+    } else {
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
             "Copper Cable Attenuation @ 25.78GHz [145]", programming.byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB > 1 ? fmt::format("{} dB", programming.byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB) : "Not Applicable (e.g. AOC) / Not known"
         );
     }
-    if(fiberMode || copperMode) str.append("\n");
+    str.append("\n");
 
 
 
-    if(copperMode) {
-        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
-            "Length (passive copper or active cable) [146]", programming.byte_146_length_copper_in_1m_or_om4_in_2m == 0xFF ? " > 254 m" : (programming.byte_146_length_copper_in_1m_or_om4_in_2m > 1 ? fmt::format("{} m", programming.byte_146_length_copper_in_1m_or_om4_in_2m) : "Not Applicable (Not a cable assembly) / must be determined from separable free side device")
-        );
-    }
     if(fiberMode) {
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
             "Length (OM4 50 um) [146]", programming.byte_146_length_copper_in_1m_or_om4_in_2m == 0xFF ? " > 508 m" : (programming.byte_146_length_copper_in_1m_or_om4_in_2m > 1 ? fmt::format("{} m", unsigned(programming.byte_146_length_copper_in_1m_or_om4_in_2m) * 2u) : "Not Applicable (e.g. AOC) / OM4 fiber type not supported / must be determined from the free side device")
         );
+    } else {
+        fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
+            "Length (passive copper or active cable) [146]", programming.byte_146_length_copper_in_1m_or_om4_in_2m == 0xFF ? " > 254 m" : (programming.byte_146_length_copper_in_1m_or_om4_in_2m > 1 ? fmt::format("{} m", programming.byte_146_length_copper_in_1m_or_om4_in_2m) : "Not Applicable (Not a cable assembly) / must be determined from separable free side device")
+        );
     }
-    if(fiberMode || copperMode) str.append("\n");
+    str.append("\n");
 
 
 
@@ -536,8 +534,7 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
             "Wavelength [186-187]", fmt::format("{} nm", wavelength)
         );
-    }
-    if(copperMode) {
+    } else {
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
             "Copper Cable Attenuation @ 2.5GHz [186]", fmt::format("{} dB", programming.byte_186_wavelength_high_order_or_copper_attenuation)
         );
@@ -545,7 +542,7 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
             "Copper Cable Attenuation @ 5.0GHz [187]", fmt::format("{} dB", programming.byte_187_wavelength_low_order_or_copper_attenuation)
         );
     }
-    if(fiberMode || copperMode) str.append("\n");
+    str.append("\n");
 
     if(fiberMode) {
         static_assert(sizeof(unsigned int) >= 2);
@@ -558,8 +555,7 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
             "Wavelength Tolerance [188-189]", fmt::format("{} nm", wavelengthTolerance)
         );
-    }
-    if(copperMode) {
+    } else {
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
             "Copper Cable Attenuation @ 7.0GHz [188]", fmt::format("{} dB", programming.byte_188_wavelength_tolerance_high_order_or_copper_attenuation)
         );
@@ -567,7 +563,7 @@ std::string TransceiverTool::Standards::SFF8636::prettyPrintProgramming(const SF
             "Copper Cable Attenuation @ 12.9GHz [189]", fmt::format("{} dB", programming.byte_189_wavelength_tolerance_low_order_or_copper_attenuation)
         );
     }
-    if(fiberMode || copperMode) str.append("\n");
+    str.append("\n");
 
     if(programming.byte_190_max_case_temperature == 0) {
         fmt::format_to(std::back_inserter(str), optionTitleFormatString, 
