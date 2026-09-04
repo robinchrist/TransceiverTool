@@ -1,5 +1,5 @@
 target_sources(
-    TransceiverTool PRIVATE
+    TransceiverToolCore PRIVATE
     Standards/SFF-8024_Utils.cpp
     Standards/SFF-8472_Assembler.cpp
     Standards/SFF-8472_Checksum.cpp
@@ -17,6 +17,9 @@ target_sources(
     Standards/SFF-8636_Upper00h.cpp
     Standards/SFF-8636_Utils.cpp
     Standards/SFF-8636_Validation.cpp
-    CLI.cpp
 )
 
+target_sources(
+    TransceiverTool PRIVATE
+    CLI.cpp
+)
