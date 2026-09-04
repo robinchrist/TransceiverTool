@@ -2232,26 +2232,25 @@ namespace TransceiverTool::Standards::SFF8472 {
         programming.byte_96_127_vendor_specific = VendorSpecificFromJSON(j.at("Vendor Specific"));
 
 
-        //Calculate the correct checksums
-        std::vector<unsigned char> binaryBuffer; binaryBuffer.resize(256, 0x00);
-        //Use MANUAL_USE_VALUE_IN_PROGRAMMING to avoid double calculation of checksum - we don't want to seek it in the binary
+        //Checksums. A nullopt means the JSON asked for "auto", i.e. the checksum is calculated here
+        //instead of being taken from the file.
+        //Both are parsed before assembling because assembleToBinary reads byte_63_CC_BASE and
+        //byte_95_CC_EXT, which are still uninitialised at this point. For an "auto" checksum 0x00
+        //goes into the binary as a placeholder - CC_BASE covers bytes 0-62 and CC_EXT covers bytes
+        //64-94, so neither checksum includes its own byte and the placeholder cannot affect either result.
+        const auto CC_BASEVal = CC_BASEChecksumFromJSON(j.at("CC_BASE"));
+        const auto CC_EXTVal = CC_EXTChecksumFromJSON(j.at("CC_EXT"));
+
+        programming.byte_63_CC_BASE = CC_BASEVal.value_or(0x00);
+        programming.byte_95_CC_EXT = CC_EXTVal.value_or(0x00);
+
+        //Assembled only as input for the checksum calculation below. AUTO_CALCULATE_FROM_CONTENT is
+        //deliberately not used: "auto" is resolved here, so the assembler would only redo the same work
+        //and we would have to read the result back out of the binary.
+        std::vector<unsigned char> binaryBuffer; binaryBuffer.resize(128, 0x00);
         assembleToBinary(binaryBuffer.data(), programming, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING, common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING);
 
-
-        auto CC_BASEVal = CC_BASEChecksumFromJSON(j.at("CC_BASE"));
-        if(CC_BASEVal.has_value()) {
-            programming.byte_63_CC_BASE = CC_BASEVal.value();
-        } else {
-            //Checksum == Auto
-            programming.byte_63_CC_BASE = calculateCC_BASEChecksum(binaryBuffer.data());
-        }
-
-        auto CC_EXTVal = CC_EXTChecksumFromJSON(j.at("CC_EXT"));
-        if(CC_EXTVal.has_value()) {
-            programming.byte_95_CC_EXT = CC_EXTVal.value();
-        } else {
-            //Checksum == Auto
-            programming.byte_95_CC_EXT = calculateCC_EXTChecksum(binaryBuffer.data());
-        }
+        if(!CC_BASEVal.has_value()) programming.byte_63_CC_BASE = calculateCC_BASEChecksum(binaryBuffer.data());
+        if(!CC_EXTVal.has_value()) programming.byte_95_CC_EXT = calculateCC_EXTChecksum(binaryBuffer.data());
     }   
 }
