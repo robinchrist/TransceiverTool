@@ -759,7 +759,7 @@ namespace TransceiverTool::Standards::SFF8636 {
                 j["Copper Cable Attenuation @ 7.0 GHz [dB]"] = (unsigned long)(byte_188_wavelength_tolerance_high_order_or_copper_attenuation);
             }
 
-            if(byte_188_wavelength_tolerance_high_order_or_copper_attenuation == 0) {
+            if(byte_189_wavelength_tolerance_low_order_or_copper_attenuation == 0) {
                 j["Copper Cable Attenuation @ 12.9 GHz [dB]"] = "N/A";
             } else {
                 j["Copper Cable Attenuation @ 12.9 GHz [dB]"] = (unsigned long)(byte_189_wavelength_tolerance_low_order_or_copper_attenuation);
