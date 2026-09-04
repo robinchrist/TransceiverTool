@@ -1,0 +1,62 @@
+---
+BasedOnStyle: Chromium
+AccessModifierOffset: -4
+AlignAfterOpenBracket: BlockIndent
+AllowShortEnumsOnASingleLine: false
+BinPackArguments: false #Everything else is just dumb
+BinPackParameters: false
+BreakConstructorInitializers: AfterColon
+ColumnLimit: 120
+IndentWidth: 4 #The only true indent width
+InsertBraces: true #Prevents bugs...
+KeepEmptyLinesAtTheStartOfBlocks: true #LET ME KEEP MY EMPTY LINES!!!
+MaxEmptyLinesToKeep: 999 #LET ME KEEP MY EMPTY LINES!!!
+NamespaceIndentation: All
+PackConstructorInitializers: Never #Maybe switch to CurrentLine?
+SortIncludes: Never #Nah, please don't reorder my includes, I've seen enough broken external libs which can't be fixed...
+SpaceBeforeParens: Never
+TabWidth: 4
+
+# TODO:
+#1.
+# struct AAAAAAAAAAAAAAAAAAAA test[3] = {
+#     {56, 23, "hello"},
+#     {-1, 93463, "world"},
+#     {7, 5, "!!"}};
+#
+# should be 
+#
+# struct AAAAAAAAAAAAAAAAAAAA test[3] = {
+#     {56, 23, "hello"},
+#     {-1, 93463, "world"},
+#     {7, 5, "!!"}
+# };
+
+# 2.
+# std::map<
+#     std::basic_string<wchar_t>,
+#     std::vector<std::pair<char, int>>>
+# func(AAAAAAAAAAAAAAAAAAAA* v);
+
+# should be
+
+# std::map<
+#     std::basic_string<wchar_t>,
+#     std::vector<std::pair<char, int>>
+# > func(AAAAAAAAAAAAAAAAAAAA* v);
+
+# 3.
+# explicit B(int _a, int _b, int _c, std::vector<std::string> str) :
+#     a(_a),
+#     b(_b),
+#     longComplicatedName(_c),
+#     anotherVariable(str[0].c_str()) {
+
+# should be
+
+# explicit B(int _a, int _b, int _c, std::vector<std::string> str) :
+#     a(_a),
+#     b(_b),
+#     longComplicatedName(_c),
+#     anotherVariable(str[0].c_str())
+# {
