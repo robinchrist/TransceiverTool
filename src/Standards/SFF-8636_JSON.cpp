@@ -2178,7 +2178,7 @@ namespace TransceiverTool::Standards::SFF8636 {
         enhancedOptions.initialization_complete_flag_implemented_bit_4 =
             j.at("Initialization Complete Flag implemented (Bit 4)").template get<bool>();
         enhancedOptions.rate_selection_is_implemented_using_extended_rate_selection_bit_3 =
-            j["Extended Rate Selection implemented (Bit 3)"];
+            j.at("Extended Rate Selection implemented (Bit 3)").template get<bool>();
         enhancedOptions.reserved_bit_2 = j.at("Reserved (Bit 2)").template get<bool>();
         enhancedOptions.readiness_flag_implemented_bit_1 =
             j.at("TC readiness flag implemented (Bit 1)").template get<bool>();
