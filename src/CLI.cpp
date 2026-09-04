@@ -14,8 +14,18 @@
 #include <fmt/core.h>
 #include <algorithm>
 #include <iostream>
-#include <filesystem>
 #include <fstream>
+// These were previously pulled in transitively, which libstdc++ happens to do but MSVC does not
+#include <cerrno>
+#include <cstdio>
+#include <cstring>
+#include <limits>
+#include <map>
+
+#ifdef _WIN32
+#include <fcntl.h>
+#include <io.h>
+#endif
 
 
 
@@ -39,6 +49,23 @@
 namespace TransceiverTool {
 
 
+
+    // stdin carries raw programmings, so it has to be switched out of text mode before reading.
+    // freopen(nullptr, ...) is a POSIX extension that MSVC does not implement - there the mode of the
+    // existing descriptor is changed instead.
+    void setStdinToBinaryMode() {
+#ifdef _WIN32
+        if(_setmode(_fileno(stdin), _O_BINARY) == -1) {
+            throw std::runtime_error(std::strerror(errno));
+        }
+#else
+        std::freopen(nullptr, "rb", stdin);
+
+        if(std::ferror(stdin)) {
+            throw std::runtime_error(std::strerror(errno));
+        }
+#endif
+    }
 
     enum class BinaryType {
         SFF_8472_128b,
@@ -98,11 +125,7 @@ namespace TransceiverTool {
             }
         } else {
             try {
-                std::freopen(nullptr, "rb", stdin);
-
-                if(std::ferror(stdin)) {
-                    throw std::runtime_error(std::strerror(errno));
-                }
+                setStdinToBinaryMode();
 
                 size_t readBytes = 0, totalReadBytes = 0;
                 static_assert(sizeof(std::byte) == 1);
@@ -171,11 +194,7 @@ namespace TransceiverTool {
             }
         } else {
             try {
-                std::freopen(nullptr, "rb", stdin);
-
-                if(std::ferror(stdin)) {
-                    throw std::runtime_error(std::strerror(errno));
-                }
+                setStdinToBinaryMode();
 
                 size_t readBytes = 0;
                 std::vector<std::byte> tempBuffer;
