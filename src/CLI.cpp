@@ -276,7 +276,7 @@ namespace TransceiverTool {
                         outStream.flush();
                         outStream.close();
                     } catch(const std::exception& e) {
-                        std::cerr << "Failed to write JSON to path " << prettyPrintToFile.value() << " because " << e.what() << "\n";
+                        std::cerr << "Failed to write JSON to path " << JSONToFile.value() << " because " << e.what() << "\n";
                     }
                 }
             }
