@@ -66,7 +66,8 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
             validationResult.errors.push_back(
                 fmt::format(
                     "Byte 130 (\"Connector Type\") value corresponds to \"Reserved\" range (SFF-8024 Rev 4.11 Table "
-                    "4-3 \"Connector Types\"), value is {:#04x}"
+                    "4-3 \"Connector Types\"), value is {:#04x}",
+                    programming.byte_130_Connector_Type
                 )
             );
         }
@@ -74,7 +75,8 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
             validationResult.warnings.push_back(
                 fmt::format(
                     "Byte 130 (\"Connector Type\") value corresponds to \"Vendor specific\" range (SFF-8024 Rev 4.11 "
-                    "Table 4-3 \"Connector Types\"), value is {:#04x}"
+                    "Table 4-3 \"Connector Types\"), value is {:#04x}",
+                    programming.byte_130_Connector_Type
                 )
             );
         }
