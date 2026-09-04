@@ -4,7 +4,7 @@
 # Make sure we use a relatively recent version - 3.27 is Nov 2023
 cmake_minimum_required(VERSION 3.27)
 
-project ("Transceiver Tool" VERSION 0.0.1)
+project ("Transceiver Tool" VERSION 0.0.2)
 
 # Make sure we group dependencies here
 find_package(nlohmann_json REQUIRED)
