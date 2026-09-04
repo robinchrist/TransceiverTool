@@ -640,7 +640,7 @@ namespace TransceiverTool {
                             std::vector<unsigned char> reassembled; reassembled.resize(128, 0x00);
                             TransceiverTool::Standards::SFF8472::assembleToBinary(
                                 reassembled.data(),
-                                parsedStruct,
+                                programmingRoundtrip,
                                 TransceiverTool::Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING,
                                 TransceiverTool::Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING
                             );
@@ -686,7 +686,7 @@ namespace TransceiverTool {
                             std::vector<unsigned char> reassembled; reassembled.resize(256, 0x00);
                             TransceiverTool::Standards::SFF8636::assembleToBinary(
                                 reassembled.data(),
-                                parsedStruct,
+                                programmingRoundtrip,
                                 TransceiverTool::Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING,
                                 TransceiverTool::Standards::common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING
                             );
