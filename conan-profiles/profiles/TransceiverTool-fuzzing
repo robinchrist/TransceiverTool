@@ -1,0 +1,32 @@
+# Profile for the libFuzzer targets, see the fuzzing section in README.MD.
+#
+# libFuzzer needs Clang. The dependencies are built with the same compiler and the same
+# instrumentation as our own code: ASan only checks what it was compiled into, and mixing
+# instrumented with uninstrumented STL containers can produce container-overflow false positives.
+#
+# Use with:
+#   conan install . --output-folder build-fuzzing --build=missing -pr:a default -pr:a TransceiverTool-fuzzing
+
+[settings]
+build_type=RelWithDebInfo
+compiler=clang
+compiler.cppstd=gnu20
+compiler.libcxx=libstdc++11
+compiler.version=22
+
+[conf]
+tools.build:compiler_executables={"c": "clang", "cpp": "clang++"}
+
+# fuzzer-no-link adds coverage instrumentation without libFuzzer's main(). It must NOT be plain
+# "fuzzer" in exelinkflags: that links libFuzzer's own main() into every executable, which breaks
+# CMake's "can the compiler build a test program" check with a duplicate definition of main and
+# stops the dependencies from configuring at all. CMake adds -fsanitize=fuzzer to the fuzz targets
+# themselves (see fuzz/CMakeLists.txt), which is the only place it belongs.
+tools.build:cflags=["-fsanitize=fuzzer-no-link", "-fsanitize=address,undefined", "-fno-omit-frame-pointer", "-g"]
+tools.build:cxxflags=["-fsanitize=fuzzer-no-link", "-fsanitize=address,undefined", "-fno-omit-frame-pointer", "-g"]
+tools.build:exelinkflags=["-fsanitize=fuzzer-no-link", "-fsanitize=address,undefined"]
+tools.build:sharedlinkflags=["-fsanitize=fuzzer-no-link", "-fsanitize=address,undefined"]
+
+# Without this the flags above do not take part in the package ID, so conan would silently reuse a
+# previously cached, uninstrumented dependency instead of rebuilding it.
+tools.info.package_id:confs=["tools.build:cflags", "tools.build:cxxflags", "tools.build:exelinkflags", "tools.build:sharedlinkflags"]

@@ -953,3 +953,97 @@ conan install . --output-folder build --build=missing -pr:a default -pr:a Transc
 cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 --preset conan-debug
 cmake --build --preset conan-debug
 ```
+
+## Fuzzing
+
+There are three libFuzzer targets in `fuzz/`:
+
+| Target | What it does | What counts as a finding |
+| --- | --- | --- |
+| `fuzz_sff8472_roundtrip` | 128 bytes -> struct -> JSON -> struct -> 128 bytes | any byte differs, or the tool cannot read back its own JSON |
+| `fuzz_sff8636_roundtrip` | same for a 256 byte page 00h, comparing bytes 128-255 | as above |
+| `fuzz_json_input` | arbitrary bytes through the `encode` path: FromJSON, assemble, pretty print, validate | crash, sanitizer report, or an exception not derived from `std::exception` |
+
+The roundtrip targets assert the property this tool is built on: every programming, valid or not,
+survives the JSON representation unchanged. Both fiber and copper interpretation are exercised per
+input, because several bytes have two meanings.
+
+For `fuzz_json_input` a rejected input is the expected outcome, so exceptions are caught. Only
+memory errors and inputs that escape the CLI's error handling are bugs.
+
+### Building
+
+Fuzzing needs Clang, and the dependencies have to be built with the same instrumentation, so it uses
+its own profile and its own output folder. This does not disturb a normal `build/` directory.
+
+```
+conan config install conan-profiles
+conan install . --output-folder build-fuzzing --build=missing -pr:a default -pr:a TransceiverTool-fuzzing
+cmake -DTRANSCEIVERTOOL_BUILD_FUZZERS=ON --preset conan-relwithdebinfo
+cmake --build --preset conan-relwithdebinfo
+```
+
+`TRANSCEIVERTOOL_BUILD_FUZZERS` is OFF by default and refuses to configure with a non-Clang compiler.
+Turning it on also puts ASan/UBSan on the `TransceiverTool` binary itself, which is useful for
+reproducing a finding through the CLI but is not a build you want to ship.
+
+Note that the first `conan install` rebuilds `fmt` from source with the sanitizers, which takes a
+while. The profile lists those flags in `tools.info.package_id:confs`; without that conan would
+silently reuse a cached, uninstrumented `fmt`.
+
+### Running
+
+```
+mkdir -p fuzz/corpus/sff8472 fuzz/corpus/sff8636 fuzz/corpus/json
+./build-fuzzing/fuzz/fuzz_sff8472_roundtrip fuzz/corpus/sff8472
+./build-fuzzing/fuzz/fuzz_sff8636_roundtrip fuzz/corpus/sff8636
+./build-fuzzing/fuzz/fuzz_json_input fuzz/corpus/json -dict=fuzz/json_input.dict
+```
+
+Seeding the corpora first helps a lot - any real transceiver dump works for the roundtrip targets,
+and the JSON target should be seeded with output from `TransceiverTool decode --json-to-file`.
+`-max_total_time=60` bounds a run, `-jobs=$(nproc)` parallelises one. Corpora and the `crash-*`
+artifacts libFuzzer writes are gitignored.
+
+`fuzz_json_input` gets a dictionary because the JSON keys are long literal strings that a mutator
+will never produce on its own. Regenerate `fuzz/json_input.dict` from the schemas after changing the
+JSON format:
+
+```
+python3 - <<'EOF'
+import json
+keys=set()
+def walk(n):
+    if isinstance(n,dict):
+        for k,v in n.items():
+            if k=="properties" and isinstance(v,dict): keys.update(v.keys())
+            if k=="const" and isinstance(v,str): keys.add(v)
+            if k=="enum" and isinstance(v,list): keys.update(x for x in v if isinstance(x,str))
+            walk(v)
+    elif isinstance(n,list):
+        for x in n: walk(x)
+for f in ["schemas/SFF-8472_LowerA0h.json","schemas/SFF-8636_Upper00h.json"]: walk(json.load(open(f)))
+keys.update(["SFF-8472 Rev 12.4 Lower Page A0h","SFF-8636 Rev 2.11 Upper Page 00h","Type","byteValue","auto","N/A"])
+out=["# libFuzzer dictionary for fuzz_json_input.",
+     "# Generated from schemas/*.json - the key names are far too long for the mutator to find on its own.",
+     "# Regenerate with the snippet in the fuzzing section of README.MD.",""]
+for k in sorted(k for k in keys if k):
+    out.append('"%s"' % k.replace("\\","\\\\").replace('"','\\"'))
+open("fuzz/json_input.dict","w").write("\n".join(out)+"\n")
+EOF
+```
+
+### Reproducing a finding
+
+libFuzzer writes the offending input next to the binary. Feed it back to the same target:
+
+```
+./build-fuzzing/fuzz/fuzz_json_input crash-<hash>
+```
+
+For the roundtrip targets the crash artifact is a plain binary programming, so it can also be fed
+straight to the CLI, which prints the same byte-level diff:
+
+```
+./build-fuzzing/TransceiverTool roundtrip-test --binary-type 8636-256b --from-file crash-<hash>
+```
