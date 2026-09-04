@@ -1,7 +1,7 @@
 # Make sure we use a relatively recent version - 3.27 is Nov 2023
 cmake_minimum_required(VERSION 3.27)
 
-project ("Transceiver Tool")
+project ("Transceiver Tool" VERSION 0.0.1)
 
 # Make sure we group dependencies here
 find_package(nlohmann_json REQUIRED)
@@ -13,6 +13,13 @@ find_package(CLI11 REQUIRED)
 #set preferences
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+
+# Version.hpp is generated so that project(... VERSION ...) above stays the single source of truth
+configure_file(
+    include/TransceiverTool/Version.hpp.in
+    "${CMAKE_CURRENT_BINARY_DIR}/generated/TransceiverTool/Version.hpp"
+    @ONLY
+)
 
 # Add the main server executable target
 add_executable(TransceiverTool)
@@ -40,3 +47,4 @@ target_link_libraries(TransceiverTool PUBLIC CLI11::CLI11)
 
 
 target_include_directories(TransceiverTool PUBLIC include)
+target_include_directories(TransceiverTool PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/generated")
