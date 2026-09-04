@@ -220,8 +220,8 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
                TransceiverTool::Standards::SFF8636::Extended_Rate_Select_Compliance_Bit_1_0::RESERVED_0b11) {
             validationResult.errors.push_back(
                 fmt::format(
-                    "Byte 132 (\"SONET Compliance Codes\") value has at least one reserved bit set: Bit 7 {:d}, Bit 6 "
-                    "{:d}, Bit 5 {:d}, Bit 4 {:d}, Bit 3 {:d}, Bit 2 {:d}, Bit 1-0: \"{}\"",
+                    "Byte 141 (\"Extended Rate Select Compliance\") value has at least one reserved bit set: Bit 7 "
+                    "{:d}, Bit 6 {:d}, Bit 5 {:d}, Bit 4 {:d}, Bit 3 {:d}, Bit 2 {:d}, Bit 1-0: \"{}\"",
                     programming.byte_141_extended_rate_select_compliance.reserved_bit_7,
                     programming.byte_141_extended_rate_select_compliance.reserved_bit_6,
                     programming.byte_141_extended_rate_select_compliance.reserved_bit_5,
@@ -348,7 +348,7 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
         if(programming.byte_191_CC_BASE != correctChecksum) {
             validationResult.errors.push_back(
                 fmt::format(
-                    "Byte 191 (\"CC_EXT\") value is {:#04x}, but should be {:#04x}",
+                    "Byte 191 (\"CC_BASE\") value is {:#04x}, but should be {:#04x}",
                     programming.byte_191_CC_BASE,
                     correctChecksum
                 )
