@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024-2026 Robin Christ
+// SPDX-License-Identifier: MPL-2.0
+
 #pragma once
 #include "TransceiverTool/Standards/SFF-8472_LowerA0h.hpp"
 #include "TransceiverTool/Standards/common.hpp"

@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024-2026 Robin Christ
+// SPDX-License-Identifier: MPL-2.0
+
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Physical_Device_Extended_Identifier_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Compliance_Codes.hpp"

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2024-2026 Robin Christ
+# SPDX-License-Identifier: MPL-2.0
+
 # libFuzzer dictionary for fuzz_json_input.
 # Generated from schemas/*.json - the key names are far too long for the mutator to find on its own.
 # Regenerate with the snippet in the fuzzing section of README.MD.

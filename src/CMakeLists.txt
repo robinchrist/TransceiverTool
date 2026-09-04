@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2024-2026 Robin Christ
+# SPDX-License-Identifier: MPL-2.0
+
 target_sources(
     TransceiverToolCore PRIVATE
     Standards/SFF-8024_Utils.cpp

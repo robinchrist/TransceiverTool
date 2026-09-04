@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024-2026 Robin Christ
+// SPDX-License-Identifier: MPL-2.0
+
 #include "TransceiverTool/Standards/SFF-8472_Assembler.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Checksum.hpp"
 #include "TransceiverTool/Standards/SFF-8472_LowerA0h.hpp"

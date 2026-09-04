@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2024-2026 Robin Christ
+# SPDX-License-Identifier: MPL-2.0
+
 # Only reached when TRANSCEIVERTOOL_BUILD_FUZZERS is ON, which also asserts that the compiler is Clang
 # and puts coverage instrumentation and the sanitizers on TransceiverToolCore.
 

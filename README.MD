@@ -15,7 +15,19 @@ Overall, the goal is democratise transceiver programming. Right now your best op
 To my knowledege, there is no other open source project that allows easy creation of new programmings / binaries of SFF-8472 and SFF-8636. Because I often reprogram transceivers and don't want to use proprietary (and very limited) tools like the fs.com FS BOX or the flexoptix FLEXBOX, I decided to write my own tool.
 
 ## License
-This project is licensed under the MIT license
+This project is licensed under the Mozilla Public License 2.0 (`MPL-2.0`), see [LICENSE](LICENSE).
+
+Source files carry an SPDX header:
+
+```
+SPDX-FileCopyrightText: 2024-2026 Robin Christ
+SPDX-License-Identifier: MPL-2.0
+```
+
+The JSON schemas in `schemas/` have no header because JSON has no comment syntax; they are covered by
+this file and by [LICENSE](LICENSE).
+
+Releases up to and including the last MIT-licensed commit remain available under the MIT license.
 
 ## Warning
 This project was created entirely in my free time. The inconsistency and overall quality of the SFF-8472 and SFF-8636 made me consider cancelling this project so often that I stopped counting at some point. Large parts of this code were written under heavy influence of sleep deprivation and almost deadly amounts of caffeine and/or energy drinks.

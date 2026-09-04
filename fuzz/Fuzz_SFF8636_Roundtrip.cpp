@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024-2026 Robin Christ
+// SPDX-License-Identifier: MPL-2.0
+
 // libFuzzer target for the SFF-8636 binary -> JSON -> binary roundtrip.
 //
 // Same invariant as the SFF-8472 target: a programming must survive the JSON representation unchanged,

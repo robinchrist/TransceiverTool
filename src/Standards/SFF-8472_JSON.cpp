@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024-2026 Robin Christ
+// SPDX-License-Identifier: MPL-2.0
+
 #include "TransceiverTool/Standards/SFF-8472_JSON.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Encoding_Values.hpp"
 #include "TransceiverTool/Standards/SFF-8024_Transceiver_Connector_Type.hpp"

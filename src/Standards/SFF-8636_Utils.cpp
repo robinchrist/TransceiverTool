@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024-2026 Robin Christ
+// SPDX-License-Identifier: MPL-2.0
+
 #include <algorithm>
 #include "TransceiverTool/Standards/SFF-8636_Device_And_Transmitter_Technology.hpp"
 #include "TransceiverTool/Standards/SFF-8636_Extended_Identifier_Values.hpp"

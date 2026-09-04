@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2024-2026 Robin Christ
+# SPDX-License-Identifier: MPL-2.0
+
 # Make sure we use a relatively recent version - 3.27 is Nov 2023
 cmake_minimum_required(VERSION 3.27)
 

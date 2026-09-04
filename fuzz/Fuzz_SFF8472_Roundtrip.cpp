@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024-2026 Robin Christ
+// SPDX-License-Identifier: MPL-2.0
+
 // libFuzzer target for the SFF-8472 binary -> JSON -> binary roundtrip.
 //
 // The invariant under test is the one the README promises: every 128 byte programming, valid or not,

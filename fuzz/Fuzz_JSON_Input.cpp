@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2024-2026 Robin Christ
+// SPDX-License-Identifier: MPL-2.0
+
 // libFuzzer target for the JSON input path, i.e. what "TransceiverTool encode" is exposed to.
 //
 // Unlike the roundtrip targets this one is fed arbitrary bytes rather than tool-generated JSON, so

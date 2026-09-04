@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2024-2026 Robin Christ
+# SPDX-License-Identifier: MPL-2.0
+
 # Profile for the libFuzzer targets, see the fuzzing section in README.MD.
 #
 # libFuzzer needs Clang. The dependencies are built with the same compiler and the same
