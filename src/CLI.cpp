@@ -626,7 +626,7 @@ namespace TransceiverTool {
                             auto parsedStruct = TransceiverTool::Standards::SFF8472::parseBytesToStruct(reinterpret_cast<unsigned char const *>(buffer.data()));
 
                             nlohmann::ordered_json j;
-                            TransceiverTool::Standards::SFF8472::SFF8472_LowerA0hToJSON(j, parsedStruct, false);
+                            TransceiverTool::Standards::SFF8472::SFF8472_LowerA0hToJSON(j, parsedStruct, fiberMode);
 
                             std::string serialised = j.dump();
 
