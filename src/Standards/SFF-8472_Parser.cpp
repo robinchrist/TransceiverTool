@@ -3,8 +3,8 @@
 
 namespace TransceiverTool::Standards::SFF8472 {
 
-    //Expects 128 bytes!
-    TransceiverTool::Standards::SFF8472::SFF8472_LowerA0h parseBytesToStruct(unsigned char const * bytes) {
+    // Expects 128 bytes!
+    TransceiverTool::Standards::SFF8472::SFF8472_LowerA0h parseBytesToStruct(unsigned char const* bytes) {
         SFF8472_LowerA0h parsedStruct;
 
         parsedStruct.byte_0_Identifier = bytes[0];
@@ -12,7 +12,7 @@ namespace TransceiverTool::Standards::SFF8472 {
         parsedStruct.byte_1_extended_identifier = bytes[1];
 
         parsedStruct.byte_2_Connector_type = bytes[2];
-        
+
 
         parsedStruct.byte_3_ethernet_compliance_codes._10GBASE_ER_bit_7 = bytes[3] & (1 << 7);
         parsedStruct.byte_3_ethernet_compliance_codes._10GBASE_LRM_bit_6 = bytes[3] & (1 << 6);
@@ -28,17 +28,20 @@ namespace TransceiverTool::Standards::SFF8472 {
         parsedStruct.byte_4_escon_compliance_codes.ESCON_SMF_1310nm_Laser_bit_6 = bytes[4] & (1 << 6);
 
         parsedStruct.byte_4_5_sonet_compliance_codes.OC_192_short_reach_byte_4_bit_5 = bytes[4] & (1 << 5);
-        parsedStruct.byte_4_5_sonet_compliance_codes.SONET_Reach_Specifier_byte_4_bit_4_3 = getSFF8472_SONETReachSpecifier_From_Char(bytes[4]);
+        parsedStruct.byte_4_5_sonet_compliance_codes.SONET_Reach_Specifier_byte_4_bit_4_3 =
+            getSFF8472_SONETReachSpecifier_From_Char(bytes[4]);
         parsedStruct.byte_4_5_sonet_compliance_codes.OC_48_long_reach_byte_4_bit_2 = bytes[4] & (1 << 2);
         parsedStruct.byte_4_5_sonet_compliance_codes.OC_48_intermediate_reach_byte_4_bit_1 = bytes[4] & (1 << 1);
         parsedStruct.byte_4_5_sonet_compliance_codes.OC_48_short_reach_byte_4_bit_0 = bytes[4] & (1 << 0);
         parsedStruct.byte_4_5_sonet_compliance_codes.reserved_byte_5_bit_7 = bytes[5] & (1 << 7);
         parsedStruct.byte_4_5_sonet_compliance_codes.OC_12_single_mode_long_reach_2_byte_5_bit_6 = bytes[5] & (1 << 6);
-        parsedStruct.byte_4_5_sonet_compliance_codes.OC_12_single_mode_intermediate_reach_byte_5_bit_5 = bytes[5] & (1 << 5);
+        parsedStruct.byte_4_5_sonet_compliance_codes.OC_12_single_mode_intermediate_reach_byte_5_bit_5 =
+            bytes[5] & (1 << 5);
         parsedStruct.byte_4_5_sonet_compliance_codes.OC_12_short_reach_byte_5_bit_4 = bytes[5] & (1 << 4);
         parsedStruct.byte_4_5_sonet_compliance_codes.reserved_byte_5_bit_3 = bytes[5] & (1 << 3);
         parsedStruct.byte_4_5_sonet_compliance_codes.OC_3_single_mode_long_reach_byte_5_bit_2 = bytes[5] & (1 << 2);
-        parsedStruct.byte_4_5_sonet_compliance_codes.OC_3_single_mode_intermediate_reach_byte_5_bit_1 = bytes[5] & (1 << 1);
+        parsedStruct.byte_4_5_sonet_compliance_codes.OC_3_single_mode_intermediate_reach_byte_5_bit_1 =
+            bytes[5] & (1 << 1);
         parsedStruct.byte_4_5_sonet_compliance_codes.OC_3_short_reach__byte_5_bit_0 = bytes[5] & (1 << 0);
 
 
@@ -58,18 +61,23 @@ namespace TransceiverTool::Standards::SFF8472 {
         parsedStruct.byte_7_fibre_channel_link_length_codes.long_distance_l_bit_4 = bytes[7] & (1 << 4);
         parsedStruct.byte_7_fibre_channel_link_length_codes.medium_distance_m_bit_3 = bytes[7] & (1 << 3);
 
-        parsedStruct.byte_7_8_fibre_channel_technology_codes.Shortwave_laser_linear_Rx_SA_byte_7_bit_2 = bytes[7] & (1 << 2);
+        parsedStruct.byte_7_8_fibre_channel_technology_codes.Shortwave_laser_linear_Rx_SA_byte_7_bit_2 =
+            bytes[7] & (1 << 2);
         parsedStruct.byte_7_8_fibre_channel_technology_codes.Longwave_laser_LC_byte_7_bit_1 = bytes[7] & (1 << 1);
-        parsedStruct.byte_7_8_fibre_channel_technology_codes.Electrical_inter_enclosure_EL_byte_7_bit_0 = bytes[7] & (1 << 0);
-        parsedStruct.byte_7_8_fibre_channel_technology_codes.Electrical_intra_enclosure_EL_byte_byte_8_bit_7 = bytes[8] & (1 << 7);
-        parsedStruct.byte_7_8_fibre_channel_technology_codes.Shortwave_laser_w_o_OFC_SN_byte_8_bit_6 = bytes[8] & (1 << 6);
-        parsedStruct.byte_7_8_fibre_channel_technology_codes.Shortwave_laser_with_OFC_SL_byte_8_bit_5 = bytes[8] & (1 << 5);
+        parsedStruct.byte_7_8_fibre_channel_technology_codes.Electrical_inter_enclosure_EL_byte_7_bit_0 =
+            bytes[7] & (1 << 0);
+        parsedStruct.byte_7_8_fibre_channel_technology_codes.Electrical_intra_enclosure_EL_byte_byte_8_bit_7 =
+            bytes[8] & (1 << 7);
+        parsedStruct.byte_7_8_fibre_channel_technology_codes.Shortwave_laser_w_o_OFC_SN_byte_8_bit_6 =
+            bytes[8] & (1 << 6);
+        parsedStruct.byte_7_8_fibre_channel_technology_codes.Shortwave_laser_with_OFC_SL_byte_8_bit_5 =
+            bytes[8] & (1 << 5);
         parsedStruct.byte_7_8_fibre_channel_technology_codes.Longwave_Laser_LL_byte_8_bit_4 = bytes[8] & (1 << 4);
 
-        parsedStruct.byte_8_sfp_plus_cable_technology_codes.Active_Cable_bit_3 =  bytes[8] & (1 << 3);
-        parsedStruct.byte_8_sfp_plus_cable_technology_codes.Passive_Cable_bit_2 =  bytes[8] & (1 << 2);
-        parsedStruct.byte_8_sfp_plus_cable_technology_codes.reserved_bit_1 =  bytes[8] & (1 << 1);
-        parsedStruct.byte_8_sfp_plus_cable_technology_codes.reserved_bit_0 =  bytes[8] & (1 << 0);
+        parsedStruct.byte_8_sfp_plus_cable_technology_codes.Active_Cable_bit_3 = bytes[8] & (1 << 3);
+        parsedStruct.byte_8_sfp_plus_cable_technology_codes.Passive_Cable_bit_2 = bytes[8] & (1 << 2);
+        parsedStruct.byte_8_sfp_plus_cable_technology_codes.reserved_bit_1 = bytes[8] & (1 << 1);
+        parsedStruct.byte_8_sfp_plus_cable_technology_codes.reserved_bit_0 = bytes[8] & (1 << 0);
 
 
         parsedStruct.byte_9_fibre_channel_transmission_media_codes.Twin_Axial_Pair_TW_bit_7 = bytes[9] & (1 << 7);
@@ -151,11 +159,11 @@ namespace TransceiverTool::Standards::SFF8472 {
         parsedStruct.byte_65_option_values.loss_of_signal_implemented_bit_1 = bytes[65] & (1 << 1);
         parsedStruct.byte_65_option_values.reserved_bit_0 = bytes[65] & (1 << 0);
 
-        
+
         parsedStruct.byte_66_max_signaling_rate_in_percent_or_nominal_signaling_rate_in_250_mbaud = bytes[66];
 
         parsedStruct.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent = bytes[67];
-        
+
         std::memcpy(parsedStruct.byte_68_83_vendor_sn.data(), bytes + 68, 16);
 
         std::memcpy(parsedStruct.byte_84_91_date_code.year_low_order_digits.data(), bytes + 84, 2);
@@ -164,21 +172,28 @@ namespace TransceiverTool::Standards::SFF8472 {
         std::memcpy(parsedStruct.byte_84_91_date_code.lot_code.data(), bytes + 90, 2);
 
         parsedStruct.byte_92_diagnostic_monitoring_type.reserved_bit_7 = bytes[92] & (1 << 7);
-        parsedStruct.byte_92_diagnostic_monitoring_type.digital_diagnostic_monitoring_implemented_bit_6 = bytes[92] & (1 << 6);
+        parsedStruct.byte_92_diagnostic_monitoring_type.digital_diagnostic_monitoring_implemented_bit_6 =
+            bytes[92] & (1 << 6);
         parsedStruct.byte_92_diagnostic_monitoring_type.internally_calibrated_bit_5 = bytes[92] & (1 << 5);
         parsedStruct.byte_92_diagnostic_monitoring_type.externally_calibrated_bit_4 = bytes[92] & (1 << 4);
-        parsedStruct.byte_92_diagnostic_monitoring_type.received_power_measurement_is_average_bit_3 = bytes[92] & (1 << 3);
+        parsedStruct.byte_92_diagnostic_monitoring_type.received_power_measurement_is_average_bit_3 =
+            bytes[92] & (1 << 3);
         parsedStruct.byte_92_diagnostic_monitoring_type.address_change_required_bit_2 = bytes[92] & (1 << 2);
         parsedStruct.byte_92_diagnostic_monitoring_type.reserved_bit_1 = bytes[92] & (1 << 1);
         parsedStruct.byte_92_diagnostic_monitoring_type.reserved_bit_0 = bytes[92] & (1 << 0);
 
         parsedStruct.byte_93_enhanced_options.optional_alarm_warning_flags_implemented_bit_7 = bytes[93] & (1 << 7);
-        parsedStruct.byte_93_enhanced_options.optional_soft_TX_DISABLE_control_and_monitoring_implemented_bit_6 = bytes[93] & (1 << 6);
-        parsedStruct.byte_93_enhanced_options.optional_soft_TX_FAULT_monitoring_implemented_bit_5 = bytes[93] & (1 << 5);
+        parsedStruct.byte_93_enhanced_options.optional_soft_TX_DISABLE_control_and_monitoring_implemented_bit_6 =
+            bytes[93] & (1 << 6);
+        parsedStruct.byte_93_enhanced_options.optional_soft_TX_FAULT_monitoring_implemented_bit_5 =
+            bytes[93] & (1 << 5);
         parsedStruct.byte_93_enhanced_options.optional_soft_RX_LOS_monitoring_implemented_bit_4 = bytes[93] & (1 << 4);
-        parsedStruct.byte_93_enhanced_options.optional_soft_RATE_SELECT_control_and_monitoring_implemented_bit_3 = bytes[93] & (1 << 3);
-        parsedStruct.byte_93_enhanced_options.optional_application_select_control_implemented_per_SFF_8079_bit_2 = bytes[93] & (1 << 2);
-        parsedStruct.byte_93_enhanced_options.optional_soft_rate_select_control_implemented_per_SFF_8431_bit_1 = bytes[93] & (1 << 1);
+        parsedStruct.byte_93_enhanced_options.optional_soft_RATE_SELECT_control_and_monitoring_implemented_bit_3 =
+            bytes[93] & (1 << 3);
+        parsedStruct.byte_93_enhanced_options.optional_application_select_control_implemented_per_SFF_8079_bit_2 =
+            bytes[93] & (1 << 2);
+        parsedStruct.byte_93_enhanced_options.optional_soft_rate_select_control_implemented_per_SFF_8431_bit_1 =
+            bytes[93] & (1 << 1);
         parsedStruct.byte_93_enhanced_options.reserved_bit_0 = bytes[93] & (1 << 0);
 
         parsedStruct.byte_94_sff_8472_compliance = bytes[94];
@@ -190,4 +205,4 @@ namespace TransceiverTool::Standards::SFF8472 {
         return parsedStruct;
     }
 
-}
+}  // namespace TransceiverTool::Standards::SFF8472

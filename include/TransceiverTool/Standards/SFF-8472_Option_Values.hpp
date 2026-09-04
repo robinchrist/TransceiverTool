@@ -4,7 +4,7 @@
 
 namespace TransceiverTool::Standards::SFF8472 {
 
-    //SFF-8472 Rev 12.4 Section 6.3.24 Options (00h 193-195)
+    // SFF-8472 Rev 12.4 Section 6.3.24 Options (00h 193-195)
     struct Option_Values_Byte_64 {
         bool reserved_bit_7;
 
@@ -46,7 +46,7 @@ namespace TransceiverTool::Standards::SFF8472 {
     };
 
     struct Option_Values_Byte_65 {
-        //Receiver decision threshold implemented. A value of 1 indicates that RDT is implemented.
+        // Receiver decision threshold implemented. A value of 1 indicates that RDT is implemented.
         bool receiver_rdt_implemented_bit_7;
 
         // Tunable transmitter technology. A value of 1 indicates that the transmitter wavelength/frequency is
@@ -62,14 +62,15 @@ namespace TransceiverTool::Standards::SFF8472 {
         // TX_FAULT signal implemented. (See SFF-8419)
         bool tx_fault_implemented_bit_3;
 
-        // Loss of Signal implemented, signal inverted from standard definition in SFP MSA (often called "Signal Detect").
-        // NOTE: This is not standard SFP/GBIC behavior and should be avoided, since non-interoperable behavior results
+        // Loss of Signal implemented, signal inverted from standard definition in SFP MSA (often called "Signal
+        // Detect"). NOTE: This is not standard SFP/GBIC behavior and should be avoided, since non-interoperable
+        // behavior results
         bool loss_of_signal_inverted_bit_2;
 
-        //Loss of Signal implemented, behavior as defined in SFF-8419 (often called "Rx_LOS").
+        // Loss of Signal implemented, behavior as defined in SFF-8419 (often called "Rx_LOS").
         bool loss_of_signal_implemented_bit_1;
 
         bool reserved_bit_0;
     };
 
-}
+}  // namespace TransceiverTool::Standards::SFF8472

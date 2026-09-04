@@ -9,8 +9,8 @@ namespace TransceiverTool {
         std::string name;
     };
 
-    //Important / commonly encountered OUIs
-    inline const std::array<VendorOUI, 16> VendorOUIs {{
+    // Important / commonly encountered OUIs
+    inline const std::array<VendorOUI, 16> VendorOUIs{{
         {{0x64, 0x9d, 0x99}, "FS COM INC"},
         {{0x00, 0x05, 0x1e}, "Brocade Communications Systems LLC"},
         {{0x00, 0x90, 0x65}, "FINISAR CORPORATION"},
@@ -28,4 +28,4 @@ namespace TransceiverTool {
         {{0x00, 0x14, 0x4f}, "Oraclel"},
         {{0x44, 0x7c, 0x7f}, "Innolight Technology Corporation"},
     }};
-}
+}  // namespace TransceiverTool

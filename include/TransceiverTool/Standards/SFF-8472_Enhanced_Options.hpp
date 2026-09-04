@@ -4,7 +4,7 @@
 
 namespace TransceiverTool::Standards::SFF8472 {
 
-    //SFF-8472 Rev 12.4 Section 8.10 Enhanced Options [Address A0h, Byte 93]
+    // SFF-8472 Rev 12.4 Section 8.10 Enhanced Options [Address A0h, Byte 93]
     struct Enhanced_Options {
         bool optional_alarm_warning_flags_implemented_bit_7;
         bool optional_soft_TX_DISABLE_control_and_monitoring_implemented_bit_6;
@@ -18,4 +18,4 @@ namespace TransceiverTool::Standards::SFF8472 {
 
 
 
-}
+}  // namespace TransceiverTool::Standards::SFF8472

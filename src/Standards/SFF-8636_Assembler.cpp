@@ -5,84 +5,107 @@
 namespace TransceiverTool::Standards::SFF8636 {
 
 
-    //Creates the last 128 bytes of target (page 00h SFF-8636)
-    //i.e. target must be 256 bytes big
-    void assembleToBinary(unsigned char * target, const SFF8636_Upper00h& programming, common::ChecksumDirective CC_BASEDirective, common::ChecksumDirective CC_EXTDirective) {
+    // Creates the last 128 bytes of target (page 00h SFF-8636)
+    // i.e. target must be 256 bytes big
+    void assembleToBinary(
+        unsigned char* target,
+        const SFF8636_Upper00h& programming,
+        common::ChecksumDirective CC_BASEDirective,
+        common::ChecksumDirective CC_EXTDirective
+    ) {
 
         target[128] = programming.byte_128_Identifier;
 
-        target[129] = 
-            getSFF8636_Extended_Identifier_Bit_7_6Info(programming.byte_129_extended_identifier.power_class_bit_7_6).bitValue << 6 |
+        target[129] =
+            getSFF8636_Extended_Identifier_Bit_7_6Info(programming.byte_129_extended_identifier.power_class_bit_7_6)
+                    .bitValue
+                << 6 |
             (unsigned char)(programming.byte_129_extended_identifier.power_class_8_bit_5) << 5 |
             (unsigned char)(programming.byte_129_extended_identifier.clei_code_bit_4) << 4 |
             (unsigned char)(programming.byte_129_extended_identifier.cdr_in_tx_bit_3) << 3 |
             (unsigned char)(programming.byte_129_extended_identifier.cdr_in_rx_bit_2) << 2 |
-            getSFF8636_Extended_Identifier_Bit_1_0Info(programming.byte_129_extended_identifier.power_class_bit_1_0).bitValue;
-        
+            getSFF8636_Extended_Identifier_Bit_1_0Info(programming.byte_129_extended_identifier.power_class_bit_1_0)
+                .bitValue;
+
 
         target[130] = programming.byte_130_Connector_Type;
 
-        target[131] = 
-            (unsigned char)(programming.byte_131_ethernet_compliance_codes.extended_bit_7) << 7 |
-            (unsigned char)(programming.byte_131_ethernet_compliance_codes._10GBASE_LRM_bit_6) << 6 |
-            (unsigned char)(programming.byte_131_ethernet_compliance_codes._10GBASE_LR_bit_5) << 5 |
-            (unsigned char)(programming.byte_131_ethernet_compliance_codes._10GBASE_SR_bit_4) << 4 |
-            (unsigned char)(programming.byte_131_ethernet_compliance_codes._40GBASE_CR4_bit_3) << 3 |
-            (unsigned char)(programming.byte_131_ethernet_compliance_codes._40GBASE_SR4_bit_2) << 2 |
-            (unsigned char)(programming.byte_131_ethernet_compliance_codes._40GBASE_LR4_bit_1) << 1 |
-            (unsigned char)(programming.byte_131_ethernet_compliance_codes._40G_Active_Cable_XLPPI_bit_0) << 0;
+        target[131] = (unsigned char)(programming.byte_131_ethernet_compliance_codes.extended_bit_7) << 7 |
+                      (unsigned char)(programming.byte_131_ethernet_compliance_codes._10GBASE_LRM_bit_6) << 6 |
+                      (unsigned char)(programming.byte_131_ethernet_compliance_codes._10GBASE_LR_bit_5) << 5 |
+                      (unsigned char)(programming.byte_131_ethernet_compliance_codes._10GBASE_SR_bit_4) << 4 |
+                      (unsigned char)(programming.byte_131_ethernet_compliance_codes._40GBASE_CR4_bit_3) << 3 |
+                      (unsigned char)(programming.byte_131_ethernet_compliance_codes._40GBASE_SR4_bit_2) << 2 |
+                      (unsigned char)(programming.byte_131_ethernet_compliance_codes._40GBASE_LR4_bit_1) << 1 |
+                      (unsigned char)(programming.byte_131_ethernet_compliance_codes._40G_Active_Cable_XLPPI_bit_0)
+                          << 0;
 
-        target[132] = 
-            (unsigned char)(programming.byte_132_sonet_compliance_codes.reserved_bit_7) << 7 |
-            (unsigned char)(programming.byte_132_sonet_compliance_codes.reserved_bit_6) << 6 |
-            (unsigned char)(programming.byte_132_sonet_compliance_codes.reserved_bit_5) << 5 |
-            (unsigned char)(programming.byte_132_sonet_compliance_codes.reserved_bit_4) << 4 |
-            (unsigned char)(programming.byte_132_sonet_compliance_codes.reserved_bit_3) << 3 |
-            (unsigned char)(programming.byte_132_sonet_compliance_codes.OC48_long_reach_bit_2) << 2 |
-            (unsigned char)(programming.byte_132_sonet_compliance_codes.OC48_intermediate_reach_bit_1) << 1 |
-            (unsigned char)(programming.byte_132_sonet_compliance_codes.OC48_short_reach_bit_0) << 0;
+        target[132] = (unsigned char)(programming.byte_132_sonet_compliance_codes.reserved_bit_7) << 7 |
+                      (unsigned char)(programming.byte_132_sonet_compliance_codes.reserved_bit_6) << 6 |
+                      (unsigned char)(programming.byte_132_sonet_compliance_codes.reserved_bit_5) << 5 |
+                      (unsigned char)(programming.byte_132_sonet_compliance_codes.reserved_bit_4) << 4 |
+                      (unsigned char)(programming.byte_132_sonet_compliance_codes.reserved_bit_3) << 3 |
+                      (unsigned char)(programming.byte_132_sonet_compliance_codes.OC48_long_reach_bit_2) << 2 |
+                      (unsigned char)(programming.byte_132_sonet_compliance_codes.OC48_intermediate_reach_bit_1) << 1 |
+                      (unsigned char)(programming.byte_132_sonet_compliance_codes.OC48_short_reach_bit_0) << 0;
 
-        target[133] = 
-            (unsigned char)(programming.byte_133_sas_sata_compliance_codes.SAS_24_0_Gbps_bit_7) << 7 |
-            (unsigned char)(programming.byte_133_sas_sata_compliance_codes.SAS_12_0_Gbps_bit_6) << 6 |
-            (unsigned char)(programming.byte_133_sas_sata_compliance_codes.SAS_6_0_Gbps_bit_5) << 5 |
-            (unsigned char)(programming.byte_133_sas_sata_compliance_codes.SAS_3_0_Gbps_bit_4) << 4 |
-            (unsigned char)(programming.byte_133_sas_sata_compliance_codes.reserved_bit_3) << 3 |
-            (unsigned char)(programming.byte_133_sas_sata_compliance_codes.reserved_bit_2) << 2 |
-            (unsigned char)(programming.byte_133_sas_sata_compliance_codes.reserved_bit_1) << 1 |
-            (unsigned char)(programming.byte_133_sas_sata_compliance_codes.reserved_bit_0) << 0;
+        target[133] = (unsigned char)(programming.byte_133_sas_sata_compliance_codes.SAS_24_0_Gbps_bit_7) << 7 |
+                      (unsigned char)(programming.byte_133_sas_sata_compliance_codes.SAS_12_0_Gbps_bit_6) << 6 |
+                      (unsigned char)(programming.byte_133_sas_sata_compliance_codes.SAS_6_0_Gbps_bit_5) << 5 |
+                      (unsigned char)(programming.byte_133_sas_sata_compliance_codes.SAS_3_0_Gbps_bit_4) << 4 |
+                      (unsigned char)(programming.byte_133_sas_sata_compliance_codes.reserved_bit_3) << 3 |
+                      (unsigned char)(programming.byte_133_sas_sata_compliance_codes.reserved_bit_2) << 2 |
+                      (unsigned char)(programming.byte_133_sas_sata_compliance_codes.reserved_bit_1) << 1 |
+                      (unsigned char)(programming.byte_133_sas_sata_compliance_codes.reserved_bit_0) << 0;
 
-        target[134] = 
-            (unsigned char)(programming.byte_134_gigabit_ethernet_compliance_codes.reserved_bit_7) << 7 |
-            (unsigned char)(programming.byte_134_gigabit_ethernet_compliance_codes.reserved_bit_6) << 6 |
-            (unsigned char)(programming.byte_134_gigabit_ethernet_compliance_codes.reserved_bit_5) << 5 |
-            (unsigned char)(programming.byte_134_gigabit_ethernet_compliance_codes.reserved_bit_4) << 4 |
-            (unsigned char)(programming.byte_134_gigabit_ethernet_compliance_codes._1000BASE_T_bit_3) << 3 |
-            (unsigned char)(programming.byte_134_gigabit_ethernet_compliance_codes._1000BASE_CX_bit_2) << 2 |
-            (unsigned char)(programming.byte_134_gigabit_ethernet_compliance_codes._1000BASE_LX_bit_1) << 1 |
-            (unsigned char)(programming.byte_134_gigabit_ethernet_compliance_codes._1000BASE_SX_bit_0) << 0;
+        target[134] = (unsigned char)(programming.byte_134_gigabit_ethernet_compliance_codes.reserved_bit_7) << 7 |
+                      (unsigned char)(programming.byte_134_gigabit_ethernet_compliance_codes.reserved_bit_6) << 6 |
+                      (unsigned char)(programming.byte_134_gigabit_ethernet_compliance_codes.reserved_bit_5) << 5 |
+                      (unsigned char)(programming.byte_134_gigabit_ethernet_compliance_codes.reserved_bit_4) << 4 |
+                      (unsigned char)(programming.byte_134_gigabit_ethernet_compliance_codes._1000BASE_T_bit_3) << 3 |
+                      (unsigned char)(programming.byte_134_gigabit_ethernet_compliance_codes._1000BASE_CX_bit_2) << 2 |
+                      (unsigned char)(programming.byte_134_gigabit_ethernet_compliance_codes._1000BASE_LX_bit_1) << 1 |
+                      (unsigned char)(programming.byte_134_gigabit_ethernet_compliance_codes._1000BASE_SX_bit_0) << 0;
 
-        target[135] = 
-            (unsigned char)(programming.byte_135_fibre_channel_link_length_and_transmitter_technology.Very_long_distance_V_bit_7) << 7 |
-            (unsigned char)(programming.byte_135_fibre_channel_link_length_and_transmitter_technology.Short_distance_S_bit_6) << 6 |
-            (unsigned char)(programming.byte_135_fibre_channel_link_length_and_transmitter_technology.Intermediate_distance_I_bit_5) << 5 |
-            (unsigned char)(programming.byte_135_fibre_channel_link_length_and_transmitter_technology.Long_distance_L_bit_4) << 4 |
-            (unsigned char)(programming.byte_135_fibre_channel_link_length_and_transmitter_technology.Medium_M_bit_3) << 3 |
-            (unsigned char)(programming.byte_135_fibre_channel_link_length_and_transmitter_technology.reserved_Transmitter_Technology_bit_2) << 2 |
-            (unsigned char)(programming.byte_135_fibre_channel_link_length_and_transmitter_technology.Longwave_laser_LC_bit_1) << 1 |
-            (unsigned char)(programming.byte_135_fibre_channel_link_length_and_transmitter_technology.Electrical_inter_enclosure_EL_bit_0) << 0;
+        target[135] =
+            (unsigned char)(programming.byte_135_fibre_channel_link_length_and_transmitter_technology
+                                .Very_long_distance_V_bit_7)
+                << 7 |
+            (unsigned char)(programming.byte_135_fibre_channel_link_length_and_transmitter_technology
+                                .Short_distance_S_bit_6)
+                << 6 |
+            (unsigned char)(programming.byte_135_fibre_channel_link_length_and_transmitter_technology
+                                .Intermediate_distance_I_bit_5)
+                << 5 |
+            (unsigned char)(programming.byte_135_fibre_channel_link_length_and_transmitter_technology
+                                .Long_distance_L_bit_4)
+                << 4 |
+            (unsigned char)(programming.byte_135_fibre_channel_link_length_and_transmitter_technology.Medium_M_bit_3)
+                << 3 |
+            (unsigned char)(programming.byte_135_fibre_channel_link_length_and_transmitter_technology
+                                .reserved_Transmitter_Technology_bit_2)
+                << 2 |
+            (unsigned char)(programming.byte_135_fibre_channel_link_length_and_transmitter_technology
+                                .Longwave_laser_LC_bit_1)
+                << 1 |
+            (unsigned char)(programming.byte_135_fibre_channel_link_length_and_transmitter_technology
+                                .Electrical_inter_enclosure_EL_bit_0)
+                << 0;
 
-        target[136] = 
-            (unsigned char)(programming.byte_136_fibre_channel_transmitter_technology.Electrical_intra_enclosure_bit_7) << 7 |
-            (unsigned char)(programming.byte_136_fibre_channel_transmitter_technology.Shortwave_laser_w_o_OFC_SN_bit_6) << 6 |
-            (unsigned char)(programming.byte_136_fibre_channel_transmitter_technology.Shortwave_laser_w_OFC_SL_bit_5) << 5 |
+        target[136] =
+            (unsigned char)(programming.byte_136_fibre_channel_transmitter_technology.Electrical_intra_enclosure_bit_7)
+                << 7 |
+            (unsigned char)(programming.byte_136_fibre_channel_transmitter_technology.Shortwave_laser_w_o_OFC_SN_bit_6)
+                << 6 |
+            (unsigned char)(programming.byte_136_fibre_channel_transmitter_technology.Shortwave_laser_w_OFC_SL_bit_5)
+                << 5 |
             (unsigned char)(programming.byte_136_fibre_channel_transmitter_technology.Longwave_Laser_LL_bit_4) << 4 |
             (unsigned char)(programming.byte_136_fibre_channel_transmitter_technology.reserved_bit_3) << 3 |
             (unsigned char)(programming.byte_136_fibre_channel_transmitter_technology.reserved_bit_2) << 2 |
             (unsigned char)(programming.byte_136_fibre_channel_transmitter_technology.reserved_bit_1) << 1 |
             (unsigned char)(programming.byte_136_fibre_channel_transmitter_technology.reserved_bit_0) << 0;
 
-        target[137] = 
+        target[137] =
             (unsigned char)(programming.byte_137_fibre_channel_transmission_media.Twin_Axial_Pair_TW_bit_7) << 7 |
             (unsigned char)(programming.byte_137_fibre_channel_transmission_media.Shielded_Twisted_Pair_TP_bit_6) << 6 |
             (unsigned char)(programming.byte_137_fibre_channel_transmission_media.Miniature_Coax_MI_bit_5) << 5 |
@@ -92,28 +115,30 @@ namespace TransceiverTool::Standards::SFF8636 {
             (unsigned char)(programming.byte_137_fibre_channel_transmission_media.Multi_mode_50_um_OM3_bit_1) << 1 |
             (unsigned char)(programming.byte_137_fibre_channel_transmission_media.Single_Mode_SM_bit_0) << 0;
 
-        target[138] = 
-            (unsigned char)(programming.byte_138_fibre_channel_speed._1200_MBps_per_channel_bit_7) << 7 |
-            (unsigned char)(programming.byte_138_fibre_channel_speed._800_MBps_bit_6) << 6 |
-            (unsigned char)(programming.byte_138_fibre_channel_speed._1600_MBps_per_channel_bit_5) << 5 |
-            (unsigned char)(programming.byte_138_fibre_channel_speed._400_MBps_bit_4) << 4 |
-            (unsigned char)(programming.byte_138_fibre_channel_speed._3200_MBps_per_channel_bit_3) << 3 |
-            (unsigned char)(programming.byte_138_fibre_channel_speed._200_MBps_bit_2) << 2 |
-            (unsigned char)(programming.byte_138_fibre_channel_speed.Extended_bit_1) << 1 |
-            (unsigned char)(programming.byte_138_fibre_channel_speed._100_MBps_bit_0) << 0;
+        target[138] = (unsigned char)(programming.byte_138_fibre_channel_speed._1200_MBps_per_channel_bit_7) << 7 |
+                      (unsigned char)(programming.byte_138_fibre_channel_speed._800_MBps_bit_6) << 6 |
+                      (unsigned char)(programming.byte_138_fibre_channel_speed._1600_MBps_per_channel_bit_5) << 5 |
+                      (unsigned char)(programming.byte_138_fibre_channel_speed._400_MBps_bit_4) << 4 |
+                      (unsigned char)(programming.byte_138_fibre_channel_speed._3200_MBps_per_channel_bit_3) << 3 |
+                      (unsigned char)(programming.byte_138_fibre_channel_speed._200_MBps_bit_2) << 2 |
+                      (unsigned char)(programming.byte_138_fibre_channel_speed.Extended_bit_1) << 1 |
+                      (unsigned char)(programming.byte_138_fibre_channel_speed._100_MBps_bit_0) << 0;
 
         target[139] = programming.byte_139_Encoding;
 
         target[140] = programming.byte_140_nominal_signaling_rate_in_100_mbaud;
 
-        target[141] = 
-            (unsigned char)(programming.byte_141_extended_rate_select_compliance.reserved_bit_7) << 7 |
-            (unsigned char)(programming.byte_141_extended_rate_select_compliance.reserved_bit_6) << 6 |
-            (unsigned char)(programming.byte_141_extended_rate_select_compliance.reserved_bit_5) << 5 |
-            (unsigned char)(programming.byte_141_extended_rate_select_compliance.reserved_bit_4) << 4 |
-            (unsigned char)(programming.byte_141_extended_rate_select_compliance.reserved_bit_3) << 3 |
-            (unsigned char)(programming.byte_141_extended_rate_select_compliance.reserved_bit_2) << 2 |
-            getSFF8636_Extended_Rate_Select_Compliance_Bit_1_0Info(programming.byte_141_extended_rate_select_compliance.rate_select_bits_1_0).bitValue << 0;
+        target[141] = (unsigned char)(programming.byte_141_extended_rate_select_compliance.reserved_bit_7) << 7 |
+                      (unsigned char)(programming.byte_141_extended_rate_select_compliance.reserved_bit_6) << 6 |
+                      (unsigned char)(programming.byte_141_extended_rate_select_compliance.reserved_bit_5) << 5 |
+                      (unsigned char)(programming.byte_141_extended_rate_select_compliance.reserved_bit_4) << 4 |
+                      (unsigned char)(programming.byte_141_extended_rate_select_compliance.reserved_bit_3) << 3 |
+                      (unsigned char)(programming.byte_141_extended_rate_select_compliance.reserved_bit_2) << 2 |
+                      getSFF8636_Extended_Rate_Select_Compliance_Bit_1_0Info(
+                          programming.byte_141_extended_rate_select_compliance.rate_select_bits_1_0
+                      )
+                              .bitValue
+                          << 0;
 
         target[142] = programming.byte_142_length_smf_in_kilometers;
 
@@ -125,24 +150,31 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         target[146] = programming.byte_146_length_copper_in_1m_or_om4_in_2m;
 
-        target[147] = 
-            getSFF8636_Transmitter_Technology_bit_7_4Info(programming.byte_147_device_technology_and_transmitter_technology.transmitter_Technology_bit_7_4).bitValue << 4 |
-            (unsigned char)(programming.byte_147_device_technology_and_transmitter_technology.wavelength_control_bit_3) << 3 |
-            (unsigned char)(programming.byte_147_device_technology_and_transmitter_technology.cooled_transmitter_bit_2) << 2 |
-            (unsigned char)(programming.byte_147_device_technology_and_transmitter_technology.pin_apd_detector_bit_1) << 1 |
-            (unsigned char)(programming.byte_147_device_technology_and_transmitter_technology.transmitter_tunable_bit_0) << 0;
+        target[147] =
+            getSFF8636_Transmitter_Technology_bit_7_4Info(
+                programming.byte_147_device_technology_and_transmitter_technology.transmitter_Technology_bit_7_4
+            )
+                    .bitValue
+                << 4 |
+            (unsigned char)(programming.byte_147_device_technology_and_transmitter_technology.wavelength_control_bit_3)
+                << 3 |
+            (unsigned char)(programming.byte_147_device_technology_and_transmitter_technology.cooled_transmitter_bit_2)
+                << 2 |
+            (unsigned char)(programming.byte_147_device_technology_and_transmitter_technology.pin_apd_detector_bit_1)
+                << 1 |
+            (unsigned char)(programming.byte_147_device_technology_and_transmitter_technology.transmitter_tunable_bit_0)
+                << 0;
 
         std::memcpy(target + 148, programming.byte_148_163_vendor_name.data(), 16);
 
-        target[164] = 
-            (unsigned char)(programming.byte_164_extended_module_codes.reserved_bit_7) << 7 |
-            (unsigned char)(programming.byte_164_extended_module_codes.reserved_bit_6) << 6 |
-            (unsigned char)(programming.byte_164_extended_module_codes.HDR_bit_5) << 5 |
-            (unsigned char)(programming.byte_164_extended_module_codes.EDR_bit_4) << 4 |
-            (unsigned char)(programming.byte_164_extended_module_codes.FDR_bit_3) << 3 |
-            (unsigned char)(programming.byte_164_extended_module_codes.QDR_bit_2) << 2 |
-            (unsigned char)(programming.byte_164_extended_module_codes.DDR_bit_1) << 1 |
-            (unsigned char)(programming.byte_164_extended_module_codes.SDR_bit_0) << 0;
+        target[164] = (unsigned char)(programming.byte_164_extended_module_codes.reserved_bit_7) << 7 |
+                      (unsigned char)(programming.byte_164_extended_module_codes.reserved_bit_6) << 6 |
+                      (unsigned char)(programming.byte_164_extended_module_codes.HDR_bit_5) << 5 |
+                      (unsigned char)(programming.byte_164_extended_module_codes.EDR_bit_4) << 4 |
+                      (unsigned char)(programming.byte_164_extended_module_codes.FDR_bit_3) << 3 |
+                      (unsigned char)(programming.byte_164_extended_module_codes.QDR_bit_2) << 2 |
+                      (unsigned char)(programming.byte_164_extended_module_codes.DDR_bit_1) << 1 |
+                      (unsigned char)(programming.byte_164_extended_module_codes.SDR_bit_0) << 0;
 
         std::memcpy(target + 165, programming.byte_165_167_vendor_oui.data(), 3);
 
@@ -174,9 +206,12 @@ namespace TransceiverTool::Standards::SFF8636 {
             (unsigned char)(programming.byte_193_option_values.intl_rxlosl_output_configurable_bit_5) << 5 |
             (unsigned char)(programming.byte_193_option_values.tx_input_adaptive_equalizers_freeze_capable_bit_4) << 4 |
             (unsigned char)(programming.byte_193_option_values.tx_input_equalizers_auto_adaptive_capable_bit_3) << 3 |
-            (unsigned char)(programming.byte_193_option_values.tx_input_equalizers_fixed_programmable_settings_bit_2) << 2 |
-            (unsigned char)(programming.byte_193_option_values.rx_output_emphasis_fixed_programmable_settings_bit_1) << 1 |
-            (unsigned char)(programming.byte_193_option_values.rx_output_amplitude_fixed_programmable_settings_bit_0) << 0;
+            (unsigned char)(programming.byte_193_option_values.tx_input_equalizers_fixed_programmable_settings_bit_2)
+                << 2 |
+            (unsigned char)(programming.byte_193_option_values.rx_output_emphasis_fixed_programmable_settings_bit_1)
+                << 1 |
+            (unsigned char)(programming.byte_193_option_values.rx_output_amplitude_fixed_programmable_settings_bit_0)
+                << 0;
 
         target[194] =
             (unsigned char)(programming.byte_194_option_values.tx_cdr_on_off_control_implemented_bit_7) << 7 |
@@ -188,15 +223,15 @@ namespace TransceiverTool::Standards::SFF8636 {
             (unsigned char)(programming.byte_194_option_values.tx_squelch_disable_implemented_bit_1) << 1 |
             (unsigned char)(programming.byte_194_option_values.tx_squelch_implemented_bit_0) << 0;
 
-        target[195] =
-            (unsigned char)(programming.byte_195_option_values.memory_page_02_provided_bit_7) << 7 |
-            (unsigned char)(programming.byte_195_option_values.memory_page_01h_provided_bit_6) << 6 |
-            (unsigned char)(programming.byte_195_option_values.rate_select_implemented_bit_5) << 5 |
-            (unsigned char)(programming.byte_195_option_values.tx_disable_implemented_bit_4) << 4 |
-            (unsigned char)(programming.byte_195_option_values.tx_fault_signal_implemented_bit_3) << 3 |
-            (unsigned char)(programming.byte_195_option_values.tx_squelch_implemented_to_reduce_pave_bit_2) << 2 |
-            (unsigned char)(programming.byte_195_option_values.tx_loss_of_signal_implemented_bit_1) << 1 |
-            (unsigned char)(programming.byte_195_option_values.pages_20_to_21h_implemented_bit_0) << 0;
+        target[195] = (unsigned char)(programming.byte_195_option_values.memory_page_02_provided_bit_7) << 7 |
+                      (unsigned char)(programming.byte_195_option_values.memory_page_01h_provided_bit_6) << 6 |
+                      (unsigned char)(programming.byte_195_option_values.rate_select_implemented_bit_5) << 5 |
+                      (unsigned char)(programming.byte_195_option_values.tx_disable_implemented_bit_4) << 4 |
+                      (unsigned char)(programming.byte_195_option_values.tx_fault_signal_implemented_bit_3) << 3 |
+                      (unsigned char)(programming.byte_195_option_values.tx_squelch_implemented_to_reduce_pave_bit_2)
+                          << 2 |
+                      (unsigned char)(programming.byte_195_option_values.tx_loss_of_signal_implemented_bit_1) << 1 |
+                      (unsigned char)(programming.byte_195_option_values.pages_20_to_21h_implemented_bit_0) << 0;
 
         std::memcpy(target + 196, programming.byte_196_211_vendor_sn.data(), 16);
 
@@ -208,10 +243,15 @@ namespace TransceiverTool::Standards::SFF8636 {
         target[220] =
             (unsigned char)(programming.byte_220_diagnostic_monitoring_type.reserved_bit_7) << 7 |
             (unsigned char)(programming.byte_220_diagnostic_monitoring_type.reserved_bit_6) << 6 |
-            (unsigned char)(programming.byte_220_diagnostic_monitoring_type.temperature_monitoring_implemented_bit_5) << 5 |
-            (unsigned char)(programming.byte_220_diagnostic_monitoring_type.supply_voltage_monitoring_implemented_bit_4) << 4 |
-            (unsigned char)(programming.byte_220_diagnostic_monitoring_type.received_power_measurement_is_average_bit_3) << 3 |
-            (unsigned char)(programming.byte_220_diagnostic_monitoring_type.transmitter_power_measurement_supported_bit_2) << 2 |
+            (unsigned char)(programming.byte_220_diagnostic_monitoring_type.temperature_monitoring_implemented_bit_5)
+                << 5 |
+            (unsigned char)(programming.byte_220_diagnostic_monitoring_type.supply_voltage_monitoring_implemented_bit_4)
+                << 4 |
+            (unsigned char)(programming.byte_220_diagnostic_monitoring_type.received_power_measurement_is_average_bit_3)
+                << 3 |
+            (unsigned char)(programming.byte_220_diagnostic_monitoring_type
+                                .transmitter_power_measurement_supported_bit_2)
+                << 2 |
             (unsigned char)(programming.byte_220_diagnostic_monitoring_type.reserved_bit_1) << 1 |
             (unsigned char)(programming.byte_220_diagnostic_monitoring_type.reserved_bit_0) << 0;
 
@@ -220,13 +260,15 @@ namespace TransceiverTool::Standards::SFF8636 {
             (unsigned char)(programming.byte_221_enhanced_options.reserved_bit_6) << 6 |
             (unsigned char)(programming.byte_221_enhanced_options.reserved_bit_5) << 5 |
             (unsigned char)(programming.byte_221_enhanced_options.initialization_complete_flag_implemented_bit_4) << 4 |
-            (unsigned char)(programming.byte_221_enhanced_options.rate_selection_is_implemented_using_extended_rate_selection_bit_3) << 3 |
+            (unsigned char)(programming.byte_221_enhanced_options
+                                .rate_selection_is_implemented_using_extended_rate_selection_bit_3)
+                << 3 |
             (unsigned char)(programming.byte_221_enhanced_options.reserved_bit_2) << 2 |
             (unsigned char)(programming.byte_221_enhanced_options.readiness_flag_implemented_bit_1) << 1 |
             (unsigned char)(programming.byte_221_enhanced_options.software_reset_implemented_bit_0) << 0;
 
         target[222] = programming.byte_222_extended_baud_rate_in_250_mbaud;
-        
+
         if(CC_EXTDirective == common::ChecksumDirective::AUTO_CALCULATE_FROM_CONTENT) {
             target[223] = calculateCC_EXTChecksum(target);
         } else if(CC_EXTDirective == common::ChecksumDirective::MANUAL_USE_VALUE_IN_PROGRAMMING) {
@@ -237,4 +279,4 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         std::memcpy(target + 224, programming.byte_224_255_vendor_specific.data(), 32);
     }
-}
+}  // namespace TransceiverTool::Standards::SFF8636

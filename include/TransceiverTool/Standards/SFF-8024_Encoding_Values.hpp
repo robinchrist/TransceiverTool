@@ -22,8 +22,8 @@ namespace TransceiverTool::Standards::SFF8024 {
         unsigned char byte_value;
     };
 
-    //SFF-8024 Rev 4.11 Table 4-2 Encoding Values
-    inline const std::array<SFF8636TransceiverEncodingAssignedValue, 9> SFF8636TransceiverEncodingAssignedValues {{
+    // SFF-8024 Rev 4.11 Table 4-2 Encoding Values
+    inline const std::array<SFF8636TransceiverEncodingAssignedValue, 9> SFF8636TransceiverEncodingAssignedValues{{
         {SFF8636TransceiverEncoding::Unspecified, "Unspecified", 0x00},
         {SFF8636TransceiverEncoding::_8B_10B, "8B/10B", 0x01},
         {SFF8636TransceiverEncoding::_4B_5B, "4B/5B", 0x02},
@@ -31,7 +31,9 @@ namespace TransceiverTool::Standards::SFF8024 {
         {SFF8636TransceiverEncoding::SONET_Scrambled, "SONET Scrambled", 0x04},
         {SFF8636TransceiverEncoding::_64B_66B, "64B/66B", 0x05},
         {SFF8636TransceiverEncoding::Manchester, "Manchester", 0x06},
-        {SFF8636TransceiverEncoding::_256B_257B_transcoded_FEC_enabled_data, "256B/257B (transcoded FEC-enabled data)", 0x07},
+        {SFF8636TransceiverEncoding::_256B_257B_transcoded_FEC_enabled_data,
+         "256B/257B (transcoded FEC-enabled data)",
+         0x07},
         {SFF8636TransceiverEncoding::PAM4, "PAM4", 0x08},
     }};
 
@@ -56,8 +58,8 @@ namespace TransceiverTool::Standards::SFF8024 {
         unsigned char byte_value;
     };
 
-    //SFF-8024 Rev 4.11 Table 4-2 Encoding Values
-    inline const std::array<SFF8472TransceiverEncodingAssignedValue, 9> SFF8472TransceiverEncodingAssignedValues {{
+    // SFF-8024 Rev 4.11 Table 4-2 Encoding Values
+    inline const std::array<SFF8472TransceiverEncodingAssignedValue, 9> SFF8472TransceiverEncodingAssignedValues{{
         {SFF8472TransceiverEncoding::Unspecified, "Unspecified", 0x00},
         {SFF8472TransceiverEncoding::_8B_10B, "8B/10B", 0x01},
         {SFF8472TransceiverEncoding::_4B_5B, "4B/5B", 0x02},
@@ -65,9 +67,11 @@ namespace TransceiverTool::Standards::SFF8024 {
         {SFF8472TransceiverEncoding::Manchester, "Manchester", 0x04},
         {SFF8472TransceiverEncoding::SONET_Scrambled, "SONET Scrambled", 0x05},
         {SFF8472TransceiverEncoding::_64B_66B, "64B/66B", 0x06},
-        {SFF8472TransceiverEncoding::_256B_257B_transcoded_FEC_enabled_data, "256B/257B (transcoded FEC-enabled data)", 0x07},
+        {SFF8472TransceiverEncoding::_256B_257B_transcoded_FEC_enabled_data,
+         "256B/257B (transcoded FEC-enabled data)",
+         0x07},
         {SFF8472TransceiverEncoding::PAM4, "PAM4", 0x08},
     }};
 
     std::string byteToSFF8472TransceiverEncodingString(unsigned char byte);
-}
+}  // namespace TransceiverTool::Standards::SFF8024

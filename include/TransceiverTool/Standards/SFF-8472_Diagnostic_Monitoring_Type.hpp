@@ -4,24 +4,24 @@
 
 namespace TransceiverTool::Standards::SFF8472 {
 
-    //SFF-8472 Rev 12.4 Section 8.8 Diagnostic Monitoring Type [Address A0h, Byte 92]
+    // SFF-8472 Rev 12.4 Section 8.8 Diagnostic Monitoring Type [Address A0h, Byte 92]
     struct Diagnostic_Monitoring_Type {
-        //Reserved for legacy diagnostic implementations. Must be '0' for compliance with this document.
+        // Reserved for legacy diagnostic implementations. Must be '0' for compliance with this document.
         bool reserved_bit_7;
 
-        //Digital diagnostic monitoring implemented (described in this document).
+        // Digital diagnostic monitoring implemented (described in this document).
         bool digital_diagnostic_monitoring_implemented_bit_6;
 
-        //Internally calibrated
+        // Internally calibrated
         bool internally_calibrated_bit_5;
 
-        //Externally calibrated
+        // Externally calibrated
         bool externally_calibrated_bit_4;
 
-        //Received power measurements type. 0=OMA, 1=Average Power
+        // Received power measurements type. 0=OMA, 1=Average Power
         bool received_power_measurement_is_average_bit_3;
 
-        //Address change required see section above, "addressing modes"
+        // Address change required see section above, "addressing modes"
         bool address_change_required_bit_2;
 
         bool reserved_bit_1;
@@ -31,4 +31,4 @@ namespace TransceiverTool::Standards::SFF8472 {
 
 
 
-}
+}  // namespace TransceiverTool::Standards::SFF8472

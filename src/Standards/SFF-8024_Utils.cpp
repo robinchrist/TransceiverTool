@@ -93,4 +93,4 @@ namespace TransceiverTool::Standards::SFF8024 {
 
         return fmt::format("{} ({:#04x})", name, byte);
     }
-}
+}  // namespace TransceiverTool::Standards::SFF8024

@@ -3,18 +3,20 @@
 
 namespace TransceiverTool::Standards::SFF8636 {
 
-    //Expects 256 bytes!
-    TransceiverTool::Standards::SFF8636::SFF8636_Upper00h parseBytesToStruct(unsigned char const * bytes) {
+    // Expects 256 bytes!
+    TransceiverTool::Standards::SFF8636::SFF8636_Upper00h parseBytesToStruct(unsigned char const* bytes) {
         SFF8636_Upper00h parsedStruct;
 
         parsedStruct.byte_128_Identifier = bytes[128];
 
-        parsedStruct.byte_129_extended_identifier.power_class_bit_7_6 = getSFF8636_Extended_Identifier_Bit_7_6_From_Char(bytes[129]);
+        parsedStruct.byte_129_extended_identifier.power_class_bit_7_6 =
+            getSFF8636_Extended_Identifier_Bit_7_6_From_Char(bytes[129]);
         parsedStruct.byte_129_extended_identifier.power_class_8_bit_5 = bytes[129] & (1 << 5);
         parsedStruct.byte_129_extended_identifier.clei_code_bit_4 = bytes[129] & (1 << 4);
         parsedStruct.byte_129_extended_identifier.cdr_in_tx_bit_3 = bytes[129] & (1 << 3);
         parsedStruct.byte_129_extended_identifier.cdr_in_rx_bit_2 = bytes[129] & (1 << 2);
-        parsedStruct.byte_129_extended_identifier.power_class_bit_1_0 = getSFF8636_Extended_Identifier_Bit_1_0_From_Char(bytes[129]);
+        parsedStruct.byte_129_extended_identifier.power_class_bit_1_0 =
+            getSFF8636_Extended_Identifier_Bit_1_0_From_Char(bytes[129]);
 
         parsedStruct.byte_130_Connector_Type = bytes[130];
 
@@ -54,18 +56,29 @@ namespace TransceiverTool::Standards::SFF8636 {
         parsedStruct.byte_134_gigabit_ethernet_compliance_codes._1000BASE_LX_bit_1 = bytes[134] & (1 << 1);
         parsedStruct.byte_134_gigabit_ethernet_compliance_codes._1000BASE_SX_bit_0 = bytes[134] & (1 << 0);
 
-        parsedStruct.byte_135_fibre_channel_link_length_and_transmitter_technology.Very_long_distance_V_bit_7 = bytes[135] & (1 << 7);
-        parsedStruct.byte_135_fibre_channel_link_length_and_transmitter_technology.Short_distance_S_bit_6 = bytes[135] & (1 << 6);
-        parsedStruct.byte_135_fibre_channel_link_length_and_transmitter_technology.Intermediate_distance_I_bit_5 = bytes[135] & (1 << 5);
-        parsedStruct.byte_135_fibre_channel_link_length_and_transmitter_technology.Long_distance_L_bit_4 = bytes[135] & (1 << 4);
-        parsedStruct.byte_135_fibre_channel_link_length_and_transmitter_technology.Medium_M_bit_3 = bytes[135] & (1 << 3);
-        parsedStruct.byte_135_fibre_channel_link_length_and_transmitter_technology.reserved_Transmitter_Technology_bit_2 = bytes[135] & (1 << 2);
-        parsedStruct.byte_135_fibre_channel_link_length_and_transmitter_technology.Longwave_laser_LC_bit_1 = bytes[135] & (1 << 1);
-        parsedStruct.byte_135_fibre_channel_link_length_and_transmitter_technology.Electrical_inter_enclosure_EL_bit_0 = bytes[135] & (1 << 0);
+        parsedStruct.byte_135_fibre_channel_link_length_and_transmitter_technology.Very_long_distance_V_bit_7 =
+            bytes[135] & (1 << 7);
+        parsedStruct.byte_135_fibre_channel_link_length_and_transmitter_technology.Short_distance_S_bit_6 =
+            bytes[135] & (1 << 6);
+        parsedStruct.byte_135_fibre_channel_link_length_and_transmitter_technology.Intermediate_distance_I_bit_5 =
+            bytes[135] & (1 << 5);
+        parsedStruct.byte_135_fibre_channel_link_length_and_transmitter_technology.Long_distance_L_bit_4 =
+            bytes[135] & (1 << 4);
+        parsedStruct.byte_135_fibre_channel_link_length_and_transmitter_technology.Medium_M_bit_3 =
+            bytes[135] & (1 << 3);
+        parsedStruct.byte_135_fibre_channel_link_length_and_transmitter_technology
+            .reserved_Transmitter_Technology_bit_2 = bytes[135] & (1 << 2);
+        parsedStruct.byte_135_fibre_channel_link_length_and_transmitter_technology.Longwave_laser_LC_bit_1 =
+            bytes[135] & (1 << 1);
+        parsedStruct.byte_135_fibre_channel_link_length_and_transmitter_technology.Electrical_inter_enclosure_EL_bit_0 =
+            bytes[135] & (1 << 0);
 
-        parsedStruct.byte_136_fibre_channel_transmitter_technology.Electrical_intra_enclosure_bit_7 = bytes[136] & (1 << 7);
-        parsedStruct.byte_136_fibre_channel_transmitter_technology.Shortwave_laser_w_o_OFC_SN_bit_6 = bytes[136] & (1 << 6);
-        parsedStruct.byte_136_fibre_channel_transmitter_technology.Shortwave_laser_w_OFC_SL_bit_5 = bytes[136] & (1 << 5);
+        parsedStruct.byte_136_fibre_channel_transmitter_technology.Electrical_intra_enclosure_bit_7 =
+            bytes[136] & (1 << 7);
+        parsedStruct.byte_136_fibre_channel_transmitter_technology.Shortwave_laser_w_o_OFC_SN_bit_6 =
+            bytes[136] & (1 << 6);
+        parsedStruct.byte_136_fibre_channel_transmitter_technology.Shortwave_laser_w_OFC_SL_bit_5 =
+            bytes[136] & (1 << 5);
         parsedStruct.byte_136_fibre_channel_transmitter_technology.Longwave_Laser_LL_bit_4 = bytes[136] & (1 << 4);
         parsedStruct.byte_136_fibre_channel_transmitter_technology.reserved_bit_3 = bytes[136] & (1 << 3);
         parsedStruct.byte_136_fibre_channel_transmitter_technology.reserved_bit_2 = bytes[136] & (1 << 2);
@@ -100,7 +113,8 @@ namespace TransceiverTool::Standards::SFF8636 {
         parsedStruct.byte_141_extended_rate_select_compliance.reserved_bit_4 = bytes[141] & (1 << 4);
         parsedStruct.byte_141_extended_rate_select_compliance.reserved_bit_3 = bytes[141] & (1 << 3);
         parsedStruct.byte_141_extended_rate_select_compliance.reserved_bit_2 = bytes[141] & (1 << 2);
-        parsedStruct.byte_141_extended_rate_select_compliance.rate_select_bits_1_0 = getSFF8636_Extended_Rate_Select_Compliance_Bit_1_0_From_Char(bytes[141]);
+        parsedStruct.byte_141_extended_rate_select_compliance.rate_select_bits_1_0 =
+            getSFF8636_Extended_Rate_Select_Compliance_Bit_1_0_From_Char(bytes[141]);
 
         parsedStruct.byte_142_length_smf_in_kilometers = bytes[142];
 
@@ -112,11 +126,16 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         parsedStruct.byte_146_length_copper_in_1m_or_om4_in_2m = bytes[146];
 
-        parsedStruct.byte_147_device_technology_and_transmitter_technology.transmitter_Technology_bit_7_4 = getSFF8636_Transmitter_Technology_bit_7_4_From_Char(bytes[147]);
-        parsedStruct.byte_147_device_technology_and_transmitter_technology.wavelength_control_bit_3 = bytes[147] & (1 << 3);
-        parsedStruct.byte_147_device_technology_and_transmitter_technology.cooled_transmitter_bit_2 = bytes[147] & (1 << 2);
-        parsedStruct.byte_147_device_technology_and_transmitter_technology.pin_apd_detector_bit_1 = bytes[147] & (1 << 1);
-        parsedStruct.byte_147_device_technology_and_transmitter_technology.transmitter_tunable_bit_0 = bytes[147] & (1 << 0);
+        parsedStruct.byte_147_device_technology_and_transmitter_technology.transmitter_Technology_bit_7_4 =
+            getSFF8636_Transmitter_Technology_bit_7_4_From_Char(bytes[147]);
+        parsedStruct.byte_147_device_technology_and_transmitter_technology.wavelength_control_bit_3 =
+            bytes[147] & (1 << 3);
+        parsedStruct.byte_147_device_technology_and_transmitter_technology.cooled_transmitter_bit_2 =
+            bytes[147] & (1 << 2);
+        parsedStruct.byte_147_device_technology_and_transmitter_technology.pin_apd_detector_bit_1 =
+            bytes[147] & (1 << 1);
+        parsedStruct.byte_147_device_technology_and_transmitter_technology.transmitter_tunable_bit_0 =
+            bytes[147] & (1 << 0);
 
         std::memcpy(parsedStruct.byte_148_163_vendor_name.data(), bytes + 148, 16);
 
@@ -152,9 +171,12 @@ namespace TransceiverTool::Standards::SFF8636 {
         parsedStruct.byte_193_option_values.intl_rxlosl_output_configurable_bit_5 = bytes[193] & (1 << 5);
         parsedStruct.byte_193_option_values.tx_input_adaptive_equalizers_freeze_capable_bit_4 = bytes[193] & (1 << 4);
         parsedStruct.byte_193_option_values.tx_input_equalizers_auto_adaptive_capable_bit_3 = bytes[193] & (1 << 3);
-        parsedStruct.byte_193_option_values.tx_input_equalizers_fixed_programmable_settings_bit_2 = bytes[193] & (1 << 2);
-        parsedStruct.byte_193_option_values.rx_output_emphasis_fixed_programmable_settings_bit_1 = bytes[193] & (1 << 1);
-        parsedStruct.byte_193_option_values.rx_output_amplitude_fixed_programmable_settings_bit_0 = bytes[193] & (1 << 0);
+        parsedStruct.byte_193_option_values.tx_input_equalizers_fixed_programmable_settings_bit_2 =
+            bytes[193] & (1 << 2);
+        parsedStruct.byte_193_option_values.rx_output_emphasis_fixed_programmable_settings_bit_1 =
+            bytes[193] & (1 << 1);
+        parsedStruct.byte_193_option_values.rx_output_amplitude_fixed_programmable_settings_bit_0 =
+            bytes[193] & (1 << 0);
 
         parsedStruct.byte_194_option_values.tx_cdr_on_off_control_implemented_bit_7 = bytes[194] & (1 << 7);
         parsedStruct.byte_194_option_values.rx_cdr_on_off_control_implemented_bit_6 = bytes[194] & (1 << 6);
@@ -183,10 +205,14 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         parsedStruct.byte_220_diagnostic_monitoring_type.reserved_bit_7 = bytes[220] & (1 << 7);
         parsedStruct.byte_220_diagnostic_monitoring_type.reserved_bit_6 = bytes[220] & (1 << 6);
-        parsedStruct.byte_220_diagnostic_monitoring_type.temperature_monitoring_implemented_bit_5 = bytes[220] & (1 << 5);
-        parsedStruct.byte_220_diagnostic_monitoring_type.supply_voltage_monitoring_implemented_bit_4 = bytes[220] & (1 << 4);
-        parsedStruct.byte_220_diagnostic_monitoring_type.received_power_measurement_is_average_bit_3 = bytes[220] & (1 << 3);
-        parsedStruct.byte_220_diagnostic_monitoring_type.transmitter_power_measurement_supported_bit_2 = bytes[220] & (1 << 2);
+        parsedStruct.byte_220_diagnostic_monitoring_type.temperature_monitoring_implemented_bit_5 =
+            bytes[220] & (1 << 5);
+        parsedStruct.byte_220_diagnostic_monitoring_type.supply_voltage_monitoring_implemented_bit_4 =
+            bytes[220] & (1 << 4);
+        parsedStruct.byte_220_diagnostic_monitoring_type.received_power_measurement_is_average_bit_3 =
+            bytes[220] & (1 << 3);
+        parsedStruct.byte_220_diagnostic_monitoring_type.transmitter_power_measurement_supported_bit_2 =
+            bytes[220] & (1 << 2);
         parsedStruct.byte_220_diagnostic_monitoring_type.reserved_bit_1 = bytes[220] & (1 << 1);
         parsedStruct.byte_220_diagnostic_monitoring_type.reserved_bit_0 = bytes[220] & (1 << 0);
 
@@ -194,13 +220,14 @@ namespace TransceiverTool::Standards::SFF8636 {
         parsedStruct.byte_221_enhanced_options.reserved_bit_6 = bytes[221] & (1 << 6);
         parsedStruct.byte_221_enhanced_options.reserved_bit_5 = bytes[221] & (1 << 5);
         parsedStruct.byte_221_enhanced_options.initialization_complete_flag_implemented_bit_4 = bytes[221] & (1 << 4);
-        parsedStruct.byte_221_enhanced_options.rate_selection_is_implemented_using_extended_rate_selection_bit_3 = bytes[221] & (1 << 3);
+        parsedStruct.byte_221_enhanced_options.rate_selection_is_implemented_using_extended_rate_selection_bit_3 =
+            bytes[221] & (1 << 3);
         parsedStruct.byte_221_enhanced_options.reserved_bit_2 = bytes[221] & (1 << 2);
         parsedStruct.byte_221_enhanced_options.readiness_flag_implemented_bit_1 = bytes[221] & (1 << 1);
         parsedStruct.byte_221_enhanced_options.software_reset_implemented_bit_0 = bytes[221] & (1 << 0);
 
         parsedStruct.byte_222_extended_baud_rate_in_250_mbaud = bytes[222];
-        
+
         parsedStruct.byte_223_CC_EXT = bytes[223];
 
         std::memcpy(parsedStruct.byte_224_255_vendor_specific.data(), bytes + 224, 32);
@@ -208,4 +235,4 @@ namespace TransceiverTool::Standards::SFF8636 {
         return parsedStruct;
     }
 
-}
+}  // namespace TransceiverTool::Standards::SFF8636

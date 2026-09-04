@@ -4,7 +4,7 @@
 
 namespace TransceiverTool::Standards::SFF8636 {
 
-    //SFF-8636 Rev 2.11 Table 6-21 Extended Module Code Values (Page 00h Byte 164)
+    // SFF-8636 Rev 2.11 Table 6-21 Extended Module Code Values (Page 00h Byte 164)
     struct Extended_Module_Codes {
         bool reserved_bit_7;
         bool reserved_bit_6;
@@ -16,4 +16,4 @@ namespace TransceiverTool::Standards::SFF8636 {
         bool SDR_bit_0;
     };
 
-}
+}  // namespace TransceiverTool::Standards::SFF8636

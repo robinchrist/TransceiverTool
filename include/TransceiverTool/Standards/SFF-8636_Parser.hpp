@@ -2,8 +2,8 @@
 #include <cstring>
 
 namespace TransceiverTool::Standards::SFF8636 {
-    
-    //Expects 256 bytes!
-    TransceiverTool::Standards::SFF8636::SFF8636_Upper00h parseBytesToStruct(unsigned char const * bytes);
 
-}
+    // Expects 256 bytes!
+    TransceiverTool::Standards::SFF8636::SFF8636_Upper00h parseBytesToStruct(unsigned char const* bytes);
+
+}  // namespace TransceiverTool::Standards::SFF8636
