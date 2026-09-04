@@ -977,7 +977,19 @@ through both the file and the stdin input path. `.github/workflows/release.yml` 
 | --- | --- | --- |
 | `linux-x86_64`, `linux-aarch64` | Debian 11 container | old glibc/libstdc++ baseline, nothing statically linked |
 | `macos-universal` | macos-13 + macos-14, merged with `lipo` | one binary for Intel and Apple Silicon |
-| `windows-x86_64` | windows-2022, MSVC | static CRT (`/MT`) so no VC++ redistributable is needed |
+| `windows-x86_64` | windows-2022, MSVC | dynamic CRT, see the Windows note below |
+
+### Windows
+
+Nothing is statically linked, on any platform. On Linux and macOS that costs nothing, because the C
+and C++ runtimes ship with the operating system. Windows is different: the MSVC runtime
+(`VCRUNTIME140.dll`, `MSVCP140.dll`) is not part of Windows, so the binary needs the
+[Visual C++ Redistributable](https://aka.ms/vs/17/release/vc_redist.x64.exe) installed. A clean
+Windows install does not have it and the program will refuse to start with a missing DLL error until
+it does. Most machines already have it, because plenty of other software installs it.
+
+Building on an older toolchain does not avoid this the way it does on Linux - it only changes which
+redistributable version is required.
 
 ### Linux compatibility
 

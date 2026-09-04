@@ -21,9 +21,22 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          # Linux and macOS build on the plain runner here for fast feedback. The release workflow
+          # deliberately differs: it builds Linux inside Debian 11 for an old glibc baseline, and
+          # builds macOS twice for a universal binary. Neither changes the code under test.
           - { name: Linux (gcc),      os: ubuntu-latest  }
           - { name: macOS (clang),    os: macos-latest   }
-          - { name: Windows (MSVC),   os: windows-latest }
+          # Windows must NOT differ: the runner image is the one the release workflow ships from, so
+          # CI compiles the configuration users actually download.
+          - { name: Windows (MSVC),   os: windows-2022   }
+
+    # bash everywhere, so all three platforms run byte-identical commands. The Windows default is
+    # PowerShell, which splits an unquoted -DFOO=path/file.ext at the dot into two arguments, so
+    # cmake received "-DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain" and a stray ".cmake".
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - uses: actions/checkout@v4
 
@@ -55,7 +68,6 @@ jobs:
       # The roundtrip subcommand is the project's own correctness check: binary -> JSON -> binary
       # has to be byte-identical. The same script gates the release builds.
       - name: Smoke test
-        shell: bash
         run: |
           BIN=build/TransceiverTool
           [ -f "$BIN" ] || BIN=build/Release/TransceiverTool.exe

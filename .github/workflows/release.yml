@@ -6,11 +6,10 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  # Running this manually builds and smoke tests every artifact without publishing: the publish job
+  # is gated on the ref being a v* tag. Use it to exercise the Debian 11 and macOS universal paths,
+  # which CI does not cover, before tagging.
   workflow_dispatch:
-    inputs:
-      tag:
-        description: "Tag to build (for a dry run without publishing)"
-        required: false
 
 permissions:
   contents: write
@@ -149,6 +148,12 @@ jobs:
   windows:
     name: Windows x86_64
     runs-on: windows-2022
+
+    # See ci.yml: PowerShell splits -DFOO=path/file.ext at the dot.
+    defaults:
+      run:
+        shell: bash
+
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -156,25 +161,20 @@ jobs:
           python-version: "3.12"
       - run: pip install "conan>=2"
 
-      # compiler.runtime=static makes conan build the dependencies against /MT so they match the
-      # executable. Without the static runtime the .exe will not start unless the matching Visual C++
-      # redistributable happens to be installed, which is the one thing worth linking statically here.
+      # The MSVC runtime is linked dynamically, like the C++ runtime on Linux and macOS. Unlike those
+      # platforms it does not ship with the OS, so the binary needs the Visual C++ Redistributable
+      # installed - see the Windows note in README.MD.
       - name: Build
-        shell: bash
         run: |
           conan profile detect --force
-          conan install . --output-folder build --build=missing \
-            -s build_type=Release -s compiler.runtime=static
-          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake \
-            -DTRANSCEIVERTOOL_STATIC_MSVC_RUNTIME=ON
+          conan install . --output-folder build --build=missing -s build_type=Release
+          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake
           cmake --build build --config Release --parallel
 
       - name: Smoke test
-        shell: bash
         run: sh .github/smoke-test.sh build/Release/TransceiverTool.exe
 
       - name: Stage artifact
-        shell: bash
         run: |
           mkdir -p dist/TransceiverTool-windows-x86_64
           cp build/Release/TransceiverTool.exe LICENSE README.MD dist/TransceiverTool-windows-x86_64/

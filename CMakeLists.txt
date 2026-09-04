@@ -25,7 +25,6 @@ configure_file(
 )
 
 option(TRANSCEIVERTOOL_BUILD_FUZZERS "Build the libFuzzer fuzz targets (requires Clang)" OFF)
-option(TRANSCEIVERTOOL_STATIC_MSVC_RUNTIME "Link the MSVC runtime statically, so no VC++ redistributable is needed" OFF)
 
 # All standards code lives in a library so that the CLI and the fuzz targets can share it.
 # CLI.cpp is the only source of the executable itself.
@@ -56,14 +55,6 @@ target_link_libraries(TransceiverToolCore PUBLIC cppcodec::cppcodec)
 target_include_directories(TransceiverToolCore PUBLIC include)
 target_include_directories(TransceiverToolCore PUBLIC "${CMAKE_CURRENT_BINARY_DIR}/generated")
 
-
-if(TRANSCEIVERTOOL_STATIC_MSVC_RUNTIME AND MSVC)
-    # /MT instead of /MD. Without this the .exe refuses to start unless the matching Visual C++
-    # redistributable happens to be installed. Linux and macOS instead get their compatibility from
-    # being built against an old baseline (see the release workflow), not from static linking.
-    set_property(TARGET TransceiverToolCore PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-    set_property(TARGET TransceiverTool PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-endif()
 
 # Everything above is PUBLIC on the core library, so the executable inherits it
 target_link_libraries(TransceiverTool PRIVATE TransceiverToolCore)
