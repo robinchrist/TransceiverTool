@@ -66,10 +66,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Pinned to the exact version used locally. clang-format's output changes between releases, so
+      # an unpinned apt package formats differently and fails this check on a correctly formatted tree.
+      - name: Install clang-format
+        run: pip install "clang-format==22.1.8"
+
       - name: Check formatting
         run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq clang-format
           clang-format --version
-          # clang-format is not always idempotent in one pass, so this only checks that the tree is
-          # at a fixed point, which is what a formatted tree should be.
+          # Checks that the tree is at a fixed point. clang-format is not always idempotent in a
+          # single pass, so a freshly formatted file can still need a second pass; the hook and the
+          # local workflow both run it twice.
           clang-format --dry-run --Werror $(git ls-files '*.cpp' '*.hpp')
