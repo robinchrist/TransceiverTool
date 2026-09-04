@@ -699,7 +699,7 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         validateVendorName(programming, validationResult);
 
         // SFF-8024 Rev 4.11 Table 4-4 Extended Specification Compliance Codes
-        validateExtendedIdentifierValues(programming, validationResult);
+        validateExtendedSpecificationComplianceCodes(programming, validationResult);
 
         // SFF-8472 Rev 12.4 Section 7.3 Vendor PN [Address A0h, Bytes 40-55]
         validateVendorPartNumber(programming, validationResult);
