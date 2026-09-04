@@ -1,0 +1,218 @@
+# SPDX-FileCopyrightText: 2024-2026 Robin Christ
+# SPDX-License-Identifier: MPL-2.0
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to build (for a dry run without publishing)"
+        required: false
+
+permissions:
+  contents: write
+
+env:
+  # Bullseye is EOL: everything comes from the frozen archive. The base image carries a few
+  # security-patched packages newer than anything the archive has, so the archive is pinned above
+  # 1000 to let apt downgrade them rather than fail on unsatisfiable -dev dependencies.
+  # security.debian.org is deliberately not used: it currently 404s on the percent-encoded "+"
+  # that apt sends for package versions like 5.32.1-4+deb11u5.
+  DEBIAN_SETUP: |
+    set -e
+    export DEBIAN_FRONTEND=noninteractive
+    printf 'deb http://archive.debian.org/debian/ bullseye main contrib non-free\ndeb http://archive.debian.org/debian/ bullseye-updates main contrib non-free\n' > /etc/apt/sources.list
+    printf 'Package: *\nPin: origin archive.debian.org\nPin-Priority: 1001\n' > /etc/apt/preferences.d/archive
+    apt-get -o Acquire::Check-Valid-Until=false update -qq
+    apt-get install -y -qq --no-install-recommends --allow-downgrades \
+        build-essential python3 python3-venv ca-certificates git file binutils
+    python3 -m venv /venv
+    /venv/bin/pip install --quiet "conan>=2" "cmake>=3.27,<4"
+
+jobs:
+  # Built inside Debian 11 (glibc 2.31, gcc 10) rather than on the runner image, so the binary keeps
+  # working on distributions considerably older than the runner. Nothing is statically linked.
+  linux:
+    name: Linux ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    container: debian:11
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { arch: x86_64,  runner: ubuntu-latest     }
+          - { arch: aarch64, runner: ubuntu-24.04-arm  }
+    steps:
+      - name: Set up Debian 11
+        run: |
+          echo "$DEBIAN_SETUP" > /tmp/setup.sh
+          sh /tmp/setup.sh
+
+      - uses: actions/checkout@v4
+
+      - name: Build
+        run: |
+          export PATH=/venv/bin:$PATH
+          conan profile detect --force
+          conan install . --output-folder build --build=missing -s build_type=Release
+          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --parallel
+
+      - name: Report runtime requirements
+        run: |
+          file build/TransceiverTool
+          echo "Minimum symbol versions required at runtime:"
+          objdump -T build/TransceiverTool | grep -oE 'GLIBC_[0-9.]+|GLIBCXX_[0-9.]+|CXXABI_[0-9.]+' | sort -uV
+
+      - name: Smoke test
+        run: sh .github/smoke-test.sh build/TransceiverTool
+
+      - name: Stage artifact
+        run: |
+          install -Dm755 build/TransceiverTool "dist/TransceiverTool-linux-${{ matrix.arch }}/TransceiverTool"
+          install -Dm644 LICENSE README.MD -t "dist/TransceiverTool-linux-${{ matrix.arch }}/"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TransceiverTool-linux-${{ matrix.arch }}
+          path: dist/
+
+  # macOS is built once per architecture and merged into one universal binary below, so a single
+  # download works on both Intel and Apple Silicon.
+  macos:
+    name: macOS ${{ matrix.arch }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { arch: x86_64, runner: macos-13, deployment: "10.15" }
+          - { arch: arm64,  runner: macos-14, deployment: "11.0"  }
+    env:
+      MACOSX_DEPLOYMENT_TARGET: ${{ matrix.deployment }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "conan>=2"
+
+      - name: Build
+        run: |
+          conan profile detect --force
+          conan install . --output-folder build --build=missing \
+            -s build_type=Release -s os.version=${{ matrix.deployment }}
+          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_DEPLOYMENT_TARGET=${{ matrix.deployment }}
+          cmake --build build --parallel
+
+      - name: Smoke test
+        run: sh .github/smoke-test.sh build/TransceiverTool
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-slice-${{ matrix.arch }}
+          path: build/TransceiverTool
+
+  macos-universal:
+    name: macOS universal
+    needs: macos
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: macos-slice-*
+          path: slices
+      - name: Merge slices
+        run: |
+          lipo -create -output TransceiverTool \
+            slices/macos-slice-x86_64/TransceiverTool \
+            slices/macos-slice-arm64/TransceiverTool
+          chmod +x TransceiverTool
+          lipo -info TransceiverTool
+      - name: Smoke test the universal binary
+        run: sh .github/smoke-test.sh ./TransceiverTool
+      - name: Stage artifact
+        run: |
+          mkdir -p dist/TransceiverTool-macos-universal
+          cp TransceiverTool LICENSE README.MD dist/TransceiverTool-macos-universal/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TransceiverTool-macos-universal
+          path: dist/
+
+  windows:
+    name: Windows x86_64
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install "conan>=2"
+
+      # compiler.runtime=static makes conan build the dependencies against /MT so they match the
+      # executable. Without the static runtime the .exe will not start unless the matching Visual C++
+      # redistributable happens to be installed, which is the one thing worth linking statically here.
+      - name: Build
+        shell: bash
+        run: |
+          conan profile detect --force
+          conan install . --output-folder build --build=missing \
+            -s build_type=Release -s compiler.runtime=static
+          cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake \
+            -DTRANSCEIVERTOOL_STATIC_MSVC_RUNTIME=ON
+          cmake --build build --config Release --parallel
+
+      - name: Smoke test
+        shell: bash
+        run: sh .github/smoke-test.sh build/Release/TransceiverTool.exe
+
+      - name: Stage artifact
+        shell: bash
+        run: |
+          mkdir -p dist/TransceiverTool-windows-x86_64
+          cp build/Release/TransceiverTool.exe LICENSE README.MD dist/TransceiverTool-windows-x86_64/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TransceiverTool-windows-x86_64
+          path: dist/
+
+  publish:
+    name: Publish release
+    needs: [linux, macos-universal, windows]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: TransceiverTool-*
+          path: artifacts
+
+      - name: Package
+        run: |
+          set -e
+          mkdir -p release
+          cd artifacts
+          for d in */TransceiverTool-*; do
+            name=$(basename "$d")
+            case "$name" in
+              *windows*) (cd "$(dirname "$d")" && zip -qr "$GITHUB_WORKSPACE/release/${name}-${GITHUB_REF_NAME}.zip" "$name") ;;
+              *)         tar -czf "$GITHUB_WORKSPACE/release/${name}-${GITHUB_REF_NAME}.tar.gz" -C "$(dirname "$d")" "$name" ;;
+            esac
+          done
+          cd "$GITHUB_WORKSPACE/release"
+          sha256sum * > SHA256SUMS
+          ls -l
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          generate_release_notes: true
+          fail_on_unmatched_files: true

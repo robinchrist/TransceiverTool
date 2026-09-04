@@ -1,0 +1,75 @@
+# SPDX-FileCopyrightText: 2024-2026 Robin Christ
+# SPDX-License-Identifier: MPL-2.0
+
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ${{ matrix.name }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: Linux (gcc),      os: ubuntu-latest  }
+          - { name: macOS (clang),    os: macos-latest   }
+          - { name: Windows (MSVC),   os: windows-latest }
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install conan
+        run: pip install "conan>=2"
+
+      - name: Cache conan packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.conan2/p
+          key: conan-${{ matrix.os }}-${{ hashFiles('conanfile.py') }}
+
+      - name: Configure conan
+        run: conan profile detect --force
+
+      - name: Install dependencies
+        run: conan install . --output-folder build --build=missing -s build_type=Release
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release --parallel
+
+      # The roundtrip subcommand is the project's own correctness check: binary -> JSON -> binary
+      # has to be byte-identical. The same script gates the release builds.
+      - name: Smoke test
+        shell: bash
+        run: |
+          BIN=build/TransceiverTool
+          [ -f "$BIN" ] || BIN=build/Release/TransceiverTool.exe
+          sh .github/smoke-test.sh "$BIN"
+
+  format:
+    name: clang-format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check formatting
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq clang-format
+          clang-format --version
+          # clang-format is not always idempotent in one pass, so this only checks that the tree is
+          # at a fixed point, which is what a formatted tree should be.
+          clang-format --dry-run --Werror $(git ls-files '*.cpp' '*.hpp')

@@ -966,6 +966,38 @@ cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=1 --preset conan-debug
 cmake --build --preset conan-debug
 ```
 
+## Releases and CI
+
+`.github/workflows/ci.yml` builds on Linux, macOS and Windows for every push and pull request and runs
+`.github/smoke-test.sh`, which does byte-exact roundtrips over random data for all three binary types
+through both the file and the stdin input path. `.github/workflows/release.yml` publishes binaries when a
+`v*` tag is pushed; the same smoke test gates every artifact, so a broken binary is never published.
+
+| Artifact | Built on | Notes |
+| --- | --- | --- |
+| `linux-x86_64`, `linux-aarch64` | Debian 11 container | old glibc/libstdc++ baseline, nothing statically linked |
+| `macos-universal` | macos-13 + macos-14, merged with `lipo` | one binary for Intel and Apple Silicon |
+| `windows-x86_64` | windows-2022, MSVC | static CRT (`/MT`) so no VC++ redistributable is needed |
+
+### Linux compatibility
+
+The Linux binaries are built inside Debian 11 rather than on the runner image, so they keep working on
+distributions older than the runner. The resulting binary needs `GLIBC_2.14` and `GLIBCXX_3.4.26`,
+so libstdc++ (GCC 9) is the limit, not glibc. Verified:
+
+| Runs | Does not run |
+| --- | --- |
+| Debian 11, Debian 12, Ubuntu 20.04, Ubuntu 22.04, Ubuntu 24.04, Rocky 9, Fedora 41 | Debian 10, CentOS 7 |
+
+If you ever need to go below that, adding `-static-libstdc++ -static-libgcc` drops the `GLIBCXX`
+requirement entirely and leaves only `GLIBC_2.14`.
+
+Bullseye is end of life, so the release job installs from `archive.debian.org` and pins it above
+priority 1000, which lets apt downgrade the handful of security-patched packages the base image
+carries that the frozen archive does not have. `security.debian.org` is deliberately not used: it
+currently returns 404 for the percent-encoded `+` that apt sends for versions like
+`5.32.1-4+deb11u5`.
+
 ## Fuzzing
 
 There are three libFuzzer targets in `fuzz/`:
