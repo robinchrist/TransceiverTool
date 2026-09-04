@@ -1591,7 +1591,7 @@ namespace TransceiverTool::Standards::SFF8472 {
             
 
             const auto& lowerSignalingRateMarginPercentValue = j.at("Lower signaling rate margin [%]");
-            auto lowerSignalingRateMarginPercentNumberValue = upperSignalingRateMarginPercentValue.template get<std::uint64_t>();
+            auto lowerSignalingRateMarginPercentNumberValue = lowerSignalingRateMarginPercentValue.template get<std::uint64_t>();
 
             if(lowerSignalingRateMarginPercentNumberValue > 255) throw std::invalid_argument("Lower signaling rate margin [%] must not be larger than 255");
 
