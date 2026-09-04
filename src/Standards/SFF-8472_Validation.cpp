@@ -164,7 +164,7 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         }
         if(programming.byte_67_min_signaling_rate_in_percent_or_range_of_signaling_rates_in_percent > 100) {
             validationResult.warnings.push_back(
-                fmt::format("Byte 66 (\"Signaling Rate, min\") exceeds 100% which would result in negative baud rates")
+                fmt::format("Byte 67 (\"Signaling Rate, min\") exceeds 100% which would result in negative baud rates")
             );
         }
     }
@@ -178,7 +178,7 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
                 fmt::format(
                     "Byte 13 (\"Rate Identifier\") value corresponds to \"Unspecified\" legacy range (SFF-8472 Rev "
                     "12.4 Table 5-6 \"Rate Identifier\"), value is {:#04x}",
-                    programming.byte_11_Encoding
+                    byte
                 )
             );
         }
@@ -187,7 +187,7 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
                 fmt::format(
                     "Byte 13 (\"Rate Identifier\") value corresponds to \"Reserved\" range (SFF-8472 Rev 12.4 Table "
                     "5-6 \"Rate Identifier\"), value is {:#04x}",
-                    programming.byte_11_Encoding
+                    byte
                 )
             );
         }
@@ -460,7 +460,7 @@ namespace TransceiverTool::Standards::SFF8472::Validation {
         if(programming.byte_63_CC_BASE != correctChecksum) {
             validationResult.errors.push_back(
                 fmt::format(
-                    "Byte 63 (\"CC_EXT\") value is {:#04x}, but should be {:#04x}",
+                    "Byte 63 (\"CC_BASE\") value is {:#04x}, but should be {:#04x}",
                     programming.byte_63_CC_BASE,
                     correctChecksum
                 )
