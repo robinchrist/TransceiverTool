@@ -60,7 +60,7 @@
                         "GBIC/SFP function is defined by 2-wire interface ID only",
                         "GBIC is compliant with MOD_DEF 5",
                         "GBIC is compliant with MOD_DEF 6",
-                        "GBIC is compliant with MOD_DEF 7",
+                        "GBIC is compliant with MOD_DEF 7"
                     ]
                 }
             ]
@@ -589,7 +589,7 @@
                                     "const": "> 2.54 km"
                                 }
                             ]
-                        },
+                        }
                     },
                     "required": [
                         "Type",
@@ -598,7 +598,7 @@
                         "Length (OM2 50 um) [m] (Divisible by 10)",
                         "Length (OM1 62.5 um) [m] (Divisible by 10)",
                         "Length (OM4 50 um) [m] (Divisible by 10)",
-                        "Length (OM3 50 um) [m] (Divisible by 10)",
+                        "Length (OM3 50 um) [m] (Divisible by 10)"
                     ]
                 }
             ]
@@ -822,7 +822,7 @@
                         "Reserved (Byte 61, Bit 3)",
                         "Reserved (Byte 61, Bit 2)",
                         "Reserved (Byte 61, Bit 1)",
-                        "Reserved (Byte 61, Bit 0)",
+                        "Reserved (Byte 61, Bit 0)"
                     ]
                 },
                 {
