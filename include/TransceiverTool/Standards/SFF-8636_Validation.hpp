@@ -52,6 +52,8 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
     void
     validateMaximumCaseTemperature(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult);
 
+    void validateCC_BASEChecksum(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult);
+
     // SFF-8024 Rev 4.11 Table 4-4 Extended Specification Compliance Codes
     void validateExtendedSpecificationComplianceCodes(
         const SFF8636_Upper00h& programming,
@@ -79,6 +81,8 @@ namespace TransceiverTool::Standards::SFF8636::Validation {
 
     void
     validateRateSelectionConsistency(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult);
+
+    void validateCC_EXTChecksum(const SFF8636_Upper00h& programming, common::ValidationResult& validationResult);
 
     common::ValidationResult validateSFF8636_Upper00h(const SFF8636_Upper00h& programming);
 }  // namespace TransceiverTool::Standards::SFF8636::Validation
