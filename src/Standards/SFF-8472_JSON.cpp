@@ -397,8 +397,8 @@ namespace TransceiverTool::Standards::SFF8472 {
         complianceCodes.Electrical_inter_enclosure_EL_byte_7_bit_0 = j.at("Electrical inter-enclosure (EL) compliant (Byte 7, Bit 0)").template get<bool>();
         complianceCodes.Electrical_intra_enclosure_EL_byte_byte_8_bit_7 = j.at("Electrical intra-enclosure (EL) compliant (Byte 8, Bit 7)").template get<bool>();
         complianceCodes.Shortwave_laser_w_o_OFC_SN_byte_8_bit_6 = j.at("Shortwave laser w/o OFC (SN) compliant (Byte 8, Bit 6)").template get<bool>();
-        complianceCodes.Shortwave_laser_w_o_OFC_SN_byte_8_bit_6 = j.at("Shortwave laser with OFC (SL) compliant (Byte 8, Bit 5)").template get<bool>();
-        complianceCodes.Shortwave_laser_with_OFC_SL_byte_8_bit_5 = j.at("Longwave laser (LL) compliant (Byte 8, Bit 4)").template get<bool>();
+        complianceCodes.Shortwave_laser_with_OFC_SL_byte_8_bit_5 = j.at("Shortwave laser with OFC (SL) compliant (Byte 8, Bit 5)").template get<bool>();
+        complianceCodes.Longwave_Laser_LL_byte_8_bit_4 = j.at("Longwave laser (LL) compliant (Byte 8, Bit 4)").template get<bool>();
 
         return complianceCodes;
     }
