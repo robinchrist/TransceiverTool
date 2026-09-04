@@ -845,7 +845,7 @@ namespace TransceiverTool::Standards::SFF8472 {
 
                 if(numberValue > 254) throw std::invalid_argument("Length (Copper) or Actual Length (DAC) [m] must not be greater than 254");
 
-                parsedStruct.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m = numberValue / 10;
+                parsedStruct.byte_18_link_length_om4_10m_or_copper_or_dac_length_in_m = numberValue;
             } else {
                 throw std::invalid_argument("Length (Copper) or Actual Length (DAC) [m] has wrong type (neither string nor unsigned integer)");
             }
