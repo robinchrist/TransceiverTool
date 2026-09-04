@@ -898,7 +898,7 @@ namespace TransceiverTool::Standards::SFF8636 {
             } else if(length_om1_val.is_number_unsigned()) {
                 auto numberValue = length_om1_val.template get<std::uint64_t>();
 
-                if(numberValue > 254) throw std::invalid_argument("Length (OM1 62.5 um) [m] must not be greater than 254");
+                if(numberValue > 255) throw std::invalid_argument("Length (OM1 62.5 um) [m] must not be greater than 255");
 
                 parsedStruct.byte_145_length_om1_in_1m_or_copper_cable_attenuation_in_dB = numberValue;
             } else {
