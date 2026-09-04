@@ -2,6 +2,7 @@ build/
 .cache/
 CMakeUserPresets.json
 build-fuzzing/
+build-coverage/
 # libFuzzer corpora and the artifacts it writes when a target fails
 fuzz/corpus/
 crash-*
