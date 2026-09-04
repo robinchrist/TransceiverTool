@@ -2,7 +2,6 @@
 #include "TransceiverTool/Standards/SFF-8472_Assembler.hpp"
 #include "TransceiverTool/Standards/SFF-8472_Checksum.hpp"
 #include "TransceiverTool/Standards/SFF-8472_LowerA0h.hpp"
-#include "TransceiverTool/Standards/SFF-8636_Validation.hpp"
 #include <cctype>
 #include <fmt/core.h>
 #include <algorithm>
