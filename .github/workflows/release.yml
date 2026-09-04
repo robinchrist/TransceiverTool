@@ -32,12 +32,37 @@ env:
     /venv/bin/pip install --quiet "conan>=2" "cmake>=3.27,<4"
 
 jobs:
+  # The version is compiled into the binary from project(... VERSION ...) in CMakeLists.txt, which is
+  # the single source of truth. The tag only names the archives, so tagging without bumping CMakeLists
+  # would publish v0.2.0 archives holding a binary that reports v0.1.0. Refuse before anything builds.
+  check-version:
+    name: Tag matches project version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare tag with project version
+        run: |
+          project=$(sed -n 's/^project *(.*VERSION \([0-9][0-9.]*\).*/\1/p' CMakeLists.txt)
+          [ -n "$project" ] || { echo "::error::could not read the version out of CMakeLists.txt"; exit 1; }
+          echo "CMakeLists.txt: $project"
+          if [ "$GITHUB_REF_TYPE" != "tag" ]; then
+            echo "Not a tag (manual run), nothing to compare."
+            exit 0
+          fi
+          tag="${GITHUB_REF_NAME#v}"
+          echo "tag:            $tag"
+          [ "$project" = "$tag" ] || {
+            echo "::error::tag $GITHUB_REF_NAME does not match project(VERSION $project) in CMakeLists.txt - bump it before tagging"
+            exit 1
+          }
+
   # Built inside Debian 11 (glibc 2.31, gcc 10) rather than on the runner image, so the binary keeps
   # working on distributions considerably older than the runner. Nothing is statically linked.
   linux:
     name: Linux ${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
     container: debian:11
+    needs: check-version
     strategy:
       fail-fast: false
       matrix:
@@ -84,12 +109,15 @@ jobs:
   macos:
     name: macOS ${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
+    needs: check-version
     strategy:
       fail-fast: false
       matrix:
         include:
-          - { arch: x86_64, runner: macos-13, deployment: "10.15" }
-          - { arch: arm64,  runner: macos-14, deployment: "11.0"  }
+          # macos-13 was retired and macos-14 is deprecated, so both slices come from macOS 15.
+          # -intel is the standard-tier Intel runner (-large/-xlarge are the paid larger runners).
+          - { arch: x86_64, runner: macos-15-intel, deployment: "10.15" }
+          - { arch: arm64,  runner: macos-15,       deployment: "11.0"  }
     env:
       MACOSX_DEPLOYMENT_TARGET: ${{ matrix.deployment }}
     steps:
@@ -120,7 +148,7 @@ jobs:
   macos-universal:
     name: macOS universal
     needs: macos
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
@@ -148,6 +176,7 @@ jobs:
   windows:
     name: Windows x86_64
     runs-on: windows-2022
+    needs: check-version
 
     # See ci.yml: PowerShell splits -DFOO=path/file.ext at the dot.
     defaults:

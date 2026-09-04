@@ -973,6 +973,22 @@ cmake --build --preset conan-debug
 through both the file and the stdin input path. `.github/workflows/release.yml` publishes binaries when a
 `v*` tag is pushed; the same smoke test gates every artifact, so a broken binary is never published.
 
+### Cutting a release
+
+The version is compiled into the binary from `project(... VERSION ...)` in `CMakeLists.txt`, which is the
+single source of truth. The tag only names the archives, so **bump `CMakeLists.txt` first, then tag the
+commit that contains the bump**:
+
+```
+# edit CMakeLists.txt: project ("Transceiver Tool" VERSION 0.2.0)
+git commit -am "Release 0.2.0"
+git tag v0.2.0 && git push origin master v0.2.0
+```
+
+A `check-version` job compares the tag against `CMakeLists.txt` before anything builds and fails the run
+if they disagree, so a mismatch cannot be published. Running the workflow manually
+(Actions -> Release -> Run workflow) builds and smoke tests every artifact without publishing.
+
 | Artifact | Built on | Notes |
 | --- | --- | --- |
 | `linux-x86_64`, `linux-aarch64` | Debian 11 container | old glibc/libstdc++ baseline, nothing statically linked |

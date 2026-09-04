@@ -25,7 +25,8 @@ jobs:
           # deliberately differs: it builds Linux inside Debian 11 for an old glibc baseline, and
           # builds macOS twice for a universal binary. Neither changes the code under test.
           - { name: Linux (gcc),      os: ubuntu-latest  }
-          - { name: macOS (clang),    os: macos-latest   }
+          # macos-15 rather than macos-latest, so CI runs on the macOS the release builds from
+          - { name: macOS (clang),    os: macos-15       }
           # Windows must NOT differ: the runner image is the one the release workflow ships from, so
           # CI compiles the configuration users actually download.
           - { name: Windows (MSVC),   os: windows-2022   }
