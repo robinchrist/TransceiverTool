@@ -58,13 +58,16 @@ jobs:
         run: conan profile detect --force
 
       - name: Install dependencies
-        run: conan install . --output-folder build --build=missing -s build_type=Release
+        run: conan install . --output-folder build --build=missing -s build_type=Release -o "&:schema_tests=True"
 
       - name: Configure
-        run: cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release
+        run: cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release -DTRANSCEIVERTOOL_SCHEMA_TESTS=ON
 
       - name: Build
         run: cmake --build build --config Release --parallel
+
+      - name: JSON schema contracts
+        run: ctest --test-dir build -C Release --output-on-failure
 
       # The roundtrip subcommand is the project's own correctness check: binary -> JSON -> binary
       # has to be byte-identical. The same script gates the release builds.

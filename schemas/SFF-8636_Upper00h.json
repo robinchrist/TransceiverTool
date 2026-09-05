@@ -1,14 +1,13 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "https://example.com/product.schema.json",
+    "$id": "urn:transceivertool:schema:SFF-8636_Upper00h",
     "title": "SFF-8636 Rev 2.11 Upper Page 00h",
     "description": "JSON Format for SFF-8636 Rev 2.11 Upper Page 00h",
     "type": "object",
 
-    "$defs": {
+    "definitions": {
         "single_byte_value_obj": {
-            "$id": "/schemas/single_byte_value_obj",
-            "$schema": "http://json-schema.org/draft-07/schema#",
+            "description": "A raw byte. Use this form to preserve reserved or unknown values, or to enter a byte directly.",
             "type": "object",
             "properties": {
                 "byteValue": {
@@ -19,8 +18,7 @@
             "required": ["byteValue"] 
         },
         "base64_obj": {
-            "$id": "/schemas/base64_obj",
-            "$schema": "http://json-schema.org/draft-07/schema#",
+            "description": "Raw bytes encoded as Base64. Use this when a fixed-width field cannot be represented as readable text. The converter checks the decoded byte count for each field.",
             "type": "object",
             "properties": {
                 "Type": { "const": "Base64" },
@@ -32,10 +30,8 @@
             "required": ["Type", "Value"] 
         },
         "sff-8636_identifier": {
-            "$id": "/schemas/sff-8636_identifier",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                { "$ref": "/schemas/single_byte_value_obj" },
+                { "$ref": "#/definitions/single_byte_value_obj" },
                 { 
                     "enum": [
                         "Unknown or unspecified",
@@ -81,8 +77,6 @@
             ]
         },
         "sff-8636_extended_identifier": {
-            "$id": "/schemas/sff-8636_extended_identifier",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Power Class (Bit 7-6)": {
@@ -116,10 +110,8 @@
             ]
         },
         "sff-8636_connector_type": {
-            "$id": "/schemas/sff-8636_connector_type",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                { "$ref": "/schemas/single_byte_value_obj" },
+                { "$ref": "#/definitions/single_byte_value_obj" },
                 { 
                     "enum": [
                         "Unknown or unspecified",
@@ -150,8 +142,6 @@
             ]
         },
         "sff-8636_10_40G_100G_ethernet_compliance_codes": {
-            "$id": "/schemas/sff-8636_10_40G_100G_ethernet_compliance_codes",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Extended (Bit 7)": {"type": "boolean"},
@@ -175,8 +165,6 @@
             ]
         },
         "sff-8636_sonet_compliance_codes": {
-            "$id": "/schemas/sff-8636_sonet_compliance_codes",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Reserved (Bit 7)": {"type": "boolean"},
@@ -200,8 +188,6 @@
             ]
         },
         "sff-8636_sas_sata_compliance_codes": {
-            "$id": "/schemas/sff-8636_sas_sata_compliance_codes",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "SAS 24.0 Gbps compliant (Bit 7)": {"type": "boolean"},
@@ -225,8 +211,6 @@
             ]
         },
         "sff-8636_gigabit_ethernet_compliance_codes": {
-            "$id": "/schemas/sff-8636_gigabit_ethernet_compliance_codes",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Reserved (Bit 7)": {"type": "boolean"},
@@ -250,8 +234,6 @@
             ]
         },
         "sff-8636_fibre_channel_link_length": {
-            "$id": "/schemas/sff-8636_fibre_channel_link_length",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Very long distance (V) compliant (Byte 135, Bit 7)": {"type": "boolean"},
@@ -269,8 +251,6 @@
             ]
         },
         "sff-8636_fibre_channel_transmitter_technology": {
-            "$id": "/schemas/sff-8636_fibre_transmitter_technology",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Reserved (Byte 135, Bit 2)": {"type": "boolean"},
@@ -300,8 +280,6 @@
             ]
         },
         "sff-8636_fibre_channel_transmission_media": {
-            "$id": "/schemas/sff-8636_fibre_channel_transmission_media",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Twin Axial Pair (TW) compliant (Bit 7)": {"type": "boolean"},
@@ -325,8 +303,6 @@
             ]
         },
         "sff-8636_fibre_channel_speed": {
-            "$id": "/schemas/sff-8636_fibre_channel_speed",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "1200 MBps (per channel) compliant (Bit 7)": {"type": "boolean"},
@@ -350,10 +326,8 @@
             ]
         },
         "sff-8636_encoding": {
-            "$id": "/schemas/sff-8636_encoding",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                { "$ref": "/schemas/single_byte_value_obj" },
+                { "$ref": "#/definitions/single_byte_value_obj" },
                 { 
                     "enum": [
                         "Unspecified",
@@ -370,8 +344,6 @@
             ]
         },
         "sff-8636_nominal_baud_rate_100": {
-            "$id": "/schemas/sff-8636_nominal_baud_rate_100",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
                 {
                     "const": "Not Specified"
@@ -379,7 +351,7 @@
                 {
                     "type": "integer",
                     "multipleOf" : 100,
-                    "minimum": 250,
+                    "minimum": 0,
                     "maximum": 25400
                 },
                 {
@@ -388,8 +360,6 @@
             ]
         },
         "sff-8636_extended_rate_selection_compliance": {
-            "$id": "/schemas/sff-8636_extended_rate_selection_compliance",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Reserved (Bit 7)": {"type": "boolean"},
@@ -418,8 +388,6 @@
             ]
         },
         "sff-8636_length_smf_km": {
-            "$id": "/schemas/sff-8636_length_smf_km",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
                 {
                     "const": "N/A"
@@ -435,8 +403,6 @@
             ]
         },
         "sff-8636_length_om3_m": {
-            "$id": "/schemas/sff-8636_length_om3_m",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
                 {
                     "const": "N/A"
@@ -450,8 +416,6 @@
             ]
         },
         "sff-8636_length_om2_m": {
-            "$id": "/schemas/sff-8636_length_om2_m",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
                 {
                     "const": "N/A"
@@ -464,8 +428,6 @@
             ]
         },
         "sff-8636_copper_properties": {
-            "$id": "/schemas/sff-8636_copper_properties",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Type": { "const": "Copper" },
@@ -542,8 +504,6 @@
             ]
         },
         "sff-8636_fibre_properties": {
-            "$id": "/schemas/sff-8636_fibre_properties",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Type": { "const": "Fibre" },
@@ -590,16 +550,12 @@
             ]
         },
         "sff-8636_copper_or_fibre_properties": {
-            "$id": "/schemas/sff-8636_copper_or_fibre_properties",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                { "$ref": "/schemas/sff-8636_copper_properties" },
-                { "$ref": "/schemas/sff-8636_fibre_properties" }
+                { "$ref": "#/definitions/sff-8636_copper_properties" },
+                { "$ref": "#/definitions/sff-8636_fibre_properties" }
             ]
         },
         "sff-8636_transmitter_type": {
-            "$id": "/schemas/sff-8636_transmitter_type",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "enum": [
                 "850 nm VCSEL",
                 "1310 nm VCSEL",
@@ -620,11 +576,9 @@
             ]
         },
         "sff-8636_device_transmitter_properties": {
-            "$id": "/schemas/sff-8636_device_transmitter_properties",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
-                "Transmitter Technology (Bit 7-4)": { "$ref": "/schemas/sff-8636_transmitter_type" },
+                "Transmitter Technology (Bit 7-4)": { "$ref": "#/definitions/sff-8636_transmitter_type" },
                 "Active Wavelength Control (Bit 3)": { "type": "boolean" },
                 "Cooled Transmitter (Bit 2)": { "type": "boolean" },
                 "Detector Type (Bit 1)": {
@@ -644,10 +598,8 @@
             ]
         },
         "sff-8636_vendor_name": {
-            "$id": "/schemas/sff-8636_vendor_name",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                {"$ref": "/schemas/base64_obj"},
+                {"$ref": "#/definitions/base64_obj"},
                 { 
                     "type": "string",
                     "pattern": "^[ -~]{0,16}$"
@@ -655,8 +607,6 @@
             ]
         },
         "sff-8636_included_vendor_ouis": {
-            "$id": "/schemas/sff-8636_included_vendor_ouis",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "enum": [
                 "FS COM INC",
                 "Brocade Communications Systems LLC",
@@ -677,8 +627,6 @@
             ]
         },
         "sff-8636_extended_module_codes_infiniband": {
-            "$id": "/schemas/sff-8636_extended_module_codes_infiniband",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Reserved (Bit 7)": {"type": "boolean"},
@@ -702,14 +650,12 @@
             ]
         },
         "sff-8636_vendor_oui": {
-            "$id": "/schemas/sff-8636_vendor_oui",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
                 { 
                     "type": "object",
                     "properties": {
                         "Vendor Name": {
-                            "$ref": "/schemas/sff-8636_included_vendor_ouis"
+                            "$ref": "#/definitions/sff-8636_included_vendor_ouis"
                         }
                     },
                     "required": ["Vendor Name"]
@@ -721,10 +667,8 @@
             ]
         },
         "sff-8636_vendor_part_number": {
-            "$id": "/schemas/sff-8636_vendor_part_number",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                {"$ref": "/schemas/base64_obj"},
+                {"$ref": "#/definitions/base64_obj"},
                 { 
                     "type": "string",
                     "pattern": "^[ -~]{0,16}$"
@@ -732,10 +676,8 @@
             ]
         },
         "sff-8636_vendor_rev": {
-            "$id": "/schemas/sff-8636_vendor_rev",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                {"$ref": "/schemas/base64_obj"},
+                {"$ref": "#/definitions/base64_obj"},
                 { 
                     "type": "string",
                     "pattern": "^[ -~]{0,2}$"
@@ -743,8 +685,6 @@
             ]
         },
         "sff-8636_maximum_case_temperature": {
-            "$id": "/schemas/sff-8636_maximum_case_temperature",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
                 {"const": "default"},
                 {
@@ -755,18 +695,15 @@
             ]
         },
         "sff-8636_cc_base_checksum": {
-            "$id": "/schemas/sff-8636_cc_base_checksum",
-            "$schema": "http://json-schema.org/draft-07/schema#",
+            "description": "Use auto to calculate the checksum, or a raw byte object to preserve an explicit checksum, including an incorrect one.",
             "anyOf": [
                 {  "const": "auto" },
-                { "$ref": "/schemas/single_byte_value_obj" }
+                { "$ref": "#/definitions/single_byte_value_obj" }
             ]
         },
         "sff-8636_extended_specification_compliance_codes": {
-            "$id": "/schemas/sff-8636_extended_specification_compliance_codes",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                { "$ref": "/schemas/single_byte_value_obj" },
+                { "$ref": "#/definitions/single_byte_value_obj" },
                 { 
                     "enum": [
                         "Unspecified",
@@ -848,8 +785,6 @@
             ]
         },
         "sff-8636_options": {
-            "$id": "/schemas/sff-8636_options",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Reserved (Byte 193, Bit 7)": {"type": "boolean"},
@@ -905,10 +840,8 @@
             ]
         },
         "sff-8636_vendor_serial_number": {
-            "$id": "/schemas/sff-8636_vendor_serial_number",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                {"$ref": "/schemas/base64_obj"},
+                {"$ref": "#/definitions/base64_obj"},
                 { 
                     "type": "string",
                     "pattern": "^[ -~]{0,16}$"
@@ -916,13 +849,11 @@
             ]
         },
         "sff-8636_date_code": {
-            "$id": "/schemas/sff-8636_date_code",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Year low order digits (Byte 212-213)": {
                     "anyOf": [
-                        {"$ref": "/schemas/base64_obj"},
+                        {"$ref": "#/definitions/base64_obj"},
                         {
                             "type": "integer",
                             "minimum": 0,
@@ -932,7 +863,7 @@
                 },
                 "Month digits (Byte 214-215)": {
                     "anyOf": [
-                        {"$ref": "/schemas/base64_obj"},
+                        {"$ref": "#/definitions/base64_obj"},
                         {
                             "type": "integer",
                             "minimum": 1,
@@ -942,7 +873,7 @@
                 },
                 "Day (Byte 216-217)": {
                     "anyOf": [
-                        {"$ref": "/schemas/base64_obj"},
+                        {"$ref": "#/definitions/base64_obj"},
                         {
                             "type": "integer",
                             "minimum": 1,
@@ -952,7 +883,7 @@
                 },
                 "Vendor Lot Code (Byte 218-219)": {
                     "anyOf": [
-                        {"$ref": "/schemas/base64_obj"},
+                        {"$ref": "#/definitions/base64_obj"},
                         {
                             "type": "string",
                             "minLength": 0,
@@ -969,8 +900,6 @@
             ]
         },
         "sff-8636_diagnostic_monitoring_type": {
-            "$id": "/schemas/sff-8636_diagnostic_monitoring_type",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Reserved (Bit 7)": {"type": "boolean"},
@@ -996,8 +925,6 @@
             ]
         },
         "sff-8636_enhanced_options": {
-            "$id": "/schemas/sff-8636_enhanced_options",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Reserved (Bit 7)": {"type": "boolean"},
@@ -1021,8 +948,6 @@
             ]
         },
         "sff-8636_extended_baud_rate_250": {
-            "$id": "/schemas/sff-8636_extended_baud_rate_250",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
                 {
                     "const": "Unspecified"
@@ -1036,18 +961,15 @@
             ]
         },
         "sff-8636_cc_ext_checksum": {
-            "$id": "/schemas/sff-8636_cc_ext_checksum",
-            "$schema": "http://json-schema.org/draft-07/schema#",
+            "description": "Use auto to calculate the checksum, or a raw byte object to preserve an explicit checksum, including an incorrect one.",
             "anyOf": [
                 {  "const": "auto" },
-                { "$ref": "/schemas/single_byte_value_obj" }
+                { "$ref": "#/definitions/single_byte_value_obj" }
             ]
         },
         "sff-8636_vendor_specific": {
-            "$id": "/schemas/sff-8636_vendor_specific",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                {"$ref": "/schemas/base64_obj"}
+                {"$ref": "#/definitions/base64_obj"}
             ]
         }
     },
@@ -1056,40 +978,40 @@
         "Type": {
             "const": "SFF-8636 Rev 2.11 Upper Page 00h"
         },
-        "Identifier": { "$ref": "/schemas/sff-8636_identifier" },
-        "Extended Identifier": { "$ref": "/schemas/sff-8636_extended_identifier" },
-        "Connector Type": {"$ref": "/schemas/sff-8636_connector_type" },
-        "10/40G/100G Ethernet Compliance Codes": {"$ref": "/schemas/sff-8636_10_40G_100G_ethernet_compliance_codes" },
-        "SONET Compliance Codes": {"$ref": "/schemas/sff-8636_sonet_compliance_codes"},
-        "SAS/SATA Compliance Codes": {"$ref": "/schemas/sff-8636_sas_sata_compliance_codes"},
-        "Gigabit Ethernet Compliance Codes": {"$ref": "/schemas/sff-8636_gigabit_ethernet_compliance_codes"},
-        "Fibre Channel Link Length": {"$ref": "/schemas/sff-8636_fibre_channel_link_length"},
-        "Fibre Channel Transmitter Technology": {"$ref": "/schemas/sff-8636_fibre_transmitter_technology"},
-        "Fibre Channel Transmission Media": {"$ref": "/schemas/sff-8636_fibre_channel_transmission_media"},
-        "Fibre Channel Speed": {"$ref": "/schemas/sff-8636_fibre_channel_speed"},
-        "Encoding": {"$ref": "/schemas/sff-8636_encoding"},
-        "Nominal Signaling Rate [MBaud] (Divisible by 100)": {"$ref": "/schemas/sff-8636_nominal_baud_rate_100"},
-        "Extended Rate Select Compliance": {"$ref": "/schemas/sff-8636_extended_rate_selection_compliance"},
-        "Length (Standard SM Fiber) [km]": {"$ref": "/schemas/sff-8636_length_smf_km"},
-        "Length (OM3 50 um) [m] (Divisible by 2)": {"$ref": "/schemas/sff-8636_length_om3_m"},
-        "Length (OM2 50 um) [m]": {"$ref": "/schemas/sff-8636_length_om2_m"},
-        "Copper or Fibre Properties": {"$ref": "/schemas/sff-8636_copper_or_fibre_properties"},
-        "Vendor Name": {"$ref": "/schemas/sff-8636_vendor_name"},
-        "Extended Module Codes (Infiniband)": {"$ref": "/schemas/sff-8636_extended_module_codes_infiniband"},
-        "Vendor OUI": {"$ref": "/schemas/sff-8636_vendor_oui"},
-        "Vendor Part Number": {"$ref": "/schemas/sff-8636_vendor_part_number"},
-        "Vendor Rev": {"$ref": "/schemas/sff-8636_vendor_rev"},
-        "Maximum Case Temperature [degC]": {"$ref": "/schemas/sff-8636_maximum_case_temperature"},
-        "CC_BASE": {"$ref": "/schemas/sff-8636_cc_base_checksum"},
-        "Extended Specification Compliance Codes": {"$ref": "/schemas/sff-8636_extended_specification_compliance_codes"},
-        "Options": {"$ref": "/schemas/sff-8636_options"},
-        "Vendor Serial Number": {"$ref": "/schemas/sff-8636_vendor_serial_number"},
-        "Date Code": {"$ref": "/schemas/sff-8636_date_code"},
-        "Diagnostic Monitoring Type": {"$ref": "/schemas/sff-8636_diagnostic_monitoring_type"},
-        "Enhanced Options": {"$ref": "/schemas/sff-8636_enhanced_options"},
-        "Extended Baud Rate [MBaud] (Divisible by 250)": {"$ref": "/schemas/sff-8636_extended_baud_rate_250"},
-        "CC_EXT": {"$ref": "/schemas/sff-8636_cc_ext_checksum"},
-        "Vendor Specific": {"$ref": "/schemas/sff-8636_vendor_specific"}
+        "Identifier": { "$ref": "#/definitions/sff-8636_identifier" },
+        "Extended Identifier": { "$ref": "#/definitions/sff-8636_extended_identifier" },
+        "Connector Type": {"$ref": "#/definitions/sff-8636_connector_type" },
+        "10/40G/100G Ethernet Compliance Codes": {"$ref": "#/definitions/sff-8636_10_40G_100G_ethernet_compliance_codes" },
+        "SONET Compliance Codes": {"$ref": "#/definitions/sff-8636_sonet_compliance_codes"},
+        "SAS/SATA Compliance Codes": {"$ref": "#/definitions/sff-8636_sas_sata_compliance_codes"},
+        "Gigabit Ethernet Compliance Codes": {"$ref": "#/definitions/sff-8636_gigabit_ethernet_compliance_codes"},
+        "Fibre Channel Link Length": {"$ref": "#/definitions/sff-8636_fibre_channel_link_length"},
+        "Fibre Channel Transmitter Technology": {"$ref": "#/definitions/sff-8636_fibre_channel_transmitter_technology"},
+        "Fibre Channel Transmission Media": {"$ref": "#/definitions/sff-8636_fibre_channel_transmission_media"},
+        "Fibre Channel Speed": {"$ref": "#/definitions/sff-8636_fibre_channel_speed"},
+        "Encoding": {"$ref": "#/definitions/sff-8636_encoding"},
+        "Nominal Signaling Rate [MBaud] (Divisible by 100)": {"$ref": "#/definitions/sff-8636_nominal_baud_rate_100"},
+        "Extended Rate Select Compliance": {"$ref": "#/definitions/sff-8636_extended_rate_selection_compliance"},
+        "Length (Standard SM Fiber) [km]": {"$ref": "#/definitions/sff-8636_length_smf_km"},
+        "Length (OM3 50 um) [m] (Divisible by 2)": {"$ref": "#/definitions/sff-8636_length_om3_m"},
+        "Length (OM2 50 um) [m]": {"$ref": "#/definitions/sff-8636_length_om2_m"},
+        "Copper or Fibre Properties": {"$ref": "#/definitions/sff-8636_copper_or_fibre_properties"},
+        "Vendor Name": {"$ref": "#/definitions/sff-8636_vendor_name"},
+        "Extended Module Codes (Infiniband)": {"$ref": "#/definitions/sff-8636_extended_module_codes_infiniband"},
+        "Vendor OUI": {"$ref": "#/definitions/sff-8636_vendor_oui"},
+        "Vendor Part Number": {"$ref": "#/definitions/sff-8636_vendor_part_number"},
+        "Vendor Rev": {"$ref": "#/definitions/sff-8636_vendor_rev"},
+        "Maximum Case Temperature [degC]": {"$ref": "#/definitions/sff-8636_maximum_case_temperature"},
+        "CC_BASE": {"$ref": "#/definitions/sff-8636_cc_base_checksum"},
+        "Extended Specification Compliance Codes": {"$ref": "#/definitions/sff-8636_extended_specification_compliance_codes"},
+        "Options": {"$ref": "#/definitions/sff-8636_options"},
+        "Vendor Serial Number": {"$ref": "#/definitions/sff-8636_vendor_serial_number"},
+        "Date Code": {"$ref": "#/definitions/sff-8636_date_code"},
+        "Diagnostic Monitoring Type": {"$ref": "#/definitions/sff-8636_diagnostic_monitoring_type"},
+        "Enhanced Options": {"$ref": "#/definitions/sff-8636_enhanced_options"},
+        "Extended Baud Rate [MBaud] (Divisible by 250)": {"$ref": "#/definitions/sff-8636_extended_baud_rate_250"},
+        "CC_EXT": {"$ref": "#/definitions/sff-8636_cc_ext_checksum"},
+        "Vendor Specific": {"$ref": "#/definitions/sff-8636_vendor_specific"}
     },
 
     "required": [

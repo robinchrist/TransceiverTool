@@ -25,6 +25,7 @@ configure_file(
 )
 
 option(TRANSCEIVERTOOL_BUILD_FUZZERS "Build the libFuzzer fuzz targets (requires Clang)" OFF)
+option(TRANSCEIVERTOOL_SCHEMA_TESTS "Build JSON schema contract tests (Conan: -o schema_tests=True)" OFF)
 
 # All standards code lives in a library so that the CLI and the fuzz targets can share it.
 # CLI.cpp is the only source of the executable itself.
@@ -61,6 +62,11 @@ target_link_libraries(TransceiverTool PRIVATE TransceiverToolCore)
 # CLI11 is only used by CLI.cpp, so it stays off the core library
 target_link_libraries(TransceiverTool PRIVATE CLI11::CLI11)
 
+
+if(TRANSCEIVERTOOL_SCHEMA_TESTS OR TRANSCEIVERTOOL_BUILD_FUZZERS)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
 
 if(TRANSCEIVERTOOL_BUILD_FUZZERS)
     if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")

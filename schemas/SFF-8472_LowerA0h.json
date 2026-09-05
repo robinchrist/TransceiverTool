@@ -1,14 +1,13 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "https://example.com/product.schema.json",
+    "$id": "urn:transceivertool:schema:SFF-8472_LowerA0h",
     "title": "SFF-8472 Rev 12.4 Lower Page A0h",
     "description": "JSON Format for SFF-8472 Rev 12.4 Lower Page A0h",
     "type": "object",
 
-    "$defs": {
+    "definitions": {
         "single_byte_value_obj": {
-            "$id": "/schemas/single_byte_value_obj",
-            "$schema": "http://json-schema.org/draft-07/schema#",
+            "description": "A raw byte. Use this form to preserve reserved or unknown values, or to enter a byte directly.",
             "type": "object",
             "properties": {
                 "byteValue": {
@@ -19,8 +18,7 @@
             "required": ["byteValue"] 
         },
         "base64_obj": {
-            "$id": "/schemas/base64_obj",
-            "$schema": "http://json-schema.org/draft-07/schema#",
+            "description": "Raw bytes encoded as Base64. Use this when a fixed-width field cannot be represented as readable text. The converter checks the decoded byte count for each field.",
             "type": "object",
             "properties": {
                 "Type": { "const": "Base64" },
@@ -32,10 +30,8 @@
             "required": ["Type", "Value"] 
         },
         "sff-8472_identifier": {
-            "$id": "/schemas/sff-8472_identifier",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                { "$ref": "/schemas/single_byte_value_obj" },
+                { "$ref": "#/definitions/single_byte_value_obj" },
                 { 
                     "enum": [
                         "Unknown or unspecified",
@@ -47,10 +43,8 @@
             ]
         },
         "sff-8472_extended_identifier": {
-            "$id": "/schemas/sff-8472_extended_identifier",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                { "$ref": "/schemas/single_byte_value_obj" },
+                { "$ref": "#/definitions/single_byte_value_obj" },
                 { 
                     "enum": [
                         "GBIC definition is not specified or the GBIC definition is not compliant with a defined MOD_DEF. See product specification for details.",
@@ -66,10 +60,8 @@
             ]
         },
         "sff-8024_connector_type": {
-            "$id": "/schemas/sff-8024_connector_type",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                { "$ref": "/schemas/single_byte_value_obj" },
+                { "$ref": "#/definitions/single_byte_value_obj" },
                 { 
                     "enum": [
                         "Unknown or unspecified",
@@ -100,8 +92,6 @@
             ]
         },
         "sff-8472_10G_ethernet_compliance_codes": {
-            "$id": "/schemas/sff-8472_10G_ethernet_compliance_codes",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "10GBASE-ER compliant (Bit 7)": {"type": "boolean"},
@@ -117,8 +107,6 @@
             ]
         },
         "sff-8472_infiniband_compliance_codes": {
-            "$id": "/schemas/sff-8472_infiniband_compliance_codes",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "1X SX compliant (Bit 3)": {"type": "boolean"},
@@ -134,8 +122,6 @@
             ]
         },
         "sff-8472_escon_compliance_codes": {
-            "$id": "/schemas/sff-8472_escon_compliance_codes",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "ESCON MMF, 1310nm LED compliant (Bit 7)": {"type": "boolean"},
@@ -147,8 +133,6 @@
             ]
         },
         "sff-8472_sonet_compliance_codes": {
-            "$id": "/schemas/sff-8472_sonet_compliance_codes",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "OC-192, short reach compliant (Byte 4, Bit 5)": {"type": "boolean"},
@@ -189,8 +173,6 @@
             ]
         },
         "sff-8472_ethernet_compliance_codes": {
-            "$id": "/schemas/sff-8472_ethernet_compliance_codes",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "BASE-PX compliant (Bit 7)": {"type": "boolean"},
@@ -214,8 +196,6 @@
             ]
         },
         "sff-8472_fibre_channel_link_length_compliance_codes": {
-            "$id": "/schemas/sff-8472_fibre_channel_link_length_compliance_codes",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "very long distance (V) compliant (Bit 7)": {"type": "boolean"},
@@ -233,8 +213,6 @@
             ]
         },
         "sff-8472_fibre_channel_technology_compliance_codes": {
-            "$id": "/schemas/sff-8472_fibre_channel_technology_compliance_codes",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Shortwave laser, linear Rx (SA) compliant (Byte 7, Bit 2)": {"type": "boolean"},
@@ -256,8 +234,6 @@
             ]
         },
         "sff-8472_sfp_plus_cable_technology_compliance_codes": {
-            "$id": "/schemas/sff-8472_sfp_plus_cable_technology_compliance_codes",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Active Cable compliant (Bit 3)": {"type": "boolean"},
@@ -273,8 +249,6 @@
             ]
         },
         "sff-8472_fibre_channel_transmission_media_codes": {
-            "$id": "/schemas/sff-8472_fibre_channel_transmission_media_codes",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Active Cable compliant (Bit 3)": {"type": "boolean"},
@@ -299,8 +273,6 @@
             ]
         },
         "sff-8472_fibre_channel_speed_codes": {
-            "$id": "/schemas/sff-8472_fibre_channel_speed_codes",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "1200 MBytes/sec compliant (Bit 7)": {"type": "boolean"},
@@ -324,10 +296,8 @@
             ]
         },
         "sff-8472_encoding": {
-            "$id": "/schemas/sff-8472_encoding",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                { "$ref": "/schemas/single_byte_value_obj" },
+                { "$ref": "#/definitions/single_byte_value_obj" },
                 { 
                     "enum": [
                         "Unspecified",
@@ -344,8 +314,6 @@
             ]
         },
         "sff-8472_nominal_baud_rate_100": {
-            "$id": "/schemas/sff-8472_nominal_baud_rate_100",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
                 {
                     "const": "Not Specified"
@@ -353,7 +321,7 @@
                 {
                     "type": "integer",
                     "multipleOf" : 100,
-                    "minimum": 250,
+                    "minimum": 0,
                     "maximum": 25400
                 },
                 {
@@ -362,10 +330,8 @@
             ]
         },
         "sff-8472_rate_identifier": {
-            "$id": "/schemas/sff-8472_rate_identifier",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                { "$ref": "/schemas/single_byte_value_obj" },
+                { "$ref": "#/definitions/single_byte_value_obj" },
                 { 
                     "enum": [
                         "Unspecified (00h)",
@@ -384,8 +350,6 @@
             ]
         },
         "sff-8472_link_length": {
-            "$id": "/schemas/sff-8472_link_length",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
                 {
                     "type": "object",
@@ -460,7 +424,7 @@
                                     "maximum": 254
                                 },
                                 {
-                                    "const": "> 2.54 km"
+                                    "const": "> 254 m"
                                 }
                             ]
                         },
@@ -604,10 +568,8 @@
             ]
         },
         "sff-8472_vendor_name": {
-            "$id": "/schemas/sff-8472_vendor_name",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                {"$ref": "/schemas/base64_obj"},
+                {"$ref": "#/definitions/base64_obj"},
                 { 
                     "type": "string",
                     "pattern": "^[ -~]{0,16}$"
@@ -615,10 +577,8 @@
             ]
         },
         "sff-8472_extended_specification_compliance_codes": {
-            "$id": "/schemas/sff-8472_extended_specification_compliance_codes",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                { "$ref": "/schemas/single_byte_value_obj" },
+                { "$ref": "#/definitions/single_byte_value_obj" },
                 { 
                     "enum": [
                         "Unspecified",
@@ -700,8 +660,6 @@
             ]
         },
         "sff-8472_included_vendor_ouis": {
-            "$id": "/schemas/sff-8472_included_vendor_ouis",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "enum": [
                 "FS COM INC",
                 "Brocade Communications Systems LLC",
@@ -722,14 +680,12 @@
             ]
         },
         "sff-8472_vendor_oui": {
-            "$id": "/schemas/sff-8472_vendor_oui",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
                 { 
                     "type": "object",
                     "properties": {
                         "Vendor Name": {
-                            "$ref": "/schemas/sff-8472_included_vendor_ouis"
+                            "$ref": "#/definitions/sff-8472_included_vendor_ouis"
                         }
                     },
                     "required": ["Vendor Name"]
@@ -741,10 +697,8 @@
             ]
         },
         "sff-8472_vendor_part_number": {
-            "$id": "/schemas/sff-8472_vendor_part_number",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                {"$ref": "/schemas/base64_obj"},
+                {"$ref": "#/definitions/base64_obj"},
                 { 
                     "type": "string",
                     "pattern": "^[ -~]{0,16}$"
@@ -752,10 +706,8 @@
             ]
         },
         "sff-8472_vendor_rev": {
-            "$id": "/schemas/sff-8472_vendor_rev",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                {"$ref": "/schemas/base64_obj"},
+                {"$ref": "#/definitions/base64_obj"},
                 { 
                     "type": "string",
                     "pattern": "^[ -~]{0,4}$"
@@ -763,8 +715,6 @@
             ]
         },
         "sff-8472_wavelength_or_cable_specification_compliance": {
-            "$id": "/schemas/sff-8472_wavelength_or_cable_specification_compliance",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
                 {
                     "type": "object",
@@ -871,8 +821,6 @@
             ]
         },
         "sff-8472_fibre_channel_speed_2_codes": {
-            "$id": "/schemas/sff-8472_fibre_channel_speed_2_codes",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Reserved (Bit 7)": {"type": "boolean"},
@@ -896,16 +844,13 @@
             ]
         },
         "sff-8472_cc_base_checksum": {
-            "$id": "/schemas/sff-8472_cc_base_checksum",
-            "$schema": "http://json-schema.org/draft-07/schema#",
+            "description": "Use auto to calculate the checksum, or a raw byte object to preserve an explicit checksum, including an incorrect one.",
             "anyOf": [
                 {  "const": "auto" },
-                { "$ref": "/schemas/single_byte_value_obj" }
+                { "$ref": "#/definitions/single_byte_value_obj" }
             ]
         },
         "sff-8472_option_values": {
-            "$id": "/schemas/sff-8472_option_values",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Reserved (Byte 64, Bit 7)": {"type": "boolean"},
@@ -945,8 +890,6 @@
             ]
         },
         "sff-8472_extended_signaling_rate": {
-            "$id": "/schemas/sff-8472_extended_signaling_rate",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
                 {
                     "type": "object",
@@ -1005,10 +948,8 @@
             ]
         },
         "sff-8472_vendor_serial_number": {
-            "$id": "/schemas/sff-8472_vendor_serial_number",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                {"$ref": "/schemas/base64_obj"},
+                {"$ref": "#/definitions/base64_obj"},
                 { 
                     "type": "string",
                     "pattern": "^[ -~]{0,16}$"
@@ -1016,13 +957,11 @@
             ]
         },
         "sff-8472_date_code": {
-            "$id": "/schemas/sff-8472_date_code",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Year low order digits (Byte 84-85)": {
                     "anyOf": [
-                        {"$ref": "/schemas/base64_obj"},
+                        {"$ref": "#/definitions/base64_obj"},
                         {
                             "type": "integer",
                             "minimum": 0,
@@ -1032,7 +971,7 @@
                 },
                 "Month digits (Byte 86-87)": {
                     "anyOf": [
-                        {"$ref": "/schemas/base64_obj"},
+                        {"$ref": "#/definitions/base64_obj"},
                         {
                             "type": "integer",
                             "minimum": 1,
@@ -1042,7 +981,7 @@
                 },
                 "Day (Byte 88-89)": {
                     "anyOf": [
-                        {"$ref": "/schemas/base64_obj"},
+                        {"$ref": "#/definitions/base64_obj"},
                         {
                             "type": "integer",
                             "minimum": 1,
@@ -1052,7 +991,7 @@
                 },
                 "Vendor Lot Code (Byte 90-91)": {
                     "anyOf": [
-                        {"$ref": "/schemas/base64_obj"},
+                        {"$ref": "#/definitions/base64_obj"},
                         {
                             "type": "string",
                             "minLength": 0,
@@ -1069,8 +1008,6 @@
             ]
         },
         "sff-8472_diagnostic_monitoring_type": {
-            "$id": "/schemas/sff-8472_diagnostic_monitoring_type",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Reserved (Bit 7)": {"type": "boolean"},
@@ -1096,8 +1033,6 @@
             ]
         },
         "sff-8472_enhanced_options": {
-            "$id": "/schemas/sff-8472_enhanced_options",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 "Optional Alarm/warning flags implemented (Bit 7)": {"type": "boolean"},
@@ -1121,10 +1056,8 @@
             ]
         },
         "sff-8472_compliance": {
-            "$id": "/schemas/sff-8472_compliance",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                { "$ref": "/schemas/single_byte_value_obj" },
+                { "$ref": "#/definitions/single_byte_value_obj" },
                 { 
                     "enum": [
                         "Includes functionality described in Rev 9.3 of SFF-8472",
@@ -1141,18 +1074,15 @@
             ]
         },
         "sff-8472_cc_ext_checksum": {
-            "$id": "/schemas/sff-8472_cc_ext_checksum",
-            "$schema": "http://json-schema.org/draft-07/schema#",
+            "description": "Use auto to calculate the checksum, or a raw byte object to preserve an explicit checksum, including an incorrect one.",
             "anyOf": [
                 {  "const": "auto" },
-                { "$ref": "/schemas/single_byte_value_obj" }
+                { "$ref": "#/definitions/single_byte_value_obj" }
             ]
         },
         "sff-8472_vendor_specific": {
-            "$id": "/schemas/sff-8472_vendor_specific",
-            "$schema": "http://json-schema.org/draft-07/schema#",
             "anyOf": [
-                {"$ref": "/schemas/base64_obj"}
+                {"$ref": "#/definitions/base64_obj"}
             ]
         }
     },
@@ -1161,40 +1091,40 @@
         "Type": {
             "const": "SFF-8472 Rev 12.4 Lower Page A0h"
         },
-        "Identifier": { "$ref": "/schemas/sff-8472_identifier" },
-        "Extended Identifier": { "$ref": "/schemas/sff-8472_extended_identifier" },
-        "Connector Type": { "$ref": "/schemas/sff-8024_connector_type" },
-        "10G Ethernet Compliance Codes": { "$ref": "/schemas/sff-8472_10G_ethernet_compliance_codes" },
-        "Infiniband Compliance Codes": { "$ref": "/schemas/sff-8472_infiniband_compliance_codes" },
-        "ESCON Compliance Codes": { "$ref": "/schemas/sff-8472_escon_compliance_codes" },
-        "SONET Compliance Codes": { "$ref": "/schemas/sff-8472_sonet_compliance_codes" },
-        "Ethernet Compliance Codes": { "$ref": "/schemas/sff-8472_ethernet_compliance_codes" },
-        "Fibre Channel Link Length": { "$ref": "/schemas/sff-8472_fibre_channel_link_length_compliance_codes" },
-        "Fibre Channel Technology": { "$ref": "/schemas/sff-8472_fibre_channel_technology_compliance_codes" },
-        "SFP+ Cable Technology": { "$ref": "/schemas/sff-8472_sfp_plus_cable_technology_compliance_codes" },
-        "Fibre Channel Transmission Media": { "$ref": "/schemas/sff-8472_fibre_channel_transmission_media_codes" },
-        "Fibre Channel Speed": { "$ref": "/schemas/sff-8472_fibre_channel_speed_codes" },
-        "Encoding": {"$ref": "/schemas/sff-8472_encoding"},
-        "Nominal Signaling Rate [MBaud] (Divisible by 100)": {"$ref": "/schemas/sff-8472_nominal_baud_rate_100"},
-        "Rate Identifier": {"$ref": "/schemas/sff-8472_rate_identifier"},
-        "Link Length": {"$ref": "/schemas/sff-8472_link_length"},
-        "Vendor Name": {"$ref": "/schemas/sff-8472_vendor_name"},
-        "Extended Specification Compliance Codes": {"$ref": "/schemas/sff-8472_extended_specification_compliance_codes"},
-        "Vendor OUI": {"$ref": "/schemas/sff-8472_vendor_oui"},
-        "Vendor Part Number": {"$ref": "/schemas/sff-8472_vendor_part_number"},
-        "Vendor Rev": {"$ref": "/schemas/sff-8472_vendor_rev"},
-        "Wavelength Or Cable Specification Compliance": {"$ref": "/schemas/sff-8472_wavelength_or_cable_specification_compliance"},
-        "Fibre Channel Speed 2": { "$ref": "/schemas/sff-8472_fibre_channel_speed_2_codes" },
-        "CC_BASE": {"$ref": "/schemas/sff-8472_cc_base_checksum"},
-        "Option Values": {"$ref": "/schemas/sff-8472_option_values"},
-        "Extended Signaling Rate": { "$ref": "/schemas/sff-8472_extended_signaling_rate" },
-        "Vendor Serial Number": {"$ref": "/schemas/sff-8472_vendor_serial_number"},
-        "Date Code": {"$ref": "/schemas/sff-8472_date_code"},
-        "Diagnostic Monitoring Type": {"$ref": "/schemas/sff-8472_diagnostic_monitoring_type"},
-        "Enhanced Options": {"$ref": "/schemas/sff-8472_enhanced_options"},
-        "SFF-8472 Compliance": {"$ref": "/schemas/sff-8472_compliance"},
-        "CC_EXT": {"$ref": "/schemas/sff-8472_cc_ext_checksum"},
-        "Vendor Specific": {"$ref": "/schemas/sff-8472_vendor_specific"}
+        "Identifier": { "$ref": "#/definitions/sff-8472_identifier" },
+        "Extended Identifier": { "$ref": "#/definitions/sff-8472_extended_identifier" },
+        "Connector Type": { "$ref": "#/definitions/sff-8024_connector_type" },
+        "10G Ethernet Compliance Codes": { "$ref": "#/definitions/sff-8472_10G_ethernet_compliance_codes" },
+        "Infiniband Compliance Codes": { "$ref": "#/definitions/sff-8472_infiniband_compliance_codes" },
+        "ESCON Compliance Codes": { "$ref": "#/definitions/sff-8472_escon_compliance_codes" },
+        "SONET Compliance Codes": { "$ref": "#/definitions/sff-8472_sonet_compliance_codes" },
+        "Ethernet Compliance Codes": { "$ref": "#/definitions/sff-8472_ethernet_compliance_codes" },
+        "Fibre Channel Link Length": { "$ref": "#/definitions/sff-8472_fibre_channel_link_length_compliance_codes" },
+        "Fibre Channel Technology": { "$ref": "#/definitions/sff-8472_fibre_channel_technology_compliance_codes" },
+        "SFP+ Cable Technology": { "$ref": "#/definitions/sff-8472_sfp_plus_cable_technology_compliance_codes" },
+        "Fibre Channel Transmission Media": { "$ref": "#/definitions/sff-8472_fibre_channel_transmission_media_codes" },
+        "Fibre Channel Speed": { "$ref": "#/definitions/sff-8472_fibre_channel_speed_codes" },
+        "Encoding": {"$ref": "#/definitions/sff-8472_encoding"},
+        "Nominal Signaling Rate [MBaud] (Divisible by 100)": {"$ref": "#/definitions/sff-8472_nominal_baud_rate_100"},
+        "Rate Identifier": {"$ref": "#/definitions/sff-8472_rate_identifier"},
+        "Link Length": {"$ref": "#/definitions/sff-8472_link_length"},
+        "Vendor Name": {"$ref": "#/definitions/sff-8472_vendor_name"},
+        "Extended Specification Compliance Codes": {"$ref": "#/definitions/sff-8472_extended_specification_compliance_codes"},
+        "Vendor OUI": {"$ref": "#/definitions/sff-8472_vendor_oui"},
+        "Vendor Part Number": {"$ref": "#/definitions/sff-8472_vendor_part_number"},
+        "Vendor Rev": {"$ref": "#/definitions/sff-8472_vendor_rev"},
+        "Wavelength Or Cable Specification Compliance": {"$ref": "#/definitions/sff-8472_wavelength_or_cable_specification_compliance"},
+        "Fibre Channel Speed 2": { "$ref": "#/definitions/sff-8472_fibre_channel_speed_2_codes" },
+        "CC_BASE": {"$ref": "#/definitions/sff-8472_cc_base_checksum"},
+        "Option Values": {"$ref": "#/definitions/sff-8472_option_values"},
+        "Extended Signaling Rate": { "$ref": "#/definitions/sff-8472_extended_signaling_rate" },
+        "Vendor Serial Number": {"$ref": "#/definitions/sff-8472_vendor_serial_number"},
+        "Date Code": {"$ref": "#/definitions/sff-8472_date_code"},
+        "Diagnostic Monitoring Type": {"$ref": "#/definitions/sff-8472_diagnostic_monitoring_type"},
+        "Enhanced Options": {"$ref": "#/definitions/sff-8472_enhanced_options"},
+        "SFF-8472 Compliance": {"$ref": "#/definitions/sff-8472_compliance"},
+        "CC_EXT": {"$ref": "#/definitions/sff-8472_cc_ext_checksum"},
+        "Vendor Specific": {"$ref": "#/definitions/sff-8472_vendor_specific"}
     },
 
     "required": [

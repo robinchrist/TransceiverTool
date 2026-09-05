@@ -19,6 +19,7 @@
 #include <vector>
 
 #include <nlohmann/json.hpp>
+#include "SchemaContract.hpp"
 
 #include "TransceiverTool/Standards/SFF-8636_Assembler.hpp"
 #include "TransceiverTool/Standards/SFF-8636_JSON.hpp"
@@ -38,6 +39,7 @@ namespace {
 
         nlohmann::ordered_json j;
         TransceiverTool::Standards::SFF8636::SFF8636_Upper00hToJSON(j, parsed, fiberMode);
+        SchemaContract::validate8636(nlohmann::json::parse(j.dump()));
 
         // Dump and re-parse so the actual text representation is exercised, not just the DOM
         TransceiverTool::Standards::SFF8636::SFF8636_Upper00h roundtripped;

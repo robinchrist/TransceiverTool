@@ -1032,16 +1032,53 @@ There are three libFuzzer targets in `fuzz/`:
 
 | Target | What it does | What counts as a finding |
 | --- | --- | --- |
-| `fuzz_sff8472_roundtrip` | 128 bytes -> struct -> JSON -> struct -> 128 bytes | any byte differs, or the tool cannot read back its own JSON |
+| `fuzz_sff8472_roundtrip` | 128 bytes -> struct -> JSON -> struct -> 128 bytes | JSON violates its schema, any byte differs, or the tool cannot read back its own JSON |
 | `fuzz_sff8636_roundtrip` | same for a 256 byte page 00h, comparing bytes 128-255 | as above |
 | `fuzz_json_input` | arbitrary bytes through the `encode` path: FromJSON, assemble, pretty print, validate | crash, sanitizer report, or an exception not derived from `std::exception` |
 
 The roundtrip targets assert the property this tool is built on: every programming, valid or not,
 survives the JSON representation unchanged. Both fiber and copper interpretation are exercised per
-input, because several bytes have two meanings.
+input, because several bytes have two meanings. The intermediate JSON must also validate against
+the handwritten schema; schema disagreements are fuzz findings. Schemas are loaded once per process
+from this checkout, so restart a fuzzer after editing a schema.
 
 For `fuzz_json_input` a rejected input is the expected outcome, so exceptions are caught. Only
 memory errors and inputs that escape the CLI's error handling are bugs.
+
+### JSON schema contract tests
+
+The schemas remain handwritten public documentation. C++ converters retain responsibility for
+binary interpretation, checksums, and byte preservation. Schema validation is a development-only
+dependency and does not change the release CLI's input validation.
+
+For a normal, unsanitized contract-test build:
+
+```
+conan install . --output-folder build --build=missing -s build_type=Release -o "&:schema_tests=True"
+cmake -S . -B build -DCMAKE_TOOLCHAIN_FILE=build/conan_toolchain.cmake -DCMAKE_BUILD_TYPE=Release -DTRANSCEIVERTOOL_SCHEMA_TESTS=ON
+cmake --build build --config Release --parallel
+ctest --test-dir build -C Release --output-on-failure
+```
+
+CI runs the same checks on Linux, macOS, and Windows. The deterministic tests reuse the two
+roundtrip fuzz targets with all 256 uniform byte patterns and 128 reproducible mixed patterns,
+in both fiber and copper modes. Curated JSON input cases independently check schema and parser
+acceptance of raw bytes, known names, checksum alternatives, vendor strings, missing fields,
+and signaling-rate boundaries. These checks detect drift; they do not prove equivalence for all
+possible JSON inputs. Base64 syntax is checked, while decoded lengths and other semantic rules
+remain enforced by the converters.
+
+The assigned-value tables used by C++ also supply the corresponding schema enum lists. To refresh
+those lists after changing a table, run:
+
+```
+python3 tests/schema_enums.py build/tests/schema_enums --write
+```
+
+For a Windows multi-configuration build, the executable is `build/tests/Release/schema_enums.exe`.
+Without `--write`, this checks for drift without editing anything (as CTest does). Only the enum
+arrays are generated; surrounding definitions, descriptions, and formatting remain handwritten.
+Regenerate the fuzz dictionary below after changing schema strings.
 
 ### Building
 
@@ -1096,7 +1133,9 @@ def walk(n):
         for x in n: walk(x)
 for f in ["schemas/SFF-8472_LowerA0h.json","schemas/SFF-8636_Upper00h.json"]: walk(json.load(open(f)))
 keys.update(["SFF-8472 Rev 12.4 Lower Page A0h","SFF-8636 Rev 2.11 Upper Page 00h","Type","byteValue","auto","N/A"])
-out=["# libFuzzer dictionary for fuzz_json_input.",
+out=["# SPDX-FileCopyrightText: 2024-2026 Robin Christ",
+     "# SPDX-License-Identifier: MPL-2.0", "",
+     "# libFuzzer dictionary for fuzz_json_input.",
      "# Generated from schemas/*.json - the key names are far too long for the mutator to find on its own.",
      "# Regenerate with the snippet in the fuzzing section of README.MD.",""]
 for k in sorted(k for k in keys if k):

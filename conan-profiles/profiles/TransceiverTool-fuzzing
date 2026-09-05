@@ -17,6 +17,9 @@ compiler.cppstd=gnu20
 compiler.libcxx=libstdc++11
 compiler.version=22
 
+[options]
+&:schema_tests=True
+
 [conf]
 tools.build:compiler_executables={"c": "clang", "cpp": "clang++"}
 

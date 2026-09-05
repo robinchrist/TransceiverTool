@@ -689,7 +689,7 @@ namespace TransceiverTool::Standards::SFF8636 {
 
         if(byte_value == 0) {
             j = "N/A";
-        } else if(j == 1) {
+        } else if(byte_value == 1) {
             j = "0 - 1";
         } else {
             j = (unsigned long)(byte_value);
