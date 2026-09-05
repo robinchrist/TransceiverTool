@@ -38,6 +38,11 @@ conan lock create . -pr:b default -pr:h ./conan-profiles/profiles/TransceiverToo
 embedded in that one file. Open it directly from disk, copy it to another machine, or serve it
 from any static host. No runtime network requests, external fonts, analytics, or server are needed.
 
+The release workflow runs the same Conan build, codec tests, and offline browser tests as web CI.
+Tagged releases attach `TransceiverTool-web-v<version>.html` directly alongside the native archives
+and include it in `SHA256SUMS`. Manual release runs build and test the HTML without publishing it;
+it is available as the `transceiver-studio-standalone` workflow artifact.
+
 ## Develop and test
 
 ```sh

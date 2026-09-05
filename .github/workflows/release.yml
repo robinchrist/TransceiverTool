@@ -104,8 +104,8 @@ jobs:
           name: TransceiverTool-linux-${{ matrix.arch }}
           path: dist/
 
-  # macOS is built once per architecture and merged into one universal binary below, so a single
-  # download works on both Intel and Apple Silicon.
+  # Publish each macOS architecture separately, then merge the same binaries into a universal
+  # download that works on both Intel and Apple Silicon.
   macos:
     name: macOS ${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
@@ -144,6 +144,17 @@ jobs:
         with:
           name: macos-slice-${{ matrix.arch }}
           path: build/TransceiverTool
+
+      - name: Stage architecture artifact
+        run: |
+          mkdir -p "dist/TransceiverTool-macos-${{ matrix.arch }}"
+          cp build/TransceiverTool LICENSE README.MD "dist/TransceiverTool-macos-${{ matrix.arch }}/"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TransceiverTool-macos-${{ matrix.arch }}
+          path: dist/
+          if-no-files-found: error
 
   macos-universal:
     name: macOS universal
@@ -213,9 +224,14 @@ jobs:
           name: TransceiverTool-windows-x86_64
           path: dist/
 
+  web:
+    name: Standalone web interface
+    needs: check-version
+    uses: ./.github/workflows/web.yml
+
   publish:
     name: Publish release
-    needs: [linux, macos-universal, windows]
+    needs: [linux, macos-universal, windows, web]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     steps:
@@ -224,10 +240,16 @@ jobs:
           pattern: TransceiverTool-*
           path: artifacts
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: transceiver-studio-standalone
+          path: standalone
+
       - name: Package
         run: |
           set -e
           mkdir -p release
+          cp standalone/index.html "release/TransceiverTool-web-${GITHUB_REF_NAME}.html"
           cd artifacts
           for d in */TransceiverTool-*; do
             name=$(basename "$d")

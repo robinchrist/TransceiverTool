@@ -6,6 +6,7 @@ on:
     branches: [master]
   pull_request:
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   standalone-app:
@@ -40,3 +41,4 @@ jobs:
         with:
           name: transceiver-studio-standalone
           path: web/dist/index.html
+          if-no-files-found: error
