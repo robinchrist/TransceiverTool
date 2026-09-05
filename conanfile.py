@@ -16,7 +16,8 @@ class TransceiverToolRecipe(ConanFile):
 
         self.requires("cppcodec/0.2")
 
-        self.requires("cli11/2.4.2")
+        if self.settings.os != "Emscripten":
+            self.requires("cli11/2.4.2")
 
         if self.options.schema_tests:
             self.test_requires("json-schema-validator/2.3.0")

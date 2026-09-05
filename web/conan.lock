@@ -1,0 +1,14 @@
+{
+    "version": "0.5",
+    "requires": [
+        "nlohmann_json/3.12.0#2d634ab0ec8d9f56353e5ccef6d6612c%1744735883.94",
+        "fmt/10.2.1#15db2a3ea0646365bf05a6f50369ac59%1785754570.436",
+        "cppcodec/0.2#2970c3267aebdc3ceec3e3ef20786564%1701157190.966"
+    ],
+    "build_requires": [
+        "nodejs/16.3.0#a7eaed2d69910ba185e2ddce7a926cd1%1699800365.225",
+        "emsdk/3.1.73#7dd9b10cfb811b620856f87c3a71c070%1733421474.308"
+    ],
+    "python_requires": [],
+    "config_requires": []
+}

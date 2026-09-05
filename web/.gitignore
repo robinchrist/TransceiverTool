@@ -1,0 +1,8 @@
+node_modules/
+dist/
+build-wasm/
+build-conan-wasm/
+src/wasm/
+playwright-report/
+test-results/
+*.tsbuildinfo

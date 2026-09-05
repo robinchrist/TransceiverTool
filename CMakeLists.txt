@@ -6,11 +6,16 @@ cmake_minimum_required(VERSION 3.27)
 
 project ("Transceiver Tool" VERSION 0.0.2)
 
+option(TRANSCEIVERTOOL_BUILD_CLI "Build the native command-line interface" ON)
+option(TRANSCEIVERTOOL_BUILD_WEB "Build the WebAssembly browser module" OFF)
+
 # Make sure we group dependencies here
 find_package(nlohmann_json REQUIRED)
 find_package(fmt REQUIRED)
 find_package(cppcodec REQUIRED)
-find_package(CLI11 REQUIRED)
+if(TRANSCEIVERTOOL_BUILD_CLI)
+    find_package(CLI11 REQUIRED)
+endif()
 
 
 #set preferences
@@ -32,7 +37,9 @@ option(TRANSCEIVERTOOL_SCHEMA_TESTS "Build JSON schema contract tests (Conan: -o
 add_library(TransceiverToolCore STATIC)
 
 # Add the main server executable target
-add_executable(TransceiverTool)
+if(TRANSCEIVERTOOL_BUILD_CLI)
+    add_executable(TransceiverTool)
+endif()
 
 #target_sources called in CMakeLists.txt in src directory
 add_subdirectory(src)
@@ -58,9 +65,15 @@ target_include_directories(TransceiverToolCore PUBLIC "${CMAKE_CURRENT_BINARY_DI
 
 
 # Everything above is PUBLIC on the core library, so the executable inherits it
-target_link_libraries(TransceiverTool PRIVATE TransceiverToolCore)
-# CLI11 is only used by CLI.cpp, so it stays off the core library
-target_link_libraries(TransceiverTool PRIVATE CLI11::CLI11)
+if(TRANSCEIVERTOOL_BUILD_CLI)
+    target_link_libraries(TransceiverTool PRIVATE TransceiverToolCore)
+    # CLI11 is only used by CLI.cpp, so it stays off the core library
+    target_link_libraries(TransceiverTool PRIVATE CLI11::CLI11)
+endif()
+
+if(TRANSCEIVERTOOL_BUILD_WEB)
+    add_subdirectory(web/wasm)
+endif()
 
 
 if(TRANSCEIVERTOOL_SCHEMA_TESTS OR TRANSCEIVERTOOL_BUILD_FUZZERS)

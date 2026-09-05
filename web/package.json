@@ -1,0 +1,42 @@
+{
+  "name": "transceiver-studio",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build:wasm": "node scripts/build-wasm.mjs",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test tests/codec.test.mjs && vitest run tests/schema.test.ts",
+    "test:e2e": "playwright test",
+    "format": "prettier --write src tests scripts *.ts *.json *.md",
+    "format:check": "prettier --check src tests scripts *.ts *.json *.md"
+  },
+  "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-switch": "^1.2.6",
+    "ajv": "^8.17.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.468.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwind-merge": "^3.3.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "@tailwindcss/vite": "^4.1.13",
+    "@types/node": "^24.3.1",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react": "^5.0.3",
+    "prettier": "3.6.2",
+    "tailwindcss": "^4.1.13",
+    "typescript": "~5.9.2",
+    "vite": "^7.1.5",
+    "vite-plugin-singlefile": "^2.3.0",
+    "vitest": "^3.2.4"
+  }
+}

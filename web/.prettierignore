@@ -1,0 +1,9 @@
+node_modules
+dist
+build-wasm
+build-conan-wasm
+src/wasm
+package-lock.json
+conan.lock
+playwright-report
+test-results

@@ -68,6 +68,16 @@ namespace {
         document = baseline;
         document.erase("GeneratedBy");
         check("optional GeneratedBy", document, true);
+        if(baseline.at("Type") == "SFF-8636 Rev 2.11 Upper Page 00h") {
+            // JavaScript JSON.stringify drops the decimal suffix of whole-valued numbers.
+            // Both 1310 and 1310.0 must represent the same wavelength.
+            document = baseline;
+            document["Copper or Fibre Properties"]["Wavelength [nm] (Divisible by 0.05)"] = 1310;
+            document["Copper or Fibre Properties"]["Wavelength Tolerance [nm] (Divisible by 0.005)"] = 0;
+            check("integer wavelength tokens", document, true);
+            document["Copper or Fibre Properties"]["Wavelength [nm] (Divisible by 0.05)"] = -1;
+            check("negative wavelength", document, false);
+        }
     }
 }  // namespace
 

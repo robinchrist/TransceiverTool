@@ -1,0 +1,21 @@
+# SPDX-FileCopyrightText: 2026 Robin Christ
+# SPDX-License-Identifier: MPL-2.0
+
+[settings]
+os=Emscripten
+arch=wasm
+compiler=emcc
+compiler.version=3.1.73
+compiler.cppstd=17
+compiler.libcxx=libc++
+build_type=Release
+
+[tool_requires]
+emsdk/3.1.73
+
+[conf]
+# Exception handling is required by the existing JSON parsers and the browser error boundary.
+tools.build:cxxflags=["-fexceptions"]
+tools.build:exelinkflags=["-fexceptions", "-sDISABLE_EXCEPTION_CATCHING=0"]
+tools.info.package_id:confs=["tools.build:cxxflags", "tools.build:exelinkflags"]
+tools.cmake.cmaketoolchain:user_presets=

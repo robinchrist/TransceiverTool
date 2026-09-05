@@ -996,6 +996,7 @@
         "Length (OM3 50 um) [m] (Divisible by 2)": {"$ref": "#/definitions/sff-8636_length_om3_m"},
         "Length (OM2 50 um) [m]": {"$ref": "#/definitions/sff-8636_length_om2_m"},
         "Copper or Fibre Properties": {"$ref": "#/definitions/sff-8636_copper_or_fibre_properties"},
+        "Device & Transmitter Properties": {"$ref": "#/definitions/sff-8636_device_transmitter_properties"},
         "Vendor Name": {"$ref": "#/definitions/sff-8636_vendor_name"},
         "Extended Module Codes (Infiniband)": {"$ref": "#/definitions/sff-8636_extended_module_codes_infiniband"},
         "Vendor OUI": {"$ref": "#/definitions/sff-8636_vendor_oui"},

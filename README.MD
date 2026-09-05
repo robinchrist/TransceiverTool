@@ -9,6 +9,11 @@ This tool allows creation of every possible programming and is roundtrip-stable.
 
 Full JSON schemas are provided for the JSON output / input.
 
+A self-contained browser editor is available in [`web/`](web/README.md), with graphical schema-driven
+configuration, local WebAssembly conversion, and JSON/binary downloads. Build instructions and tests
+are documented in the web README.
+
+
 Overall, the goal is democratise transceiver programming. Right now your best option is probably using this tool together with REVELPROG programmer and the matching adapter board.
 
 ## Why this project?

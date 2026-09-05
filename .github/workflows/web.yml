@@ -1,0 +1,42 @@
+# SPDX-FileCopyrightText: 2026 Robin Christ
+# SPDX-License-Identifier: MPL-2.0
+name: Web interface
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  standalone-app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: pip install "conan>=2.21,<3" "cmake>=3.27"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.conan2/p
+          key: conan-wasm-${{ runner.os }}-${{ hashFiles('conanfile.py', 'web/conan.lock', 'conan-profiles/profiles/TransceiverTool-wasm') }}
+      - run: conan profile detect
+      - run: npm ci
+        working-directory: web
+      - run: npm run build:wasm
+        working-directory: web
+      - run: npm run format:check && npm test && npm run build
+        working-directory: web
+      - run: npx playwright install --with-deps chromium
+        working-directory: web
+      - run: npm run test:e2e
+        working-directory: web
+      - uses: actions/upload-artifact@v4
+        with:
+          name: transceiver-studio-standalone
+          path: web/dist/index.html

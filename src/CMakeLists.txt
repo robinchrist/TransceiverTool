@@ -22,7 +22,6 @@ target_sources(
     Standards/SFF-8636_Validation.cpp
 )
 
-target_sources(
-    TransceiverTool PRIVATE
-    CLI.cpp
-)
+if(TRANSCEIVERTOOL_BUILD_CLI)
+    target_sources(TransceiverTool PRIVATE CLI.cpp)
+endif()

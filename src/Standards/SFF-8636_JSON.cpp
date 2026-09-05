@@ -1112,8 +1112,8 @@ namespace TransceiverTool::Standards::SFF8636 {
             }
 
             const auto& wavelengthVal = j.at("Wavelength [nm] (Divisible by 0.05)");
-            if(!wavelengthVal.is_number_float()) {
-                throw std::invalid_argument("Wavelength [nm] (Divisible by 0.05) must be a floating point number");
+            if(!wavelengthVal.is_number()) {
+                throw std::invalid_argument("Wavelength [nm] (Divisible by 0.05) must be a number");
             }
 
             double rawWavelength = wavelengthVal.template get<double>();
@@ -1136,10 +1136,8 @@ namespace TransceiverTool::Standards::SFF8636 {
 
 
             const auto& wavelengthToleranceVal = j.at("Wavelength Tolerance [nm] (Divisible by 0.005)");
-            if(!wavelengthToleranceVal.is_number_float()) {
-                throw std::invalid_argument(
-                    "Wavelength Tolerance [nm] (Divisible by 0.005) must be a floating point number"
-                );
+            if(!wavelengthToleranceVal.is_number()) {
+                throw std::invalid_argument("Wavelength Tolerance [nm] (Divisible by 0.005) must be a number");
             }
 
             double rawWavelengthTolerance = wavelengthToleranceVal.template get<double>();
