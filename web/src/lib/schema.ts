@@ -230,3 +230,10 @@ export function groupKeys(group: string, standard: Standard) {
     ? all.filter((k) => !known.includes(k))
     : all.filter((k) => groups.find((g) => g.id === group)?.keys.includes(k))
 }
+
+// Layout follows the modeled field, not its current JSON representation.
+export function isCompositeField(schema: Schema, root: Schema): boolean {
+  const s = resolve(schema, root)
+  if (s.anyOf) return s.anyOf.some((branch) => isCompositeField(branch, root))
+  return !!s.properties && !s.properties.byteValue && s.properties.Type?.const !== 'Base64'
+}

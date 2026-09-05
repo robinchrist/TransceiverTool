@@ -10,3 +10,5 @@ leak-*
 timeout-*
 oom-*
 slow-unit-*
+.agents/
+.claude/

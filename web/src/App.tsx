@@ -1,6 +1,6 @@
 // SPDX-FileCopyrightText: 2026 Robin Christ
 // SPDX-License-Identifier: MPL-2.0
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Activity,
   ArrowDownToLine,
@@ -30,12 +30,15 @@ import {
 import { Button } from './components/ui/button'
 import { Dialog } from './components/ui/dialog'
 import { SchemaField } from './components/SchemaField'
-import { ModuleDrawing } from './components/ModuleDrawing'
+import { ModuleSummary } from './components/ModuleSummary'
+import { ByteContext } from './components/FieldBytes'
+import { editHex, convertFieldFormat, setAt, fieldHex, fieldLayout } from './lib/field-bytes'
 import { cn } from './lib/utils'
 import { convert, download, ready, sample, standardOf, type CodecResult } from './lib/codec'
 import {
   groups,
   groupKeys,
+  isCompositeField,
   schemaIssues,
   pointer,
   unpointer,
@@ -60,6 +63,20 @@ const short = (v: Value | undefined, fallback = 'Not specified') =>
 
 export default function App() {
   const [work, setWork] = useState<Work | null>(null)
+  const workRef = useRef(work)
+  workRef.current = work
+  const [hexDrafts, setHexDrafts] = useState<Set<string>>(new Set())
+  const pendingHex = useCallback(
+    (path: string, dirty: boolean) =>
+      setHexDrafts((previous) => {
+        if (previous.has(path) === dirty) return previous
+        const next = new Set(previous)
+        if (dirty) next.add(path)
+        else next.delete(path)
+        return next
+      }),
+    [],
+  )
   const [history, setHistory] = useState<Work[]>([])
   const [group, setGroup] = useState('identity')
   const [view, setView] = useState('editor')
@@ -82,6 +99,13 @@ export default function App() {
     result?: CodecResult
     error?: string
   }>({ key: '' })
+  // A display snapshot survives pending/failed conversion. Only `result`, keyed to
+  // the current document, may drive edits, interpretation changes, or export.
+  const [byteSnapshot, setByteSnapshot] = useState<{
+    standard: Standard
+    fiber: boolean
+    result: CodecResult
+  } | null>(null)
   const [jsonDraft, setJsonDraft] = useState('')
   const [rawDirty, setRawDirty] = useState(false)
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null)
@@ -92,10 +116,16 @@ export default function App() {
     : ''
   const result = validation.key === key ? validation.result : undefined
   const error = validation.key === key ? validation.error : undefined
-  const dirty = !!work && (JSON.stringify(work.document) !== work.original || rawDirty)
+  const displayResult =
+    result ??
+    (byteSnapshot?.standard === work?.standard && byteSnapshot?.fiber === work?.fiber
+      ? byteSnapshot?.result
+      : undefined)
+  const dirty =
+    !!work && (JSON.stringify(work.document) !== work.original || rawDirty || hexDrafts.size > 0)
   const issues = useMemo(() => (work ? schemaIssues(work.standard, work.document) : []), [work])
   const errors = issues.map((issue) => `${issue.path || '/'} ${issue.message}`)
-  const canExport = !!result && !rawDirty && errors.length === 0
+  const canExport = !!result && !rawDirty && hexDrafts.size === 0 && errors.length === 0
   const changes = work
     ? Object.keys(work.document).filter(
         (k) => JSON.stringify(work.document[k]) !== JSON.stringify(JSON.parse(work.original)[k]),
@@ -122,7 +152,10 @@ export default function App() {
         lowerBytes: work.lowerBytes,
       })
         .then((value) => {
-          if (active) setValidation({ key, result: value })
+          if (active) {
+            setValidation({ key, result: value })
+            setByteSnapshot({ standard: work.standard, fiber: work.fiber, result: value })
+          }
         })
         .catch((e) => {
           if (active) setValidation({ key, error: String(e.message) })
@@ -193,6 +226,38 @@ export default function App() {
       document.querySelector<HTMLButtonElement>('[aria-controls="workspace-navigation"]')?.focus()
     }
   }, [sidebarOpen])
+  useEffect(() => {
+    if (view !== 'editor' || search || !work) return
+    let frame = 0
+    const trackSection = () => {
+      frame = 0
+      const sections = groups
+        .map(({ id }) => document.getElementById(`section-${id}`))
+        .filter((section): section is HTMLElement => !!section)
+      let active: HTMLElement | undefined = sections[0]
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top <= 140) active = section
+      }
+      if (window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2)
+        active = sections.at(-1)
+      if (active) setGroup(active.id.replace('section-', ''))
+    }
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(trackSection)
+    }
+    window.addEventListener('scroll', schedule, { passive: true })
+    window.addEventListener('resize', schedule)
+    const observer = new ResizeObserver(schedule)
+    const panel = document.querySelector('.app-main')
+    if (panel) observer.observe(panel)
+    schedule()
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('scroll', schedule)
+      window.removeEventListener('resize', schedule)
+      observer.disconnect()
+    }
+  }, [view, search, work?.standard])
   function jumpToIssue(path: string) {
     const key = unpointer(path.split('/')[1] ?? '')
     const section = work && groups.find((g) => groupKeys(g.id, work.standard).includes(key))
@@ -206,6 +271,10 @@ export default function App() {
     setWork(next)
   }
   function replace(action: () => void) {
+    if (hexDrafts.size) {
+      setMessage('Complete or correct the hex input before replacing this configuration.')
+      return
+    }
     if (dirty) setPendingAction(() => action)
     else action()
   }
@@ -226,6 +295,8 @@ export default function App() {
       example,
       lowerBytes,
     })
+    setByteSnapshot(null)
+    setValidation({ key: '' })
     setHistory([])
     setGroup('identity')
     setView('editor')
@@ -366,9 +437,8 @@ export default function App() {
                 .toLowerCase()
                 .includes(search.toLowerCase())),
         )
-      : groupKeys(group, work.standard)
+      : Object.keys(schemas[work.standard].properties ?? {}).filter((key) => key !== 'Type')
     : []
-  const activeGroup = groups.find((g) => g.id === group)!
   const checks = result ? result.errors.length + result.warnings.length : 0
 
   return (
@@ -397,7 +467,8 @@ export default function App() {
         <button
           className="workspace-file"
           onClick={() => {
-            setView('editor')
+            if (work) setView('editor')
+            else setImportOpen(true)
             setSidebarOpen(false)
           }}
         >
@@ -410,7 +481,11 @@ export default function App() {
                 : 'Import a file to get started'}
             </small>
           </span>
-          {dirty && <span className="unsaved-dot" />}
+          <span
+            className="unsaved-dot"
+            aria-hidden="true"
+            style={{ visibility: dirty ? 'visible' : 'hidden' }}
+          />
         </button>
         {work && (
           <>
@@ -421,11 +496,17 @@ export default function App() {
                 return (
                   <button
                     key={g.id}
+                    data-section={g.id}
                     aria-current={group === g.id && view === 'editor' ? 'page' : undefined}
-                    disabled={!work}
+                    disabled={!work || (hexDrafts.size > 0 && !!search)}
                     className={cn('nav-item', group === g.id && view === 'editor' && 'active')}
                     onClick={() => {
                       setGroup(g.id)
+                      requestAnimationFrame(() =>
+                        document
+                          .getElementById(`section-${g.id}`)
+                          ?.scrollIntoView({ block: 'start' }),
+                      )
                       setView('editor')
                       setSearch('')
                       setSidebarOpen(false)
@@ -449,507 +530,581 @@ export default function App() {
           </button>
         </div>
       </aside>
-      <div className="app-main">
-        <header className="topbar">
-          <div className="breadcrumb">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="mobile-menu"
-              aria-label="Open navigation"
-              aria-expanded={sidebarOpen}
-              aria-controls="workspace-navigation"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <Menu />
-            </Button>
-            <strong>{work ? 'Configuration editor' : 'Getting started'}</strong>
-          </div>
-          <div className="topbar-actions">
-            <span className={cn('engine-status', engine !== 'ready' && 'loading')}>
-              <span />
-              {engine === 'ready'
-                ? 'WebAssembly core ready'
-                : engine === 'failed'
-                  ? 'WebAssembly core unavailable'
-                  : 'Loading WebAssembly core…'}
-            </span>
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={engine !== 'ready' || busy}
-              onClick={() => replace(() => setNewOpen(true))}
-            >
-              <FilePlus2 />
-              New
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() =>
-                replace(() => {
-                  setImportOpen(true)
-                  setMessage('')
-                })
-              }
-              disabled={engine !== 'ready' || busy}
-            >
-              <FileUp />
-              Import file
-            </Button>
-          </div>
-        </header>
-        <main id="main" className="page-content">
-          {message && !importOpen && (
-            <div className="error-banner" role="alert">
-              <TriangleAlert size={17} />
-              <span>{message}</span>
-              <button aria-label="Dismiss error" onClick={() => setMessage('')}>
-                <X size={16} />
-              </button>
-            </div>
-          )}
-          {!work ? (
-            <div className="welcome">
-              <h1>Edit a transceiver configuration</h1>
-              <p>Open a binary or JSON file, edit its fields, and download your configuration.</p>
-              <div
-                className="welcome-import"
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => {
-                  e.preventDefault()
-                  setFile(e.dataTransfer.files[0] ?? null)
-                  setImportOpen(true)
-                }}
+      <ByteContext.Provider
+        value={{
+          standard: work?.standard ?? '8472',
+          result,
+          displayResult,
+          invalid: !!error || errors.length > 0,
+          locked: rawDirty,
+          hasDrafts: hexDrafts.size > 0,
+          pending: pendingHex,
+          apply: async (path, text, wholeByte, representation) => {
+            if (!work || !result) throw new Error('Resolve input errors before editing bytes.')
+            const document = await editHex(
+              work.document,
+              result,
+              work.standard,
+              work.fiber,
+              path,
+              text,
+              wholeByte,
+              representation,
+            )
+            if (workRef.current !== work)
+              throw new Error(
+                'The configuration changed. Review the current bytes and apply again.',
+              )
+            update({ ...work, document })
+          },
+          setNamed: async (path, name, raw) => {
+            if (!work || !result)
+              throw new Error('Wait for a valid configuration before changing the byte.')
+            let document = setAt(work.document, path, name)
+            if (raw) {
+              const encoded = await convert({
+                operation: 'encode',
+                standard: work.standard,
+                fiber: work.fiber,
+                document,
+                lowerBytes: work.lowerBytes,
+              })
+              document = setAt(document, path, {
+                byteValue: `0x${fieldHex(encoded, fieldLayout(work.standard, path))}`,
+              })
+            }
+            if (workRef.current !== work) throw new Error('The configuration changed. Try again.')
+            update({ ...work, document })
+          },
+          format: async (path, schema) => {
+            if (!work || !result) return undefined
+            const converted = await convertFieldFormat(
+              work.document,
+              result,
+              work.standard,
+              work.fiber,
+              path,
+              schema,
+              schemas[work.standard],
+            )
+            if (workRef.current !== work)
+              throw new Error('The configuration changed. Try the format change again.')
+            return converted
+          },
+        }}
+      >
+        <div className="app-main">
+          <header className="topbar">
+            <div className="breadcrumb">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="mobile-menu"
+                aria-label="Open navigation"
+                aria-expanded={sidebarOpen}
+                aria-controls="workspace-navigation"
+                onClick={() => setSidebarOpen(true)}
               >
-                <div className="upload-symbol">
-                  <FileUp size={26} />
-                </div>
-                <p>Drop a binary or JSON file, or browse your device.</p>
-                <Button onClick={() => setImportOpen(true)} disabled={engine !== 'ready'}>
-                  <FileUp />
-                  Open configuration
-                </Button>
-                <span className="supported">SFF-8472 · SFF-8636 · .bin · .json</span>
-              </div>
-              <div className="sample-row">
-                <div>
-                  <p>No file handy? Try an example.</p>
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={() => create('8472')}
-                  disabled={engine !== 'ready' || busy}
-                >
-                  Explore SFP+ example
-                  <ArrowRight />
-                </Button>
-              </div>
+                <Menu />
+              </Button>
+              <strong>{work ? 'Configuration editor' : 'Getting started'}</strong>
             </div>
-          ) : (
-            <>
-              <div className="page-heading">
-                <div>
-                  <h1>
-                    {short(work.document['Vendor Part Number'], 'Untitled configuration') ||
-                      'Untitled configuration'}
-                  </h1>
-                  <div className="file-meta">
-                    <FileCode2 size={14} />
-                    {work.name}
-                    <span className="meta-separator">/</span>
-                    <span className={cn('document-status', dirty && 'dirty')}>
-                      {dirty
-                        ? `${changes} field${changes === 1 ? '' : 's'} modified${rawDirty ? ' · JSON draft' : ''}`
-                        : work.example
-                          ? 'Example · ready to explore'
-                          : 'Original configuration'}
-                    </span>
+            <div className="topbar-actions">
+              <span className={cn('engine-status', engine !== 'ready' && 'loading')}>
+                <span />
+                {engine === 'ready'
+                  ? 'WebAssembly core ready'
+                  : engine === 'failed'
+                    ? 'WebAssembly core unavailable'
+                    : 'Loading WebAssembly core…'}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={engine !== 'ready' || busy}
+                onClick={() => replace(() => setNewOpen(true))}
+              >
+                <FilePlus2 />
+                New
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  replace(() => {
+                    setImportOpen(true)
+                    setMessage('')
+                  })
+                }
+                disabled={engine !== 'ready' || busy}
+              >
+                <FileUp />
+                Import file
+              </Button>
+            </div>
+          </header>
+          <main id="main" className="page-content">
+            {message && !importOpen && (
+              <div className="error-banner" role="alert">
+                <TriangleAlert size={17} />
+                <span>{message}</span>
+                <button aria-label="Dismiss error" onClick={() => setMessage('')}>
+                  <X size={16} />
+                </button>
+              </div>
+            )}
+            {!work ? (
+              <div className="welcome">
+                <h1>Edit a transceiver configuration</h1>
+                <p>Open a binary or JSON file, edit its fields, and download your configuration.</p>
+                <div
+                  className="welcome-import"
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault()
+                    setFile(e.dataTransfer.files[0] ?? null)
+                    setImportOpen(true)
+                  }}
+                >
+                  <div className="upload-symbol">
+                    <FileUp size={26} />
                   </div>
+                  <p>Drop a binary or JSON file, or browse your device.</p>
+                  <Button onClick={() => setImportOpen(true)} disabled={engine !== 'ready'}>
+                    <FileUp />
+                    Open configuration
+                  </Button>
+                  <span className="supported">SFF-8472 · SFF-8636 · .bin · .json</span>
                 </div>
-                <div className="heading-actions">
+                <div className="sample-row">
+                  <div>
+                    <p>No file handy? Try an example.</p>
+                  </div>
                   <Button
                     variant="outline"
-                    disabled={history.length === 0 || rawDirty}
-                    onClick={() => {
-                      setWork(history.at(-1)!)
-                      setHistory(history.slice(0, -1))
-                    }}
-                    aria-label="Undo last change"
+                    onClick={() => create('8472')}
+                    disabled={engine !== 'ready' || busy}
                   >
-                    <Undo2 />
-                    Undo
+                    Explore SFP+ example
+                    <ArrowRight />
                   </Button>
-                  <Button disabled={!canExport} onClick={() => setExportOpen(true)}>
-                    <ArrowDownToLine />
-                    Export configuration
+                  <Button
+                    variant="outline"
+                    onClick={() => create('8636')}
+                    disabled={engine !== 'ready' || busy}
+                  >
+                    Explore QSFP+ example
+                    <ArrowRight />
                   </Button>
                 </div>
               </div>
-              <details className="module-details">
-                <summary>
-                  <span>
-                    <strong>{short(work.document['Vendor Name'], 'Module')}</strong> · SFF-
-                    {work.standard}
-                  </span>
-                  <span>Module details & interpretation</span>
-                </summary>
-                <section className="module-summary" aria-label="Module overview">
-                  <div className="module-visual">
-                    <span className="module-kind">
-                      {work.standard === '8472' ? 'SFP / SFP+' : 'QSFP / QSFP28'}
-                    </span>
-                    <ModuleDrawing />
-                  </div>
-                  <div className="module-overview">
-                    <div className="summary-top">
-                      <span className="standard-badge">SFF-{work.standard}</span>
-                    </div>
-                    <div className="summary-grid">
-                      <div>
-                        <label>Manufacturer</label>
-                        <strong>
-                          {short(work.document['Vendor Name'], 'Raw vendor bytes') ||
-                            'Not specified'}
-                        </strong>
-                      </div>
-                      <div>
-                        <label>Connector</label>
-                        <strong>{short(work.document['Connector Type'], 'Raw byte')}</strong>
-                      </div>
-                      <div>
-                        <label>Serial number</label>
-                        <strong className="font-mono">
-                          {short(work.document['Vendor Serial Number'], 'Raw serial bytes') ||
-                            'Not specified'}
-                        </strong>
-                      </div>
-                      <div>
-                        <label>Nominal rate</label>
-                        <strong>
-                          {short(
-                            work.document['Nominal Signaling Rate [MBaud] (Divisible by 100)'],
-                          )}
-                          {typeof work.document[
-                            'Nominal Signaling Rate [MBaud] (Divisible by 100)'
-                          ] === 'number' && <small> MBaud</small>}
-                        </strong>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="interpretation">
-                    <span className="interpretation-label">Interpretation</span>
-                    <div className="segmented">
-                      <button
-                        aria-pressed={work.fiber}
-                        className={cn(work.fiber && 'selected')}
-                        disabled={!result || rawDirty}
-                        onClick={() => changeMode(true)}
-                      >
-                        <Radio size={14} />
-                        Fiber
-                      </button>
-                      <button
-                        aria-pressed={!work.fiber}
-                        className={cn(!work.fiber && 'selected')}
-                        disabled={!result || rawDirty}
-                        onClick={() => changeMode(false)}
-                      >
-                        <Cable size={14} />
-                        Copper
-                      </button>
-                    </div>
-                    <p>Interpret the same bytes as optical or copper fields.</p>
-                  </div>
-                </section>
-              </details>
-              {(issues.length > 0 || error) && (
-                <div className="issue-summary" role="region" aria-label="Input problems">
-                  <strong role="status">
-                    {issues.length
-                      ? `${issues.length} input issue${issues.length === 1 ? '' : 's'}`
-                      : 'Binary conversion failed'}{' '}
-                    — fix these values to export
-                  </strong>
-                  {issues.length ? (
-                    <div>
-                      {issues.map((issue, i) => (
-                        <button key={i} onClick={() => jumpToIssue(issue.path)}>
-                          {issue.path.split('/').slice(1).map(unpointer).join(' › ')}:{' '}
-                          {issue.message}
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <p>{error}</p>
-                  )}
-                </div>
-              )}
-              <details className="validation-details">
-                <summary>
-                  <ShieldCheck size={16} aria-hidden="true" />
-                  <span>
-                    {error || errors.length
-                      ? 'Fix input to export'
-                      : rawDirty
-                        ? 'Apply or discard the JSON draft to export'
-                        : result
-                          ? 'Ready to export'
-                          : 'Checking configuration…'}
-                  </span>
-                  {result && checks > 0 && <span>{checks} standard advisories</span>}
-                  <span className="details-action">Validation details</span>
-                </summary>
-                <div className="validation-body">
-                  <div className="check-row">
-                    <span>JSON schema</span>
-                    <span className={errors.length ? 'text-amber-700' : 'text-emerald-700'}>
-                      {errors.length ? `${errors.length} issues` : 'Valid'}
-                      {!errors.length && <Check size={13} />}
-                    </span>
-                  </div>
-                  <div className="check-row">
-                    <span>Binary conversion</span>
-                    <span className={error ? 'text-red-600' : 'text-emerald-700'}>
-                      {error ? 'Failed' : result ? 'Valid' : 'Checking…'}
-                      {result && <Check size={13} />}
-                    </span>
-                  </div>
-                  <div className="check-row">
-                    <span>Standard checks</span>
-                    <span>{result ? (checks ? `${checks} advisories` : 'Passed') : '—'}</span>
-                  </div>
-                  {result && checks > 0 && (
-                    <details className="advisories">
-                      <summary>
-                        <TriangleAlert size={14} />
-                        Review {checks} standard advisories
-                      </summary>
-                      <p>
-                        These checks report standard-compliance issues. Export remains available so
-                        you can preserve the current bytes. A successful export does not establish
-                        device compatibility.
-                      </p>
-                      {result.errors.map((e, i) => (
-                        <p key={`e${i}`}>
-                          <strong>Error</strong> {e}
-                        </p>
-                      ))}
-                      {result.warnings.map((e, i) => (
-                        <p key={`w${i}`}>
-                          <strong>Warning</strong> {e}
-                        </p>
-                      ))}
-                    </details>
-                  )}
-                </div>
-              </details>
-              <div className="editor-layout">
-                <section className="editor-main">
-                  <div className="editor-toolbar">
-                    <div className="view-tabs" role="tablist" aria-label="Configuration view">
+            ) : (
+              <>
+                <div className="page-heading">
+                  <div>
+                    <h1>
                       {[
-                        ['editor', 'Visual editor', SlidersHorizontal],
-                        ['json', 'JSON', Braces],
-                        ['bytes', 'Bytes', Layers3],
-                      ].map(([id, label, Icon]) => {
-                        const TabIcon = Icon as typeof Braces
-                        return (
-                          <button
-                            key={String(id)}
-                            role="tab"
-                            id={`view-tab-${id}`}
-                            aria-controls="configuration-panel"
-                            tabIndex={view === id ? 0 : -1}
-                            onKeyDown={(event) => {
-                              const tabs = ['editor', 'json', 'bytes']
-                              const index = tabs.indexOf(view)
-                              const next =
-                                event.key === 'ArrowRight'
-                                  ? (index + 1) % tabs.length
-                                  : event.key === 'ArrowLeft'
-                                    ? (index + tabs.length - 1) % tabs.length
-                                    : event.key === 'Home'
-                                      ? 0
-                                      : event.key === 'End'
-                                        ? tabs.length - 1
-                                        : -1
-                              if (next < 0) return
-                              event.preventDefault()
-                              setView(tabs[next])
-                              document.getElementById(`view-tab-${tabs[next]}`)?.focus()
-                            }}
-                            aria-selected={view === id}
-                            className={cn(view === id && 'active')}
-                            onClick={() => setView(String(id))}
-                          >
-                            <TabIcon size={15} />
-                            {String(label)}
-                          </button>
-                        )
-                      })}
+                        short(work.document['Vendor Name'], ''),
+                        short(work.document['Vendor Part Number'], 'Untitled configuration'),
+                      ]
+                        .filter(Boolean)
+                        .join(' ')}
+                    </h1>
+                    <div className="file-meta">
+                      <FileCode2 size={14} />
+                      {work.name}
+                      <span className="meta-separator">/</span>
+                      <span className={cn('document-status', dirty && 'dirty')}>
+                        {dirty
+                          ? `${changes} field${changes === 1 ? '' : 's'} modified${rawDirty ? ' · JSON draft' : ''}`
+                          : work.example
+                            ? 'Example configuration'
+                            : 'Original configuration'}
+                      </span>
                     </div>
-                    {view === 'editor' && (
-                      <div className="search-box">
-                        <Search size={15} />
-                        <input
-                          aria-label="Search configuration fields"
-                          placeholder="Search fields or values…"
-                          value={search}
-                          onChange={(e) => setSearch(e.target.value)}
-                        />
-                        {search && (
-                          <button aria-label="Clear search" onClick={() => setSearch('')}>
-                            <X size={13} />
-                          </button>
-                        )}
-                      </div>
-                    )}
                   </div>
-                  <div
-                    id="configuration-panel"
-                    role="tabpanel"
-                    aria-labelledby={`view-tab-${view}`}
-                    tabIndex={0}
-                  >
-                    {rawDirty && view !== 'json' && (
-                      <div className="draft-banner">
-                        Your JSON draft has not been applied. Apply or discard it to resume visual
-                        editing.
-                        <button onClick={() => setView('json')}>
-                          Review draft <ArrowRight size={14} />
+                  <div className="heading-actions">
+                    <Button
+                      variant="outline"
+                      disabled={history.length === 0 || rawDirty || hexDrafts.size > 0}
+                      onClick={() => {
+                        setWork(history.at(-1)!)
+                        setHistory(history.slice(0, -1))
+                      }}
+                      aria-label="Undo last change"
+                    >
+                      <Undo2 />
+                      Undo
+                    </Button>
+                    <Button disabled={!canExport} onClick={() => setExportOpen(true)}>
+                      <ArrowDownToLine />
+                      Export configuration
+                    </Button>
+                  </div>
+                </div>
+                <details className="module-details">
+                  <summary>
+                    <span>
+                      <strong>{short(work.document['Vendor Name'], 'Unknown manufacturer')}</strong>
+                      {' · '}
+                      {short(work.document['Vendor Part Number'], 'Unnamed module')}
+                      {' · '}
+                      {moduleFormFactor(result?.document ?? work.document)} (SFF-{work.standard})
+                    </span>
+                    <span>Module details & interpretation</span>
+                  </summary>
+                  <section className="module-summary" aria-label="Module overview">
+                    <ModuleSummary
+                      document={displayResult?.document}
+                      standard={work.standard}
+                      fiber={work.fiber}
+                    />
+                    <div className="interpretation">
+                      <span className="interpretation-label">Interpretation</span>
+                      <div className="segmented">
+                        <button
+                          aria-pressed={work.fiber}
+                          className={cn(work.fiber && 'selected')}
+                          disabled={!result || rawDirty || hexDrafts.size > 0}
+                          onClick={() => changeMode(true)}
+                        >
+                          <Radio size={14} />
+                          Fiber
+                        </button>
+                        <button
+                          aria-pressed={!work.fiber}
+                          className={cn(!work.fiber && 'selected')}
+                          disabled={!result || rawDirty || hexDrafts.size > 0}
+                          onClick={() => changeMode(false)}
+                        >
+                          <Cable size={14} />
+                          Copper
                         </button>
                       </div>
-                    )}
-                    {view === 'editor' && (
-                      <>
-                        <div className="section-heading">
-                          <div>
-                            <h2>{search ? 'Search results' : activeGroup.label}</h2>
-                            <p>
-                              {search
-                                ? `${visibleKeys.length} matching fields across this configuration`
-                                : activeGroup.caption}
-                            </p>
-                          </div>
-                          <span>{visibleKeys.length} FIELDS</span>
-                        </div>
-                        <fieldset className="fields-grid" disabled={rawDirty}>
-                          {visibleKeys.map((name) => (
-                            <div
-                              className={cn(
-                                'field-card',
-                                typeof work.document[name] === 'object' && 'wide-field',
-                              )}
-                              key={name}
-                            >
-                              <SchemaField
-                                path={`/${pointer(name)}`}
-                                issues={issues}
-                                name={name}
-                                schema={schemas[work.standard].properties![name]}
-                                root={schemas[work.standard]}
-                                value={work.document[name]}
-                                onChange={(value) =>
-                                  update({ ...work, document: { ...work.document, [name]: value } })
-                                }
-                              />
-                            </div>
-                          ))}
-                        </fieldset>
-                        {visibleKeys.length === 0 && (
-                          <div className="empty-search">
-                            <Search />
-                            <h3>No fields match your search</h3>
-                            <p>
-                              Search field names or current values, for example “vendor” or
-                              “checksum”.
-                            </p>
-                          </div>
-                        )}
-                      </>
-                    )}
-                    {view === 'json' && (
-                      <div className="source-panel">
-                        <div className="source-heading">
-                          <div>
-                            <h2>JSON source</h2>
-                            <p>
-                              Edit the configuration below, then select Apply JSON to update the
-                              visual editor.
-                            </p>
-                          </div>
-                          <Button size="sm" disabled={!rawDirty} onClick={applyJson}>
-                            <Check />
-                            Apply JSON
-                          </Button>
-                        </div>
-                        <textarea
-                          aria-label="JSON source"
-                          className="json-editor"
-                          spellCheck={false}
-                          value={jsonDraft}
-                          onChange={(e) => {
-                            setJsonDraft(e.target.value)
-                            setRawDirty(e.target.value !== docText)
-                          }}
-                        />
-                        <div className="source-footer">
-                          <span>{jsonDraft.split('\n').length} lines · UTF-8</span>
-                          {rawDirty ? (
-                            <button
-                              onClick={() => {
-                                setRawDirty(false)
-                                setJsonDraft(docText)
-                                setMessage('')
-                              }}
-                            >
-                              Discard draft
-                            </button>
-                          ) : (
-                            <span>In sync with visual editor</span>
-                          )}
-                        </div>
+                      <p>Interpret the same bytes as optical or copper fields.</p>
+                    </div>
+                  </section>
+                </details>
+                {hexDrafts.size > 0 && (
+                  <div className="draft-banner" role="status">
+                    Complete or correct the hex input before exporting or replacing this
+                    configuration.
+                  </div>
+                )}
+                {(issues.length > 0 || error) && (
+                  <div className="issue-summary" role="region" aria-label="Input problems">
+                    <strong role="status">
+                      {issues.length
+                        ? `${issues.length} input issue${issues.length === 1 ? '' : 's'}`
+                        : 'Binary conversion failed'}{' '}
+                      — fix these values to export
+                    </strong>
+                    {issues.length ? (
+                      <div>
+                        {issues.map((issue, i) => (
+                          <button key={i} onClick={() => jumpToIssue(issue.path)}>
+                            {issue.path.split('/').slice(1).map(unpointer).join(' › ')}:{' '}
+                            {issue.message}
+                          </button>
+                        ))}
                       </div>
-                    )}
-                    {view === 'bytes' && (
-                      <div className="source-panel">
-                        <div className="source-heading">
-                          <div>
-                            <h2>Binary inspector</h2>
-                            <p>
-                              Binary output for the current configuration. Changes from the original
-                              are highlighted.
-                            </p>
-                          </div>
-                          <span className="standard-badge">
-                            {work.standard === '8472' ? 'A0h' : 'Page 00h'}
-                          </span>
-                        </div>
-                        {result ? (
-                          <ByteView result={result} work={work} />
-                        ) : (
-                          <div className="empty-search">
-                            A binary preview is available after conversion succeeds. Resolve any
-                            input errors shown above.
-                          </div>
-                        )}
-                        <div className="source-footer">
-                          {work.standard === '8636'
-                            ? work.lowerBytes
-                              ? 'Lower page: preserved from imported file · Upper page: encoded from editor'
-                              : 'Upper 128 bytes only · Lower page was not supplied'
-                            : '128 bytes · Lower page A0h'}
-                        </div>
-                      </div>
+                    ) : (
+                      <p>{error}</p>
                     )}
                   </div>
-                </section>
-              </div>
-            </>
-          )}
-        </main>
-      </div>
+                )}
+                <details className="validation-details">
+                  <summary>
+                    <ShieldCheck size={16} aria-hidden="true" />
+                    <span>
+                      {error || errors.length
+                        ? 'Fix input to export'
+                        : rawDirty
+                          ? 'Apply or discard the JSON draft to export'
+                          : result
+                            ? 'Ready to export'
+                            : 'Checking configuration…'}
+                    </span>
+                    {result && checks > 0 && <span>{checks} standard advisories</span>}
+                    <span className="details-action">Validation details</span>
+                  </summary>
+                  <div className="validation-body">
+                    <div className="check-row">
+                      <span>JSON schema</span>
+                      <span className={errors.length ? 'text-amber-700' : 'text-emerald-700'}>
+                        {errors.length ? `${errors.length} issues` : 'Valid'}
+                        {!errors.length && <Check size={13} />}
+                      </span>
+                    </div>
+                    <div className="check-row">
+                      <span>Binary conversion</span>
+                      <span className={error ? 'text-red-600' : 'text-emerald-700'}>
+                        {error ? 'Failed' : result ? 'Valid' : 'Checking…'}
+                        {result && <Check size={13} />}
+                      </span>
+                    </div>
+                    <div className="check-row">
+                      <span>Standard checks</span>
+                      <span>{result ? (checks ? `${checks} advisories` : 'Passed') : '—'}</span>
+                    </div>
+                    {result && checks > 0 && (
+                      <details className="advisories">
+                        <summary>
+                          <TriangleAlert size={14} />
+                          Review {checks} standard advisories
+                        </summary>
+                        <p>
+                          These checks report standard-compliance issues. Export remains available
+                          so you can preserve the current bytes. A successful export does not
+                          establish device compatibility.
+                        </p>
+                        {result.errors.map((e, i) => (
+                          <p key={`e${i}`}>
+                            <strong>Error</strong> {e}
+                          </p>
+                        ))}
+                        {result.warnings.map((e, i) => (
+                          <p key={`w${i}`}>
+                            <strong>Warning</strong> {e}
+                          </p>
+                        ))}
+                      </details>
+                    )}
+                  </div>
+                </details>
+                <div className="editor-layout">
+                  <section className="editor-main">
+                    <div className="editor-toolbar">
+                      <div className="view-tabs" role="tablist" aria-label="Configuration view">
+                        {[
+                          ['editor', 'Visual editor', SlidersHorizontal],
+                          ['json', 'JSON', Braces],
+                          ['bytes', 'Bytes', Layers3],
+                        ].map(([id, label, Icon]) => {
+                          const TabIcon = Icon as typeof Braces
+                          return (
+                            <button
+                              key={String(id)}
+                              role="tab"
+                              id={`view-tab-${id}`}
+                              aria-controls="configuration-panel"
+                              tabIndex={view === id ? 0 : -1}
+                              disabled={hexDrafts.size > 0 && view !== id}
+                              onKeyDown={(event) => {
+                                if (hexDrafts.size > 0) return
+                                const tabs = ['editor', 'json', 'bytes']
+                                const index = tabs.indexOf(view)
+                                const next =
+                                  event.key === 'ArrowRight'
+                                    ? (index + 1) % tabs.length
+                                    : event.key === 'ArrowLeft'
+                                      ? (index + tabs.length - 1) % tabs.length
+                                      : event.key === 'Home'
+                                        ? 0
+                                        : event.key === 'End'
+                                          ? tabs.length - 1
+                                          : -1
+                                if (next < 0) return
+                                event.preventDefault()
+                                setView(tabs[next])
+                                document.getElementById(`view-tab-${tabs[next]}`)?.focus()
+                              }}
+                              aria-selected={view === id}
+                              className={cn(view === id && 'active')}
+                              onClick={() => setView(String(id))}
+                            >
+                              <TabIcon size={15} />
+                              {String(label)}
+                            </button>
+                          )
+                        })}
+                      </div>
+                      {view === 'editor' && (
+                        <div className="search-box">
+                          <Search size={15} />
+                          <input
+                            aria-label="Search configuration fields"
+                            placeholder="Search fields or values…"
+                            disabled={hexDrafts.size > 0}
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                          />
+                          {search && (
+                            <button aria-label="Clear search" onClick={() => setSearch('')}>
+                              <X size={13} />
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    <div
+                      id="configuration-panel"
+                      role="tabpanel"
+                      aria-labelledby={`view-tab-${view}`}
+                      tabIndex={0}
+                    >
+                      {rawDirty && view !== 'json' && (
+                        <div className="draft-banner">
+                          Your JSON draft has not been applied. Apply or discard it to resume visual
+                          editing.
+                          <button onClick={() => setView('json')}>
+                            Review draft <ArrowRight size={14} />
+                          </button>
+                        </div>
+                      )}
+                      {view === 'editor' && (
+                        <>
+                          {(search
+                            ? [
+                                {
+                                  id: 'search',
+                                  label: 'Search results',
+                                  caption: `${visibleKeys.length} matching fields`,
+                                  keys: visibleKeys,
+                                },
+                              ]
+                            : groups.map((section) => ({
+                                ...section,
+                                keys: groupKeys(section.id, work.standard),
+                              }))
+                          ).map((section) => (
+                            <section
+                              id={`section-${section.id}`}
+                              className="configuration-section"
+                              key={section.id}
+                              aria-labelledby={`heading-${section.id}`}
+                            >
+                              <div className="section-heading">
+                                <div>
+                                  <h2 id={`heading-${section.id}`}>{section.label}</h2>
+                                  <p>{section.caption}</p>
+                                </div>
+                              </div>
+                              <fieldset className="fields-grid" disabled={rawDirty}>
+                                {section.keys.map((name) => (
+                                  <div
+                                    className={cn(
+                                      'field-card',
+                                      isCompositeField(
+                                        schemas[work.standard].properties![name],
+                                        schemas[work.standard],
+                                      ) && 'wide-field',
+                                    )}
+                                    key={name}
+                                  >
+                                    <SchemaField
+                                      path={`/${pointer(name)}`}
+                                      issues={issues}
+                                      name={name}
+                                      schema={schemas[work.standard].properties![name]}
+                                      root={schemas[work.standard]}
+                                      value={work.document[name]}
+                                      onChange={(value) =>
+                                        update({
+                                          ...work,
+                                          document: { ...work.document, [name]: value },
+                                        })
+                                      }
+                                    />
+                                  </div>
+                                ))}
+                              </fieldset>
+                            </section>
+                          ))}
+                          {visibleKeys.length === 0 && (
+                            <div className="empty-search">
+                              <Search />
+                              <h3>No fields match your search</h3>
+                              <p>
+                                Search field names or current values, for example “vendor” or
+                                “checksum”.
+                              </p>
+                            </div>
+                          )}
+                        </>
+                      )}
+                      {view === 'json' && (
+                        <div className="source-panel">
+                          <div className="source-heading">
+                            <div>
+                              <h2>JSON source</h2>
+                              <p>
+                                Edit the configuration below, then select Apply JSON to update the
+                                visual editor.
+                              </p>
+                            </div>
+                            <Button size="sm" disabled={!rawDirty} onClick={applyJson}>
+                              <Check />
+                              Apply JSON
+                            </Button>
+                          </div>
+                          <textarea
+                            aria-label="JSON source"
+                            className="json-editor"
+                            spellCheck={false}
+                            value={jsonDraft}
+                            onChange={(e) => {
+                              setJsonDraft(e.target.value)
+                              setRawDirty(e.target.value !== docText)
+                            }}
+                          />
+                          <div className="source-footer">
+                            <span>{jsonDraft.split('\n').length} lines · UTF-8</span>
+                            {rawDirty ? (
+                              <button
+                                onClick={() => {
+                                  setRawDirty(false)
+                                  setJsonDraft(docText)
+                                  setMessage('')
+                                }}
+                              >
+                                Discard draft
+                              </button>
+                            ) : (
+                              <span>In sync with visual editor</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      {view === 'bytes' && (
+                        <div className="source-panel">
+                          <div className="source-heading">
+                            <div>
+                              <h2>Binary inspector</h2>
+                              <p>
+                                Binary output for the current configuration. Changes from the
+                                original are highlighted.
+                              </p>
+                            </div>
+                            <span className="standard-badge">
+                              {work.standard === '8472' ? 'A0h' : 'Page 00h'}
+                            </span>
+                          </div>
+                          {result ? (
+                            <ByteView result={result} work={work} />
+                          ) : (
+                            <div className="empty-search">
+                              A binary preview is available after conversion succeeds. Resolve any
+                              input errors shown above.
+                            </div>
+                          )}
+                          <div className="source-footer">
+                            {work.standard === '8636'
+                              ? work.lowerBytes
+                                ? 'Lower page: preserved from imported file · Upper page: encoded from editor'
+                                : 'Upper 128 bytes only · Lower page was not supplied'
+                              : '128 bytes · Lower page A0h'}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                </div>
+              </>
+            )}
+          </main>
+        </div>
+      </ByteContext.Provider>
       <Dialog
         open={importOpen}
         onOpenChange={setImportOpen}
@@ -1218,4 +1373,14 @@ function ByteView({ result, work }: { result: CodecResult; work: Work }) {
       </table>
     </div>
   )
+}
+
+function moduleFormFactor(document: Document): string {
+  const identifier = document.Identifier
+  if (typeof identifier !== 'string') return 'Unknown form factor'
+  if (identifier === 'SFP or SFP+') return 'SFP/SFP+'
+  if (identifier.startsWith('QSFP28')) return 'QSFP28'
+  if (identifier.startsWith('QSFP+')) return 'QSFP+'
+  if (identifier.startsWith('QSFP (')) return 'QSFP'
+  return identifier
 }

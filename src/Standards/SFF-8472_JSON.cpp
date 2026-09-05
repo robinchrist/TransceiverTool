@@ -1584,7 +1584,7 @@ namespace TransceiverTool::Standards::SFF8472 {
 
         nlohmann::ordered_json j;
 
-        if(false && !byte_8_sfp_plus_cable_technology_codes_Passive_Cable_bit_2 &&
+        if(!byte_8_sfp_plus_cable_technology_codes_Passive_Cable_bit_2 &&
            !byte_8_sfp_plus_cable_technology_codes_Active_Cable_bit_3) {
             j["Type"] = "Wavelength";
 

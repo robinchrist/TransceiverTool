@@ -88,6 +88,9 @@ int main() {
         nlohmann::ordered_json a, b;
         S::SFF8472::SFF8472_LowerA0hToJSON(a, S::SFF8472::parseBytesToStruct(bytes.data()), true);
         S::SFF8636::SFF8636_Upper00hToJSON(b, S::SFF8636::parseBytesToStruct(bytes.data()), true);
+        if(a.at("Wavelength Or Cable Specification Compliance").at("Type") != "Wavelength") {
+            throw std::runtime_error("Optical SFP must decode wavelength, not cable flags");
+        }
         cases(Json::parse(a.dump()), SchemaContract::validate8472, [](const Json& document) {
             S::SFF8472::SFF8472_LowerA0h value;
             S::SFF8472::SFF8472_LowerA0hFromJSON(document, value);

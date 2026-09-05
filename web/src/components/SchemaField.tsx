@@ -1,10 +1,15 @@
 // SPDX-FileCopyrightText: 2026 Robin Christ
 // SPDX-License-Identifier: MPL-2.0
-import { useId, useState } from 'react'
+import { Select } from './ui/select'
+import { useContext, useEffect, useId, useState, type ReactNode } from 'react'
 import { Plus, X } from 'lucide-react'
 import { Switch } from './ui/switch'
 import { Button } from './ui/button'
 import { Dialog } from './ui/dialog'
+import { ByteContext, FieldBytes, FieldModeContext } from './FieldBytes'
+import { NamedByteField } from './NamedByteField'
+import { WholeByteControls } from './WholeByteControls'
+import { fieldLayout, byteLocation, vendorOUIOptions } from '../lib/field-bytes'
 import {
   branchLabel,
   defaultValue,
@@ -26,8 +31,77 @@ interface Props {
   path?: string
   issues?: FieldIssue[]
   depth?: number
+  byteSummary?: ReactNode
 }
-export function SchemaField({
+export function SchemaField(props: Props) {
+  const context = useContext(ByteContext)
+  const parts = context ? fieldLayout(context.standard, props.path ?? '') : []
+  return (
+    <div className="field-location" title={parts.length ? byteLocation(parts) : undefined}>
+      <FieldEditor {...props} />
+    </div>
+  )
+}
+function FieldEditor(props: Props) {
+  const byteContext = useContext(ByteContext)
+  const content = <ValueEditor {...props} />
+  const schema = resolve(props.schema, props.root)
+  const path = props.path ?? ''
+  const parts = byteContext ? fieldLayout(byteContext.standard, path) : []
+  const topLevel = path.split('/').length === 2
+  if (!props.depth && parts.length) {
+    const alternatives = schema.anyOf?.map((branch) => resolve(branch, props.root))
+    const named = alternatives?.find((branch) =>
+      branch.enum?.every((value) => typeof value === 'string'),
+    )
+    if (
+      alternatives?.length === 2 &&
+      named?.enum &&
+      alternatives.some((branch) => branch.properties?.byteValue) &&
+      parts.length === 1 &&
+      parts[0][1] === 255
+    )
+      return (
+        <NamedByteField
+          name={props.name}
+          path={path}
+          value={props.value}
+          names={named.enum as string[]}
+          issues={props.issues ?? []}
+        />
+      )
+    // A bit has no independent byte representation. Keep its ordinary toggle or
+    // enum; the containing top-level group exposes the physical bytes together.
+    if (
+      !topLevel &&
+      (schema.type === 'boolean' ||
+        /\bBits?\s+\d/i.test(props.name) ||
+        parts.some(([, mask]) => mask !== 255))
+    )
+      return content
+    if (topLevel && hasBits(schema, props.root))
+      return (
+        <div className="byte-field byte-group">
+          <ValueEditor
+            {...props}
+            byteSummary={<WholeByteControls path={path} name={props.name} parts={parts} />}
+          />
+        </div>
+      )
+  }
+  return props.depth ? (
+    content
+  ) : (
+    <FieldBytes
+      path={props.path ?? ''}
+      name={props.name}
+      hasFormats={!!resolve(props.schema, props.root).anyOf}
+    >
+      {content}
+    </FieldBytes>
+  )
+}
+function ValueEditor({
   name,
   schema,
   root,
@@ -36,10 +110,31 @@ export function SchemaField({
   depth = 0,
   path = '',
   issues = [],
+  byteSummary,
 }: Props) {
   const id = useId()
+  const byteContext = useContext(ByteContext)
+  const fieldMode = useContext(FieldModeContext)
+  const mode = depth === 0 && fieldMode?.path === path ? fieldMode : null
+  const [converting, setConverting] = useState(false)
+  const [formatError, setFormatError] = useState('')
   const [pendingBranch, setPendingBranch] = useState<number | null>(null)
   const s = resolve(schema, root)
+  const [vendorOUIs, setVendorOUIs] = useState<Record<string, string>>({})
+  useEffect(() => {
+    if (path !== '/Vendor OUI/Vendor Name' || !s.enum || !byteContext) return
+    let active = true
+    vendorOUIOptions(byteContext.standard, s.enum as string[])
+      .then((options) => {
+        if (active) setVendorOUIs(options)
+      })
+      .catch(() => {
+        /* Keep the existing vendor names if the codec is unavailable. */
+      })
+    return () => {
+      active = false
+    }
+  }, [path, s.enum, byteContext?.standard])
   const fieldIssues = issues.filter((issue) => issue.path === path)
   const errorId = `${id}-error`
   const accessibility = {
@@ -59,39 +154,82 @@ export function SchemaField({
       <div className="union-field">
         <div className="union-heading">
           <span className="field-label">{name}</span>
-          <select
+          {byteSummary ?? mode?.hexDisplay}
+          <Select
             aria-label={`${name} value format`}
-            title="Change value format. Review the replacement before applying it."
+            title={`${byteContext ? byteLocation(fieldLayout(byteContext.standard, path)) + '. ' : ''}Change value format while preserving bytes when possible.`}
             className="variant-select"
-            value={branch}
-            onChange={(e) => setPendingBranch(Number(e.target.value))}
+            value={mode?.raw ? 'hex' : branch}
+            disabled={
+              converting ||
+              byteContext?.locked ||
+              byteContext?.hasDrafts ||
+              (!!byteContext && !byteContext.result)
+            }
+            onChange={async (e) => {
+              if (e.target.value === 'hex') {
+                setFormatError('')
+                mode?.setRaw(true)
+                return
+              }
+              const next = Number(e.target.value)
+              setConverting(true)
+              setFormatError('')
+              try {
+                const converted = await byteContext?.format(path, s.anyOf![next])
+                if (converted !== undefined) {
+                  onChange(converted)
+                  mode?.setRaw(false)
+                } else if (path === '/Vendor OUI') {
+                  setFormatError(
+                    'No vendor in the built-in OUI list matches these bytes. The OUI has been kept unchanged.',
+                  )
+                } else setPendingBranch(next)
+              } catch (error) {
+                setFormatError((error as Error).message)
+              } finally {
+                setConverting(false)
+              }
+            }}
           >
+            {mode && <option value="hex">Hex bytes</option>}
             {s.anyOf.map((option, i) => (
               <option key={i} value={i}>
-                {branchLabel(option, root)}
+                {path === '/Vendor OUI'
+                  ? resolve(option, root).properties?.['Vendor Name']
+                    ? 'Vendor name'
+                    : 'OUI'
+                  : branchLabel(option, root)}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
         {errorText}
+        {formatError && (
+          <p className="field-error" role="alert">
+            {formatError}
+          </p>
+        )}
         {s.description && <p className="field-description">{s.description}</p>}
-        <SchemaField
-          name={name}
-          schema={s.anyOf[branch]}
-          root={root}
-          value={value}
-          onChange={onChange}
-          path={path}
-          issues={issues}
-          depth={depth + 1}
-        />
+        {!mode?.raw && (
+          <SchemaField
+            name={name}
+            schema={s.anyOf[branch]}
+            root={root}
+            value={value}
+            onChange={onChange}
+            path={path}
+            issues={issues}
+            depth={depth + 1}
+          />
+        )}
         <Dialog
           open={pendingBranch !== null}
           onOpenChange={(open) => {
             if (!open) setPendingBranch(null)
           }}
           title={`Replace ${name}?`}
-          description="This replaces the current value with the default shown below, which may change the EEPROM bytes. It does not convert the existing value. Undo can restore it."
+          description="The current bytes cannot be represented in the selected format. You can keep the current value or replace it with the default shown below. Replacing it may change the EEPROM bytes; Undo can restore it."
         >
           <div className="replacement-preview">
             <strong>Current value</strong>
@@ -106,6 +244,7 @@ export function SchemaField({
             <Button
               onClick={() => {
                 onChange(replacement)
+                mode?.setRaw(false)
                 setPendingBranch(null)
               }}
             >
@@ -123,12 +262,43 @@ export function SchemaField({
         {String(s.const)}
       </div>
     )
+  if (s.properties?.Type?.const === 'Base64') {
+    const object = value && typeof value === 'object' && !Array.isArray(value) ? value : {}
+    const base64Issues = issues.filter(
+      (issue) => issue.path === path || issue.path === `${path}/Value`,
+    )
+    return (
+      <div className="scalar-field">
+        <textarea
+          className="field-input base64-input"
+          aria-label={`${name} Base64`}
+          data-field-path={`${path}/Value`}
+          spellCheck={false}
+          rows={3}
+          value={typeof object.Value === 'string' ? object.Value : ''}
+          aria-invalid={base64Issues.length > 0 || undefined}
+          aria-describedby={base64Issues.length ? errorId : undefined}
+          onChange={(event) => onChange({ ...object, Type: 'Base64', Value: event.target.value })}
+        />
+        {base64Issues.length > 0 && (
+          <p id={errorId} className="field-error">
+            {base64Issues.map((issue) => issue.message).join(' ')}
+          </p>
+        )}
+      </div>
+    )
+  }
   if (s.type === 'object' || s.properties) {
     const object =
       value && typeof value === 'object' && !Array.isArray(value) ? (value as Document) : {}
     return (
       <div className={depth ? 'nested-fields' : 'object-fields'}>
-        {depth === 0 && <div className="field-label mb-3">{name}</div>}
+        {depth === 0 && !mode && (
+          <div className="byte-group-heading">
+            <span className="field-label">{name}</span>
+            {byteSummary}
+          </div>
+        )}
         {Object.entries(s.properties ?? {}).map(([key, child]) => {
           const required = s.required?.includes(key)
           const present = key in object
@@ -179,11 +349,17 @@ export function SchemaField({
   if (s.type === 'boolean')
     return (
       <div className="boolean-field">
-        <label htmlFor={id}>{name}</label>
-        <Switch {...accessibility} id={id} checked={value === true} onCheckedChange={onChange} />
+        {!mode && <label htmlFor={id}>{name}</label>}
+        <Switch
+          {...accessibility}
+          aria-label={name}
+          id={id}
+          checked={value === true}
+          onCheckedChange={onChange}
+        />
       </div>
     )
-  const label = depth === 0 && (
+  const label = depth === 0 && !mode && (
     <label className="field-label" htmlFor={id}>
       {name}
     </label>
@@ -192,7 +368,7 @@ export function SchemaField({
     return (
       <div className="scalar-field">
         {label}
-        <select
+        <Select
           {...accessibility}
           id={id}
           aria-label={name}
@@ -208,9 +384,10 @@ export function SchemaField({
           {s.enum.map((option, i) => (
             <option value={i} key={i}>
               {String(option)}
+              {vendorOUIs[String(option)] ? ` (OUI: ${vendorOUIs[String(option)]})` : ''}
             </option>
           ))}
-        </select>
+        </Select>
         {String(value ?? '').length > 35 && <p className="selected-value">{String(value)}</p>}
         {errorText}
       </div>
@@ -259,5 +436,16 @@ export function SchemaField({
         </span>
       )}
     </div>
+  )
+}
+
+function hasBits(schema: Schema, root: Schema): boolean {
+  const resolved = resolve(schema, root)
+  return (
+    resolved.type === 'boolean' ||
+    (resolved.anyOf?.some((branch) => hasBits(branch, root)) ?? false) ||
+    Object.entries(resolved.properties ?? {}).some(
+      ([name, child]) => /\bBits?\s+\d/i.test(name) || hasBits(child, root),
+    )
   )
 }

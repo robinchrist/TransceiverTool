@@ -6,12 +6,14 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build:wasm": "node scripts/build-wasm.mjs",
-    "build": "tsc -b && vite build",
+    "build": "npm run check:byte-layout && tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "test": "node --test tests/codec.test.mjs && vitest run tests/schema.test.ts",
+    "test": "npm run check:byte-layout && node --test tests/codec.test.mjs && vitest run tests/schema.test.ts tests/field-bytes.test.ts",
     "test:e2e": "playwright test",
     "format": "prettier --write src tests scripts *.ts *.json *.md",
-    "format:check": "prettier --check src tests scripts *.ts *.json *.md"
+    "format:check": "prettier --check src tests scripts *.ts *.json *.md",
+    "generate:byte-layout": "python3 scripts/generate-byte-layout.py",
+    "check:byte-layout": "python3 scripts/generate-byte-layout.py --check"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.15",

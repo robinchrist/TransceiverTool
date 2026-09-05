@@ -43,15 +43,15 @@ export async function sample(standard: Standard) {
   if (standard === '8472') {
     bytes[1] = 4
     bytes[2] = 7
-    bytes[3] = 0x10
+    bytes[3] = 0x20
     bytes[11] = 6
     bytes[12] = 103
     bytes[14] = 10
     bytes[60] = 5
     bytes[61] = 30
     bytes[94] = 8
-    text(20, 'EXAMPLE OPTICS', 16)
-    text(40, 'SFP-10G-LR', 16)
+    text(20, 'Example Mfg.', 16)
+    text(40, 'PN-1234-SFP', 16)
     text(56, 'A1', 4)
     text(68, 'DEMO00000001', 16)
     text(84, '260905', 8)
@@ -65,8 +65,8 @@ export async function sample(standard: Standard) {
     bytes[222] = 100
     bytes[186] = 0x66
     bytes[187] = 0x58
-    text(148, 'EXAMPLE OPTICS', 16)
-    text(168, 'QSFP28-100G-LR4', 16)
+    text(148, 'Example Mfg.', 16)
+    text(168, 'PN-5678-QSFP', 16)
     text(184, 'A1', 2)
     text(196, 'DEMO00000002', 16)
     text(212, '260905', 8)
