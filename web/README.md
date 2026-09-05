@@ -43,6 +43,11 @@ Tagged releases attach `TransceiverTool-web-v<version>.html` directly alongside 
 and include it in `SHA256SUMS`. Manual release runs build and test the HTML without publishing it;
 it is available as the `transceiver-studio-standalone` workflow artifact.
 
+After a pushed release tag publishes successfully, the same tested HTML is deployed to GitHub
+Pages. Manual workflow runs do not deploy Pages. To enable this once per repository, select
+**Settings → Pages → Build and deployment → Source → GitHub Actions**. In the `github-pages`
+environment settings, ensure deployment rules allow release tags matching `v*`.
+
 ## Develop and test
 
 ```sh
