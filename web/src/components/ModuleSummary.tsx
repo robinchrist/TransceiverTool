@@ -62,7 +62,7 @@ export function ModuleSummary({
       ([key]) => key.endsWith('Power Class (Bit 7-6)') && !key.includes('Extended Power'),
     )?.[1]
     power = fields.some(([key, value]) => /Power Class 8 implemented/.test(key) && value === true)
-      ? 'Class 8 · limit outside this page'
+      ? 'Power Class 8 (>5.0W) · Limit in Page 00h Byte 107'
       : typeof extended === 'string' && /Class [567] /.test(extended)
         ? extended
         : typeof base === 'string'

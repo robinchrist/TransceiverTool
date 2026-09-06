@@ -137,12 +137,16 @@ test('module summary leads with the extended compliance code and folds Infiniban
 }) => {
   const upper = Buffer.alloc(128)
   upper[0] = 0x11 // QSFP28
+  upper[1] = 0x20 // Extended Identifier: Power Class 8 implemented
   upper[3] = 0x80 // 10/40G/100G Ethernet Compliance Codes: Extended
   upper[36] = 0x38 // Extended Module Codes: Infiniband HDR, EDR, FDR
   upper[64] = 0x06 // Extended Specification Compliance Codes: 100G CWDM4
   await importBinary(page, upper, '8636')
   await expect(page.locator('.technical-summary')).toContainText(
     '100G CWDM4 · Infiniband HDR (200G) / EDR (100G) / FDR (56G)',
+  )
+  await expect(page.locator('.technical-summary')).toContainText(
+    'Power Class 8 (>5.0W) · Limit in Page 00h Byte 107',
   )
 })
 
