@@ -4,7 +4,7 @@
 # Make sure we use a relatively recent version - 3.27 is Nov 2023
 cmake_minimum_required(VERSION 3.27)
 
-project ("Transceiver Tool" VERSION 0.0.5)
+project ("Transceiver Tool" VERSION 0.0.6)
 
 option(TRANSCEIVERTOOL_BUILD_CLI "Build the native command-line interface" ON)
 option(TRANSCEIVERTOOL_BUILD_WEB "Build the WebAssembly browser module" OFF)
