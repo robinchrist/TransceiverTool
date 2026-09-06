@@ -742,7 +742,7 @@ export default function App() {
                     </Button>
                   </div>
                 </div>
-                <details className="module-details">
+                <details className="module-details" open>
                   <summary>
                     <span>
                       <strong>{short(work.document['Vendor Name'], 'Unknown manufacturer')}</strong>

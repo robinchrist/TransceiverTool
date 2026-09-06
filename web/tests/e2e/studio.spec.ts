@@ -106,7 +106,6 @@ test('full QSFP binary roundtrip preserves lower page, mode switching, and edits
   await page.getByRole('button', { name: 'Download full page · 256 bytes', exact: true }).click()
   expect(await downloaded(await event)).toEqual(original)
   await page.getByRole('button', { name: 'Close dialog' }).click()
-  await page.locator('.module-details > summary').click()
   await page.getByRole('button', { name: 'Copper', exact: true }).click()
   await expect(
     page.getByRole('button', { name: 'Export configuration', exact: true }),
@@ -213,7 +212,6 @@ test('continuous sections, compact specifications, and vendor hex editing', asyn
   await expect(
     page.getByRole('textbox', { name: 'Vendor Specific hex bytes', exact: true }),
   ).toBeVisible()
-  await page.locator('.module-details > summary').click()
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Example Mfg. PN-1234-SFP')
   await expect(page.locator('.module-details > summary')).toContainText(
     'Example Mfg. · PN-1234-SFP · SFP/SFP+ (SFF-8472)',
