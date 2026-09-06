@@ -18,22 +18,40 @@ export function ModuleSummary({
   fiber: boolean
 }) {
   const fields = document ? leaves(document) : []
-  const compliance = fields
+  const bitName = (key: string) =>
+    key
+      .split(' / ')
+      .at(-1)!
+      .replace(/\s*\([^)]*Bit[^)]*\)/gi, '')
+      .replace(/ Infiniband supported$/i, '')
+      .replace(/ compliant$/i, '')
+  // The extended specification compliance code names the module type most precisely
+  // ("100G CWDM4"), so it leads; the per-bit codes and the Infiniband rates follow.
+  const extendedSpec = fields
     .filter(
       ([key, value]) =>
-        /Compliance Codes/.test(key) &&
-        (value === true ||
-          (typeof value === 'string' && /BASE|LR4|SR4|ER4|PSM4|CWDM/i.test(value))),
+        key === 'Extended Specification Compliance Codes' &&
+        typeof value === 'string' &&
+        value !== 'Unspecified',
     )
-    .map(([key, value]) =>
-      typeof value === 'string'
-        ? value
-        : key
-            .split(' / ')
-            .at(-1)!
-            .replace(/\s*\([^)]*Bit[^)]*\)/gi, '')
-            .replace(/ compliant$/i, ''),
-    )
+    .map(([, value]) => value as string)
+  const infiniband = fields
+    .filter(([key, value]) => /Infiniband/.test(key) && value === true && !/Reserved/.test(key))
+    .map(([key]) => bitName(key))
+  const compliance = [
+    ...extendedSpec,
+    ...fields
+      .filter(
+        ([key, value]) =>
+          /Compliance Codes/.test(key) &&
+          value === true &&
+          // "Extended (Bit 7)" only points at the extended code above; it names no type.
+          !/Reserved|Extended \(Bit 7\)/.test(key) &&
+          !/Infiniband/.test(key),
+      )
+      .map(([key]) => bitName(key)),
+    ...(infiniband.length ? [`Infiniband ${infiniband.join(' / ')}`] : []),
+  ]
   const wavelengths = fields
     .filter(([key, value]) => /Wavelength \[nm\]/.test(key) && typeof value === 'number')
     .map(([, value]) => `${value} nm`)
