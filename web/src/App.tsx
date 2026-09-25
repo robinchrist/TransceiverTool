@@ -11,6 +11,7 @@ import {
   CheckCheck,
   ChevronRight,
   CircleHelp,
+  ClipboardPaste,
   Cpu,
   FileCode2,
   FilePlus2,
@@ -35,6 +36,7 @@ import { ByteContext } from './components/FieldBytes'
 import { editHex, convertFieldFormat, setAt, fieldHex, fieldLayout } from './lib/field-bytes'
 import { cn } from './lib/utils'
 import { convert, download, ready, sample, standardOf, type CodecResult } from './lib/codec'
+import { formatLabels, readInput, type ImportFormat } from './lib/import-formats'
 import {
   groups,
   groupKeys,
@@ -89,7 +91,10 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [importStandard, setImportStandard] = useState<Standard>('8472')
   const [importFiber, setImportFiber] = useState(true)
+  const [importSource, setImportSource] = useState<'file' | 'paste'>('file')
+  const [importFormat, setImportFormat] = useState<ImportFormat>('auto')
   const [file, setFile] = useState<File | null>(null)
+  const [pasteText, setPasteText] = useState('')
   const [busy, setBusy] = useState(false)
   const [engine, setEngine] = useState<'loading' | 'ready' | 'failed'>('loading')
   const [message, setMessage] = useState('')
@@ -335,45 +340,54 @@ export default function App() {
       setBusy(false)
     }
   }
-  async function importFile() {
-    if (!file) return
+  function openImport(source: 'file' | 'paste') {
+    setImportSource(source)
+    if (source === 'paste' && importFormat === 'binary') setImportFormat('auto')
+    setMessage('')
+    setImportOpen(true)
+  }
+  async function importData() {
+    const pasted = importSource === 'paste'
+    if (pasted ? !pasteText.trim() : !file) return
     setBusy(true)
     setMessage('')
     try {
-      if (file.size > 1024 * 1024) throw new Error('Choose a configuration smaller than 1 MiB.')
-      const buffer = await file.arrayBuffer()
-      if (
-        file.name.toLowerCase().endsWith('.json') ||
-        new TextDecoder().decode(buffer.slice(0, 64)).trimStart().startsWith('{')
-      ) {
-        const document = JSON.parse(new TextDecoder().decode(buffer)) as Document
-        const standard = standardOf(document)
-        await convert({ operation: 'encode', standard, document, fiber: importFiber })
-        load(document, standard, file.name, importFiber, false)
-      } else {
-        const bytes = [...new Uint8Array(buffer)]
-        const standard = bytes.length === 256 ? '8636' : importStandard
-        if (bytes.length !== 128 && bytes.length !== 256)
-          throw new Error(
-            'Binary input must be exactly 128 bytes (SFP or QSFP upper page) or 256 bytes (QSFP full page).',
-          )
-        const data = await convert({ operation: 'decode', standard, bytes, fiber: importFiber })
-        load(
-          data.document,
+      if ((pasted ? pasteText.length : file!.size) > 1024 * 1024)
+        throw new Error('Choose a configuration smaller than 1 MiB.')
+      const input = pasted ? pasteText : new Uint8Array(await file!.arrayBuffer())
+      const parsed = readInput(input, importFormat, importStandard, file?.name)
+      const kind = parsed.kind === 'document' ? 'TransceiverTool JSON' : formatLabels[parsed.format]
+      const name = pasted
+        ? `pasted-configuration.${parsed.kind === 'document' ? 'json' : 'bin'}`
+        : file!.name
+      if (parsed.kind === 'document') {
+        const standard = standardOf(parsed.document)
+        await convert({
+          operation: 'encode',
           standard,
-          file.name,
-          importFiber,
-          false,
-          bytes.length === 256 ? bytes.slice(0, 128) : undefined,
-        )
+          document: parsed.document,
+          fiber: importFiber,
+        })
+        load(parsed.document, standard, name, importFiber, false)
+      } else {
+        const data = await convert({
+          operation: 'decode',
+          standard: parsed.standard,
+          bytes: parsed.bytes,
+          fiber: importFiber,
+        })
+        load(data.document, parsed.standard, name, importFiber, false, parsed.lowerBytes)
       }
       setImportOpen(false)
       setFile(null)
-      setNotice('Configuration opened. Edits will not overwrite the original file.')
-    } catch (e) {
-      setMessage(
-        `Could not open this file. ${(e as Error).message} Choose a supported binary or TransceiverTool JSON file.`,
+      setPasteText('')
+      setNotice(
+        pasted
+          ? `Pasted configuration opened (${kind}).`
+          : `Configuration opened (${kind}). Edits will not overwrite the original file.`,
       )
+    } catch (e) {
+      setMessage(`Could not open this ${pasted ? 'data' : 'file'}. ${(e as Error).message}`)
     } finally {
       setBusy(false)
     }
@@ -630,16 +644,11 @@ export default function App() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() =>
-                  replace(() => {
-                    setImportOpen(true)
-                    setMessage('')
-                  })
-                }
+                onClick={() => replace(() => openImport(importSource))}
                 disabled={engine !== 'ready' || busy}
               >
                 <FileUp />
-                Import file
+                Import
               </Button>
             </div>
           </header>
@@ -656,25 +665,40 @@ export default function App() {
             {!work ? (
               <div className="welcome">
                 <h1>Edit a transceiver configuration</h1>
-                <p>Open a binary or JSON file, edit its fields, and download your configuration.</p>
+                <p>
+                  Open a binary, JSON, hex, or Base64 file, or paste the data. Edit its fields and
+                  download your configuration.
+                </p>
                 <div
                   className="welcome-import"
                   onDragOver={(e) => e.preventDefault()}
                   onDrop={(e) => {
                     e.preventDefault()
                     setFile(e.dataTransfer.files[0] ?? null)
-                    setImportOpen(true)
+                    openImport('file')
                   }}
                 >
                   <div className="upload-symbol">
                     <FileUp size={26} />
                   </div>
-                  <p>Drop a binary or JSON file, or browse your device.</p>
-                  <Button onClick={() => setImportOpen(true)} disabled={engine !== 'ready'}>
-                    <FileUp />
-                    Open configuration
-                  </Button>
-                  <span className="supported">SFF-8472 · SFF-8636 · .bin · .json</span>
+                  <p>Drop a file, browse your device, or paste a dump.</p>
+                  <div className="welcome-actions">
+                    <Button onClick={() => openImport('file')} disabled={engine !== 'ready'}>
+                      <FileUp />
+                      Open configuration
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => openImport('paste')}
+                      disabled={engine !== 'ready'}
+                    >
+                      <ClipboardPaste />
+                      Paste data
+                    </Button>
+                  </div>
+                  <span className="supported">
+                    SFF-8472 · SFF-8636 · binary · JSON · hex · Base64 · mlxlink
+                  </span>
                 </div>
                 <div className="sample-row">
                   <div>
@@ -1109,34 +1133,94 @@ export default function App() {
         open={importOpen}
         onOpenChange={setImportOpen}
         title="Open a configuration"
-        description="Open a binary EEPROM dump or a TransceiverTool JSON file. A successful import replaces the configuration in this tab; the original file is unchanged."
+        description="Open or paste an EEPROM dump, mlxlink / mstlink output, or a TransceiverTool JSON file. A successful import replaces the configuration in this tab; the original file is unchanged."
       >
-        <div
-          className="dialog-upload"
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={(e) => {
-            e.preventDefault()
-            setFile(e.dataTransfer.files[0] ?? null)
-          }}
-        >
-          <FileUp size={26} />
-          <strong>{file?.name ?? 'Choose a file or drop it here'}</strong>
-          <span>
-            {file ? `${file.size.toLocaleString()} bytes` : '.bin, .json, or a raw EEPROM dump'}
-          </span>
-          <Button variant="outline" size="sm" onClick={() => fileInput.current?.click()}>
-            Browse files
-          </Button>
-          <input
-            ref={fileInput}
-            type="file"
-            aria-label="Configuration file"
-            className="sr-only"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          />
+        <div className="segmented import-source" role="group" aria-label="Import source">
+          {(
+            [
+              ['file', 'File', FileUp],
+              ['paste', 'Paste text', ClipboardPaste],
+            ] as const
+          ).map(([source, label, Icon]) => (
+            <button
+              key={source}
+              aria-pressed={importSource === source}
+              className={cn(importSource === source && 'selected')}
+              onClick={() => {
+                setImportSource(source)
+                if (source === 'paste' && importFormat === 'binary') setImportFormat('auto')
+                setMessage('')
+              }}
+            >
+              <Icon size={14} />
+              {label}
+            </button>
+          ))}
         </div>
-        <label className="field-label" htmlFor="import-standard">
-          Interpret 128-byte binary as
+        {importSource === 'file' ? (
+          <div
+            className="dialog-upload"
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              e.preventDefault()
+              setFile(e.dataTransfer.files[0] ?? null)
+            }}
+          >
+            <FileUp size={26} />
+            <strong>{file?.name ?? 'Choose a file or drop it here'}</strong>
+            <span>
+              {file
+                ? `${file.size.toLocaleString()} bytes`
+                : 'Binary dump, JSON, or a text file with hex or Base64'}
+            </span>
+            <Button variant="outline" size="sm" onClick={() => fileInput.current?.click()}>
+              Browse files
+            </Button>
+            <input
+              ref={fileInput}
+              type="file"
+              aria-label="Configuration file"
+              className="sr-only"
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            />
+          </div>
+        ) : (
+          <textarea
+            aria-label="Configuration data"
+            className="paste-input"
+            spellCheck={false}
+            autoFocus
+            placeholder={
+              'Paste hex bytes (for example hexdump -C, xxd, or ethtool -m hex output), Base64, mlxlink / mstlink JSON, or TransceiverTool JSON.'
+            }
+            value={pasteText}
+            onChange={(e) => setPasteText(e.target.value)}
+          />
+        )}
+        <label className="field-label" htmlFor="import-format">
+          Data format
+        </label>
+        <select
+          id="import-format"
+          className="field-input mt-2"
+          value={importFormat}
+          onChange={(e) => setImportFormat(e.target.value as ImportFormat)}
+        >
+          {(Object.keys(formatLabels) as ImportFormat[])
+            .filter((format) => importSource === 'file' || format !== 'binary')
+            .map((format) => (
+              <option key={format} value={format}>
+                {formatLabels[format]}
+              </option>
+            ))}
+        </select>
+        <p className="field-description mt-2">
+          Detection recognizes JSON, hex dumps, and Base64 in text
+          {importSource === 'file' ? ', and reads any other file as binary' : ''}. Choose a format
+          if detection picks the wrong one.
+        </p>
+        <label className="field-label mt-5 block" htmlFor="import-standard">
+          Interpret 128 bytes as
         </label>
         <select
           id="import-standard"
@@ -1148,8 +1232,9 @@ export default function App() {
           <option value="8636">QSFP · SFF-8636 00h</option>
         </select>
         <p className="field-description mt-2">
-          For 128-byte dumps, choose SFP Lower A0h or QSFP Upper 00h. JSON uses its Type field; a
-          256-byte dump is read as a full QSFP page.
+          128 bytes can be SFP Lower A0h or QSFP Upper 00h; choose which. 256 bytes are read as a
+          full QSFP page. TransceiverTool JSON uses its Type field; mlxlink output uses its byte
+          offsets and the module identifier.
         </p>
         <label className="field-label mt-5 block" htmlFor="import-mode">
           Shared byte interpretation
@@ -1170,8 +1255,10 @@ export default function App() {
         )}
         <Button
           className="w-full mt-6"
-          onClick={importFile}
-          disabled={!file || busy || engine !== 'ready'}
+          onClick={importData}
+          disabled={
+            (importSource === 'file' ? !file : !pasteText.trim()) || busy || engine !== 'ready'
+          }
         >
           {busy ? 'Reading configuration…' : 'Open configuration'}
           <ArrowRight />
@@ -1252,8 +1339,9 @@ export default function App() {
             <strong>01 · Open</strong>
             <p>
               Import SFF-8472 Lower A0h (128 bytes), SFF-8636 Upper 00h (128 bytes), a full QSFP
-              page (256 bytes), or a TransceiverTool JSON file. Choose the standard explicitly for
-              128-byte dumps.
+              page (256 bytes), or a TransceiverTool JSON file. Bytes can be binary, hex text, or
+              Base64, or mlxlink / mstlink cable read JSON; paste them or open a file. Choose the
+              standard explicitly for 128-byte dumps.
             </p>
           </li>
           <li>

@@ -73,8 +73,18 @@ JavaScript serializes `1310.0` as `1310`, and both are valid JSON numbers.
 ## Supported workflow
 
 - Import SFF-8472 Lower A0h (128 bytes), SFF-8636 Upper 00h (128 bytes), a full QSFP page
-  (256 bytes), or TransceiverTool JSON. For a 128-byte binary, explicitly select the standard;
-  file length alone cannot distinguish them. Oversized and unsupported inputs are rejected.
+  (256 bytes), or TransceiverTool JSON. For 128 bytes, explicitly select the standard;
+  length alone cannot distinguish them. Oversized and unsupported inputs are rejected.
+- Open a file or paste text. Besides binary dumps, the importer reads bytes as hex text,
+  Base64, or `mlxlink` / `mstlink --cable --read --json` output, and detects the format unless
+  one is chosen. Hex input may be separated or contiguous digits, `0x` lists, C arrays, `\x`
+  escapes, or dumps with offset columns (`hexdump -C`, `xxd`, `od -tx1`, `i2cdump`,
+  `ethtool -m hex on`, PowerShell `Format-Hex`); offsets must be contiguous, and `*` repeat lines
+  are expanded. Base64 may be URL-safe, unpadded, wrapped, or `certutil -encode` output.
+  mlxlink keys such as `page[0].Byte[130]` are EEPROM offsets: offsets 128–255 of page 0 form the
+  QSFP upper page (with 0–127 kept as the lower page), and offsets 0–127 of an SFP form A0h. A QSFP
+  lower page alone is rejected because it does not contain the editable configuration.
+  Parsing is in `src/lib/import-formats.ts`; it only extracts bytes and never interprets them.
 - Edit scalar fields, enums, flags, nested objects, and alternative representations directly
   from the repository's schemas. Representation changes automatically preserve the current bytes when possible; otherwise
   the editor asks before replacing the value. Undo restores the previous value. Unknown JSON properties survive ordinary visual edits.
@@ -112,3 +122,9 @@ the corresponding name when one exists. JSON stores that name by default and
 falls back to a raw byte for unknown values; Write as raw byte explicitly selects
 raw output. Short byte values appear beside field titles, long sequences directly
 below them. Field tooltips identify byte offsets and bit positions.
+
+To read a QSFP module's upper page 00h on a Mellanox/NVIDIA adapter for import, run:
+
+```sh
+mstlink -d mlx5_0 --cable --read --page 0 --offset 128 --length 128 --json | jq -c
+```

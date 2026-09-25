@@ -880,6 +880,32 @@ select.field-input {
 .dialog-upload span {
   font-size: var(--type-metadata);
 }
+.import-source {
+  margin: 22px 0 0;
+}
+.paste-input {
+  display: block;
+  width: 100%;
+  min-height: 190px;
+  resize: vertical;
+  margin: 14px 0 25px;
+  padding: 12px 14px;
+  border: 1px solid #dce3ec;
+  border-radius: 10px;
+  background: #f7faff;
+  color: #35475d;
+  font: var(--type-metadata) / 1.6 var(--font-mono);
+  overflow-wrap: anywhere;
+}
+.paste-input::placeholder {
+  color: #6b7a90;
+}
+.welcome-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
 .new-option {
   display: flex;
   align-items: center;
@@ -1402,6 +1428,7 @@ local recovery. */
   }
   .field-input,
   .json-editor,
+  .paste-input,
   .search-box input {
     font-size: var(--type-body);
   }
@@ -1626,6 +1653,7 @@ local recovery. */
   }
   .field-input,
   .json-editor,
+  .paste-input,
   .search-box input {
     font-size: var(--type-body);
   }

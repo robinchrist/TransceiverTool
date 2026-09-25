@@ -3,6 +3,7 @@
 import { test, expect, type Download, type Page, type Locator } from '@playwright/test'
 import { pathToFileURL } from 'node:url'
 import path from 'node:path'
+import { readFileSync } from 'node:fs'
 
 const url = pathToFileURL(path.resolve('dist/index.html')).href
 async function menuOptions(control: Locator) {
@@ -38,11 +39,11 @@ async function downloaded(download: Download) {
   return Buffer.concat(chunks)
 }
 async function importBinary(page: Page, buffer: Buffer, standard = '8472') {
-  await page.getByRole('button', { name: 'Import file', exact: true }).click()
+  await page.getByRole('button', { name: 'Import', exact: true }).click()
   await page
     .getByLabel('Configuration file', { exact: true })
     .setInputFiles({ name: 'module.bin', mimeType: 'application/octet-stream', buffer })
-  await choose(page.getByLabel('Interpret 128-byte binary as'), standard)
+  await choose(page.getByLabel('Interpret 128 bytes as'), standard)
   await page
     .getByRole('dialog')
     .getByRole('button', { name: 'Open configuration', exact: true })
@@ -132,6 +133,94 @@ test('128-byte QSFP input uses explicit standard and cannot invent a lower page'
   expect(await downloaded(await event)).toEqual(original)
 })
 
+async function importData(page: Page, format: string, data: string | Buffer, name?: string) {
+  const dialog = page.getByRole('dialog')
+  if (name) {
+    await dialog.getByRole('button', { name: 'File', exact: true }).click()
+    await dialog
+      .getByLabel('Configuration file', { exact: true })
+      .setInputFiles({ name, mimeType: 'text/plain', buffer: Buffer.from(data) })
+  } else {
+    await dialog.getByRole('button', { name: 'Paste text', exact: true }).click()
+    await dialog.getByRole('textbox', { name: 'Configuration data' }).fill(String(data))
+  }
+  await dialog.getByLabel('Data format', { exact: true }).selectOption({ label: format })
+  await dialog.getByRole('button', { name: 'Open configuration', exact: true }).click()
+}
+async function exported(page: Page, button: string) {
+  await page.getByRole('button', { name: 'Export configuration', exact: true }).click()
+  const event = page.waitForEvent('download')
+  await page.getByRole('button', { name: button, exact: true }).click()
+  const bytes = await downloaded(await event)
+  await page.getByRole('button', { name: 'Close dialog' }).click()
+  return bytes
+}
+const xxd = (bytes: Buffer) =>
+  Array.from({ length: bytes.length / 16 }, (_, row) => {
+    const chunk = bytes.subarray(row * 16, row * 16 + 16)
+    const groups = chunk.toString('hex').match(/.{4}/g)!.join(' ')
+    const text = [...chunk].map((b) => (b >= 32 && b < 127 ? String.fromCharCode(b) : '.'))
+    return `${(row * 16).toString(16).padStart(8, '0')}: ${groups}  ${text.join('')}`
+  }).join('\n')
+
+test('pasted and uploaded text formats import the exact bytes', async ({ page }) => {
+  const full = Buffer.from(Array.from({ length: 256 }, (_, i) => (i * 43 + 19) & 255))
+  const sfp = Buffer.from(Array.from({ length: 128 }, (_, i) => (i * 29 + 7) & 255))
+
+  await page.getByRole('button', { name: 'Paste data', exact: true }).click()
+  await importData(page, 'Detect automatically', xxd(full))
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Pasted configuration opened (Hex bytes).' }),
+  ).toBeVisible()
+  expect(await exported(page, 'Download full page · 256 bytes')).toEqual(full)
+
+  await page.getByRole('button', { name: 'Import', exact: true }).click()
+  await importData(
+    page,
+    'Detect automatically',
+    sfp.toString('base64').replace(/(.{76})/g, '$1\n'),
+    'sfp.b64',
+  )
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Configuration opened (Base64).' }),
+  ).toBeVisible()
+  await expect(page.locator('.file-meta')).toContainText('sfp.b64')
+  expect(await exported(page, 'Download binary · 128 bytes')).toEqual(sfp)
+
+  await page.getByRole('button', { name: 'Import', exact: true }).click()
+  const list = [...sfp].map((b) => `0x${b.toString(16)}`).join(', ')
+  await importData(page, 'Hex bytes', `uint8_t a0[] = { ${list} };`, 'a0.h')
+  expect(await exported(page, 'Download binary · 128 bytes')).toEqual(sfp)
+})
+
+test('mlxlink output imports by byte offset and explains a lower page alone', async ({ page }) => {
+  const full = Buffer.from(Array.from({ length: 256 }, (_, i) => (i * 43 + 19) & 255))
+  full[0] = full[128] = 0x11
+  const output = Object.fromEntries(
+    [...full].map((b, i) => [
+      `page[0].Byte[${i}]`,
+      { values: [`0x${b.toString(16).padStart(2, '0')}`] },
+    ]),
+  )
+  await page.getByRole('button', { name: 'Paste data', exact: true }).click()
+  const dialog = page.getByRole('dialog')
+  const lowerPage = readFileSync(
+    path.resolve('tests/fixtures/mlxlink-qsfp28-lower-page.json'),
+    'utf8',
+  )
+  await importData(page, 'Detect automatically', lowerPage)
+  await expect(dialog.getByRole('alert')).toContainText(
+    'contains only bytes 0–127 of page 160, the QSFP lower page',
+  )
+  const json = JSON.stringify({
+    result: { output: { 'Cable Read Output': output } },
+    status: { code: 0, message: 'success' },
+  })
+  await importData(page, 'mlxlink / mstlink JSON', json, 'mlxlink.json')
+  await expect(page.getByText('Configuration opened (mlxlink / mstlink JSON).')).toBeVisible()
+  expect(await exported(page, 'Download full page · 256 bytes')).toEqual(full)
+})
+
 test('module summary leads with the extended compliance code and folds Infiniband rates', async ({
   page,
 }) => {
@@ -155,7 +244,7 @@ test('bad import preserves the current configuration and mobile navigation works
 }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.getByRole('button', { name: 'Explore SFP+ example' }).click()
-  await page.getByRole('button', { name: 'Import file', exact: true }).click()
+  await page.getByRole('button', { name: 'Import', exact: true }).click()
   await page.getByLabel('Configuration file', { exact: true }).setInputFiles({
     name: 'bad.bin',
     mimeType: 'application/octet-stream',

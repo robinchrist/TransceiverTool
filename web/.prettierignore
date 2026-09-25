@@ -7,3 +7,4 @@ package-lock.json
 conan.lock
 playwright-report
 test-results
+tests/fixtures
