@@ -931,11 +931,75 @@ select.field-input {
   gap: 12px;
   margin-top: 24px;
 }
-.export-options button {
+.export-options > *,
+.export-row > button {
+  min-width: 0;
+}
+.export-options button,
+.export-text button {
   justify-content: flex-start;
+  height: auto;
+  min-height: 2.5rem;
+  padding-block: 8px;
+  white-space: normal;
+  text-align: left;
 }
 .export-options button svg:last-child {
   margin-left: auto;
+}
+.export-row {
+  display: flex;
+  gap: 8px;
+}
+.export-row > button:first-child {
+  flex: 1;
+}
+.export-options .export-row > button:not(:first-child) {
+  justify-content: center;
+}
+.export-options .export-row > button:not(:first-child) svg {
+  margin: 0;
+}
+.export-text {
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid #e4e9ef;
+}
+.export-text h3 {
+  font-size: var(--type-control);
+  font-weight: 600;
+}
+.export-text-controls {
+  display: flex;
+  gap: 12px;
+  margin-top: 14px;
+}
+.export-text-controls > div {
+  flex: 1;
+  min-width: 0;
+}
+.export-preview {
+  display: block;
+  width: 100%;
+  height: 170px;
+  resize: vertical;
+  margin: 14px 0 12px;
+  padding: 12px 14px;
+  border: 1px solid #dce3ec;
+  border-radius: 10px;
+  background: #f7faff;
+  color: #35475d;
+  font: var(--type-metadata) / 1.6 var(--font-mono);
+  white-space: pre;
+}
+.export-text .export-row > button {
+  flex: 1;
+  justify-content: center;
+}
+@media (max-width: 760px) {
+  .export-text-controls {
+    flex-direction: column;
+  }
 }
 .help-steps {
   list-style: none;
@@ -1429,6 +1493,7 @@ local recovery. */
   .field-input,
   .json-editor,
   .paste-input,
+  .export-preview,
   .search-box input {
     font-size: var(--type-body);
   }
@@ -1654,6 +1719,7 @@ local recovery. */
   .field-input,
   .json-editor,
   .paste-input,
+  .export-preview,
   .search-box input {
     font-size: var(--type-body);
   }

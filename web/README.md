@@ -98,6 +98,10 @@ JavaScript serializes `1310.0` as `1310`, and both are valid JSON numbers.
 - Download JSON, a 128-byte programming, or a full 256-byte QSFP page when imported lower-page
   bytes are available. The lower half is preserved verbatim. **JSON contains only the modeled
   upper page**, so JSON-only imports cannot produce a full-page download.
+- Copy the JSON to the clipboard, or copy or download the same bytes as text: spaced hex bytes,
+  a hex string, a `0x` list, a C array, `hexdump -C` or `xxd` output, or Base64. Dump offsets
+  start at the first exported byte, as when the tool runs on the downloaded binary. Every text
+  format can be imported again (`src/lib/export-formats.ts`).
 
 Changes are held in the tab, with up to 50 undo states. Download before closing it. A replacement
 confirmation and a browser unload warning guard modified documents. Examples are clearly labeled

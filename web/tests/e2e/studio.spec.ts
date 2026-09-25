@@ -193,6 +193,42 @@ test('pasted and uploaded text formats import the exact bytes', async ({ page })
   expect(await exported(page, 'Download binary · 128 bytes')).toEqual(sfp)
 })
 
+test('bytes export as copied or downloaded text, and JSON copies', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'])
+  const clipboard = () => page.evaluate(() => navigator.clipboard.readText())
+  const full = Buffer.from(Array.from({ length: 256 }, (_, i) => (i * 43 + 19) & 255))
+  await page.getByRole('button', { name: 'Paste data', exact: true }).click()
+  await importData(page, 'Detect automatically', xxd(full))
+  await page.getByRole('button', { name: 'Export configuration', exact: true }).click()
+  const dialog = page.getByRole('dialog')
+
+  await dialog.getByRole('button', { name: 'Copy JSON', exact: true }).click()
+  await expect(dialog.getByRole('status')).toHaveText('JSON copied to clipboard.')
+  expect(JSON.parse(await clipboard()).Type).toBe('SFF-8636 Rev 2.11 Upper Page 00h')
+
+  const preview = dialog.getByRole('textbox', { name: 'Exported text' })
+  await expect(preview).toHaveValue(
+    new RegExp(`^${full.subarray(128, 144).toString('hex').match(/../g)!.join(' ')}\n`),
+  )
+  await dialog.getByLabel('Bytes', { exact: true }).selectOption('full')
+  await dialog.getByLabel('Text format', { exact: true }).selectOption({ label: 'Base64' })
+  await expect(preview).toHaveValue(full.toString('base64') + '\n')
+  await dialog.getByRole('button', { name: 'Copy text', exact: true }).click()
+  await expect(dialog.getByRole('button', { name: 'Copied', exact: true })).toBeVisible()
+  expect(await clipboard()).toBe(full.toString('base64') + '\n')
+  const event = page.waitForEvent('download')
+  await dialog.getByRole('button', { name: 'Download text', exact: true }).click()
+  const download = await event
+  expect(download.suggestedFilename()).toBe('pasted-configuration.b64')
+  expect((await downloaded(download)).toString()).toBe(full.toString('base64') + '\n')
+
+  await dialog.getByLabel('Text format', { exact: true }).selectOption({ label: 'xxd' })
+  await expect(preview).toHaveValue(xxd(full) + '\n')
+  await dialog.getByLabel('Bytes', { exact: true }).selectOption('upper')
+  await dialog.getByLabel('Text format', { exact: true }).selectOption({ label: 'C array' })
+  await expect(preview).toHaveValue(/^const uint8_t sff8636_upper00h\[128\] = \{\n/)
+})
+
 test('mlxlink output imports by byte offset and explains a lower page alone', async ({ page }) => {
   const full = Buffer.from(Array.from({ length: 256 }, (_, i) => (i * 43 + 19) & 255))
   full[0] = full[128] = 0x11

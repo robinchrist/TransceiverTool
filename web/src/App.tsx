@@ -12,6 +12,7 @@ import {
   ChevronRight,
   CircleHelp,
   ClipboardPaste,
+  Copy,
   Cpu,
   FileCode2,
   FilePlus2,
@@ -37,6 +38,7 @@ import { editHex, convertFieldFormat, setAt, fieldHex, fieldLayout } from './lib
 import { cn } from './lib/utils'
 import { convert, download, ready, sample, standardOf, type CodecResult } from './lib/codec'
 import { formatLabels, readInput, type ImportFormat } from './lib/import-formats'
+import { formatBytes, textFormats, type TextFormat } from './lib/export-formats'
 import {
   groups,
   groupKeys,
@@ -95,6 +97,10 @@ export default function App() {
   const [importFormat, setImportFormat] = useState<ImportFormat>('auto')
   const [file, setFile] = useState<File | null>(null)
   const [pasteText, setPasteText] = useState('')
+  const [textFormat, setTextFormat] = useState<TextFormat>('hex')
+  const [textRange, setTextRange] = useState<'upper' | 'full'>('upper')
+  const [copied, setCopied] = useState('')
+  const [copyStatus, setCopyStatus] = useState<{ text: string; error?: boolean } | null>(null)
   const [busy, setBusy] = useState(false)
   const [engine, setEngine] = useState<'loading' | 'ready' | 'failed'>('loading')
   const [message, setMessage] = useState('')
@@ -183,6 +189,14 @@ export default function App() {
   useEffect(() => {
     if (!rawDirty) setJsonDraft(docText)
   }, [docText, rawDirty])
+  useEffect(() => {
+    if (!copied) return
+    const id = setTimeout(() => {
+      setCopied('')
+      setCopyStatus(null)
+    }, 2000)
+    return () => clearTimeout(id)
+  }, [copied])
   useEffect(() => {
     if (!notice) return
     const id = setTimeout(() => setNotice(''), 4000)
@@ -427,19 +441,61 @@ export default function App() {
       )
     }
   }
+  // 'upper' is the 128-byte programming: SFP A0h, or the QSFP upper page.
+  const exportStem = (range: 'upper' | 'full') =>
+    `${work!.name.replace(/\.[^.]+$/, '')}${range === 'upper' && work!.standard === '8636' ? '-upper00h' : ''}`
+  const exportBytes = (range: 'upper' | 'full') =>
+    range === 'upper' && work!.standard === '8636' ? result!.bytes.slice(128) : result!.bytes
   function exportFile(format: 'json' | 'upper' | 'full') {
     if (!work || !canExport || !result) return
-    const base = work.name.replace(/\.[^.]+$/, '')
-    if (format === 'json') download(`${base}.json`, docText + '\n', 'application/json')
+    if (format === 'json')
+      download(`${exportStem('full')}.json`, docText + '\n', 'application/json')
     else
       download(
-        `${base}${format === 'upper' && work.standard === '8636' ? '-upper00h' : ''}.bin`,
-        new Uint8Array(
-          format === 'upper' && work.standard === '8636' ? result.bytes.slice(128) : result.bytes,
-        ),
+        `${exportStem(format)}.bin`,
+        new Uint8Array(exportBytes(format)),
         'application/octet-stream',
       )
     setNotice(`${format === 'json' ? 'JSON' : 'Binary'} download started.`)
+  }
+  const textExportRange = work?.standard === '8636' && work.lowerBytes ? textRange : 'upper'
+  const exportedText =
+    exportOpen && work && canExport && result
+      ? formatBytes(
+          exportBytes(textExportRange),
+          textFormat,
+          work.standard === '8472'
+            ? 'sff8472_a0h'
+            : textExportRange === 'full'
+              ? 'sff8636_page00h'
+              : 'sff8636_upper00h',
+        )
+      : ''
+  async function copyText(text: string, id: string, what: string) {
+    setCopyStatus(null)
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch {
+      // The Clipboard API is unavailable in some contexts; fall back to a selection copy.
+      const area = document.createElement('textarea')
+      area.value = text
+      area.readOnly = true
+      area.className = 'sr-only'
+      ;(document.querySelector('[role="dialog"]') ?? document.body).append(area)
+      area.select()
+      const copiedText = document.execCommand('copy')
+      area.remove()
+      if (!copiedText) {
+        setCopyStatus({
+          text: 'The browser blocked clipboard access. Select the text and copy it manually.',
+          error: true,
+        })
+        return
+      }
+    }
+    setCopied(id)
+    // The dialog hides the page's toast from assistive technology, so report it inside.
+    setCopyStatus({ text: `${what} copied to clipboard.` })
   }
   const visibleKeys = work
     ? search
@@ -1289,14 +1345,25 @@ export default function App() {
         open={exportOpen}
         onOpenChange={setExportOpen}
         title="Export configuration"
-        description="Download the editable JSON configuration or encoded binary bytes. Binary output uses your current checksum settings."
+        description="Download or copy the editable JSON configuration, or the encoded bytes as binary or text. Encoded bytes use your current checksum settings."
       >
         <div className="export-options">
-          <Button variant="outline" onClick={() => exportFile('json')} disabled={!canExport}>
-            <Braces />
-            Download JSON
-            <ArrowDownToLine />
-          </Button>
+          <div className="export-row">
+            <Button variant="outline" onClick={() => exportFile('json')} disabled={!canExport}>
+              <Braces />
+              Download JSON
+              <ArrowDownToLine />
+            </Button>
+            <Button
+              variant="outline"
+              aria-label="Copy JSON"
+              title="Copy JSON"
+              disabled={!canExport}
+              onClick={() => copyText(docText + '\n', 'json', 'JSON')}
+            >
+              {copied === 'json' ? <Check /> : <Copy />}
+            </Button>
+          </div>
           {work?.standard === '8636' && (
             <p className="field-description">
               JSON contains the editable upper page only. Keep the original binary if you need the
@@ -1327,6 +1394,87 @@ export default function App() {
             </>
           )}
         </div>
+        <section className="export-text" aria-labelledby="export-text-heading">
+          <h3 id="export-text-heading">Bytes as text</h3>
+          <div className="export-text-controls">
+            {work?.standard === '8636' && (
+              <div>
+                <label className="field-label" htmlFor="export-bytes">
+                  Bytes
+                </label>
+                <select
+                  id="export-bytes"
+                  className="field-input mt-2"
+                  value={textExportRange}
+                  onChange={(e) => setTextRange(e.target.value as 'upper' | 'full')}
+                >
+                  <option value="upper">Upper page · 128 bytes</option>
+                  <option value="full" disabled={!work.lowerBytes}>
+                    Full page · 256 bytes
+                  </option>
+                </select>
+              </div>
+            )}
+            <div>
+              <label className="field-label" htmlFor="export-format">
+                Text format
+              </label>
+              <select
+                id="export-format"
+                className="field-input mt-2"
+                value={textFormat}
+                onChange={(e) => setTextFormat(e.target.value as TextFormat)}
+              >
+                {(Object.keys(textFormats) as TextFormat[]).map((format) => (
+                  <option key={format} value={format}>
+                    {textFormats[format].label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <textarea
+            readOnly
+            aria-label="Exported text"
+            className="export-preview"
+            spellCheck={false}
+            value={exportedText}
+            onFocus={(e) => e.currentTarget.select()}
+          />
+          <div className="export-row">
+            <Button
+              variant="outline"
+              disabled={!exportedText}
+              onClick={() => copyText(exportedText, 'text', textFormats[textFormat].label)}
+            >
+              {copied === 'text' ? <Check /> : <Copy />}
+              {copied === 'text' ? 'Copied' : 'Copy text'}
+            </Button>
+            <Button
+              variant="outline"
+              disabled={!exportedText}
+              onClick={() => {
+                download(
+                  `${exportStem(textExportRange)}.${textFormats[textFormat].file}`,
+                  exportedText,
+                  'text/plain',
+                )
+                setNotice('Text download started.')
+              }}
+            >
+              <ArrowDownToLine />
+              Download text
+            </Button>
+          </div>
+          {copyStatus && (
+            <p
+              className={cn('mt-3 text-sm', copyStatus.error ? 'text-red-600' : 'text-emerald-700')}
+              role={copyStatus.error ? 'alert' : 'status'}
+            >
+              {copyStatus.text}
+            </p>
+          )}
+        </section>
       </Dialog>
       <Dialog
         open={helpOpen}
@@ -1355,8 +1503,9 @@ export default function App() {
             <strong>03 · Inspect & export</strong>
             <p>
               Review format errors and standard advisories. Use “auto” for calculated checksums or a
-              raw byte to preserve an explicit value. Export JSON or binary. Keep the original full
-              QSFP dump if you need its lower page.
+              raw byte to preserve an explicit value. Export JSON, binary, or the bytes as hex or
+              Base64 text, as a download or to the clipboard. Keep the original full QSFP dump if
+              you need its lower page.
             </p>
           </li>
         </ol>
